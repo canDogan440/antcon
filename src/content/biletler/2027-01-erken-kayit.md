@@ -13,7 +13,7 @@ aciklama: Sınırlı sayıda, ilk gelen alır. Satış açıldığında tarih du
 ozellikler:
   - Tüm gün etkinlik alanına giriş
   - Ana sahne ve panel oturumları
-  - Sanatçı sokağı ve stant alanı
+  - Stant alanları
   - AntCon 2027 dijital rozeti
 oneCikan: false
 durum: yakinda
