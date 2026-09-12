@@ -1,0 +1,239 @@
+---
+import Ikon from '@components/Ikon.astro';
+import { WEB3FORMS_KEY, SITE } from '@config/site';
+
+interface Props {
+  /** E-postanın konu satırı - formun hangi sayfadan geldiğini ayırt etmek için */
+  konu?: string;
+  /** Konu seçim listesi */
+  konular?: string[];
+  baslik?: string;
+}
+
+const {
+  konu = 'AntCon web sitesi - yeni mesaj',
+  konular = ['Genel bilgi', 'Bilet ve kayıt', 'Sponsorluk', 'Basın ve medya', 'Stant / satıcı başvurusu', 'Gönüllü başvurusu'],
+  baslik,
+} = Astro.props;
+
+const anahtarTanimliMi = !WEB3FORMS_KEY.startsWith('BURAYA');
+---
+
+<div class="kart p-6 md:p-8">
+  {baslik && <h2 class="font-display text-2xl font-bold text-blue-deep">{baslik}</h2>}
+
+  {
+    !anahtarTanimliMi && (
+      <p class="mt-4 rounded-lg border border-secondary-orange bg-secondary-orange/10 p-4 text-sm text-orange-darker">
+        <strong>Kurulum notu:</strong> Form henüz aktif değil. web3forms.com adresinden ücretsiz
+        bir <em>access key</em> alıp <code class="font-mono">src/config/site.ts</code> içindeki{' '}
+        <code class="font-mono">WEB3FORMS_KEY</code> değerini güncelleyin.
+      </p>
+    )
+  }
+
+  <form
+    id="iletisim-formu"
+    class="mt-6 grid gap-5 sm:grid-cols-2"
+    novalidate
+    data-web3forms-key={WEB3FORMS_KEY}
+  >
+    {/* Web3Forms gizli alanları */}
+    <input type="hidden" name="access_key" value={WEB3FORMS_KEY} />
+    <input type="hidden" name="subject" value={konu} />
+    <input type="hidden" name="from_name" value={SITE.tamAd} />
+    {/* Bot tuzağı (honeypot) - gerçek kullanıcılar bu alanı görmez */}
+    <input
+      type="checkbox"
+      name="botcheck"
+      class="hidden"
+      style="display:none"
+      tabindex="-1"
+      autocomplete="off"
+      aria-hidden="true"
+    />
+
+    <div>
+      <label for="ad" class="block text-sm font-semibold text-blue-deep">
+        Ad Soyad <span class="text-orange-deep" aria-hidden="true">*</span>
+      </label>
+      <input
+        type="text"
+        id="ad"
+        name="Ad Soyad"
+        required
+        autocomplete="name"
+        placeholder="Adınız ve soyadınız"
+        class="mt-2 w-full rounded-lg border border-line bg-white px-4 py-3 text-base text-ink placeholder:text-ink-soft/60 focus:border-main-blue focus:outline-none"
+      />
+    </div>
+
+    <div>
+      <label for="eposta" class="block text-sm font-semibold text-blue-deep">
+        E-posta <span class="text-orange-deep" aria-hidden="true">*</span>
+      </label>
+      <input
+        type="email"
+        id="eposta"
+        name="E-posta"
+        required
+        autocomplete="email"
+        placeholder="ornek@eposta.com"
+        class="mt-2 w-full rounded-lg border border-line bg-white px-4 py-3 text-base text-ink placeholder:text-ink-soft/60 focus:border-main-blue focus:outline-none"
+      />
+    </div>
+
+    <div>
+      <label for="telefon" class="block text-sm font-semibold text-blue-deep">
+        Telefon <span class="font-normal text-ink-soft">(isteğe bağlı)</span>
+      </label>
+      <input
+        type="tel"
+        id="telefon"
+        name="Telefon"
+        autocomplete="tel"
+        placeholder="+90 5xx xxx xx xx"
+        class="mt-2 w-full rounded-lg border border-line bg-white px-4 py-3 text-base text-ink placeholder:text-ink-soft/60 focus:border-main-blue focus:outline-none"
+      />
+    </div>
+
+    <div>
+      <label for="konu" class="block text-sm font-semibold text-blue-deep">Konu</label>
+      <select
+        id="konu"
+        name="Konu"
+        class="mt-2 w-full rounded-lg border border-line bg-white px-4 py-3 text-base text-ink focus:border-main-blue focus:outline-none"
+      >
+        {konular.map((secenek) => <option value={secenek}>{secenek}</option>)}
+      </select>
+    </div>
+
+    <div class="sm:col-span-2">
+      <label for="mesaj" class="block text-sm font-semibold text-blue-deep">
+        Mesajınız <span class="text-orange-deep" aria-hidden="true">*</span>
+      </label>
+      <textarea
+        id="mesaj"
+        name="Mesaj"
+        rows="5"
+        required
+        placeholder="Nasıl yardımcı olabiliriz?"
+        class="mt-2 w-full rounded-lg border border-line bg-white px-4 py-3 text-base text-ink placeholder:text-ink-soft/60 focus:border-main-blue focus:outline-none"
+      ></textarea>
+    </div>
+
+    <div class="sm:col-span-2">
+      <label class="flex items-start gap-3 text-sm text-ink-soft">
+        <input
+          type="checkbox"
+          id="onay"
+          name="KVKK Onayı"
+          value="Onaylandı"
+          required
+          class="mt-0.5 h-5 w-5 shrink-0 rounded border-line accent-[var(--color-orange-deep)]"
+        />
+        <span>
+          Mesajımın AntCon ekibi tarafından bana geri dönüş yapılması amacıyla işlenmesini
+          <a href="/gizlilik" class="text-orange-deep underline underline-offset-2">
+            Aydınlatma Metni
+          </a>
+          kapsamında kabul ediyorum. <span class="text-orange-deep" aria-hidden="true">*</span>
+        </span>
+      </label>
+    </div>
+
+    <div class="sm:col-span-2">
+      <button type="submit" class="btn btn-turuncu btn-buyuk w-full sm:w-auto" data-gonder>
+        <Ikon ad="posta" sinif="w-5 h-5" />
+        <span data-gonder-metin>Mesajı Gönder</span>
+      </button>
+    </div>
+
+    {/* Durum mesajları - ekran okuyucular için canlı bölge */}
+    <p
+      id="form-durum"
+      class="hidden sm:col-span-2 rounded-lg border p-4 text-sm font-semibold"
+      role="status"
+      aria-live="polite"
+    >
+    </p>
+  </form>
+</div>
+
+<script>
+  /**
+   * İletişim formu - Web3Forms'a doğrudan fetch ile POST atar.
+   * Sunucu tarafı kod yoktur; site tamamen statik kalır.
+   */
+  const form = document.getElementById('iletisim-formu') as HTMLFormElement | null;
+  const durum = document.getElementById('form-durum');
+  const buton = form?.querySelector<HTMLButtonElement>('[data-gonder]');
+  const butonMetin = form?.querySelector<HTMLElement>('[data-gonder-metin]');
+
+  if (form && durum && buton && butonMetin) {
+    const varsayilanMetin = butonMetin.textContent ?? 'Mesajı Gönder';
+
+    const durumGoster = (mesaj: string, tur: 'basarili' | 'hata' | 'bilgi') => {
+      durum.textContent = mesaj;
+      durum.classList.remove('hidden');
+      durum.className =
+        'sm:col-span-2 rounded-lg border p-4 text-sm font-semibold ' +
+        (tur === 'basarili'
+          ? 'border-main-blue bg-main-blue/10 text-blue-deep'
+          : tur === 'hata'
+            ? 'border-orange-deep bg-orange-deep/10 text-orange-darker'
+            : 'border-line bg-mist text-ink-soft');
+    };
+
+    form.addEventListener('submit', async (olay) => {
+      olay.preventDefault();
+
+      // Tarayıcının kendi doğrulaması
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        durumGoster('Lütfen zorunlu alanları eksiksiz doldurun.', 'hata');
+        return;
+      }
+
+      const anahtar = form.dataset.web3formsKey ?? '';
+      if (anahtar.startsWith('BURAYA')) {
+        durumGoster(
+          'Form servisi henüz yapılandırılmadı. Bize doğrudan info@antconvention.com adresinden ulaşabilirsiniz.',
+          'hata',
+        );
+        return;
+      }
+
+      buton.disabled = true;
+      butonMetin.textContent = 'Gönderiliyor...';
+      durumGoster('Mesajınız gönderiliyor...', 'bilgi');
+
+      try {
+        const yanit = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(Object.fromEntries(new FormData(form))),
+        });
+        const sonuc = await yanit.json();
+
+        if (yanit.ok && sonuc.success) {
+          form.reset();
+          durumGoster(
+            'Teşekkürler! Mesajınız bize ulaştı. En geç 2 iş günü içinde dönüş yapacağız.',
+            'basarili',
+          );
+        } else {
+          throw new Error(sonuc.message ?? 'Bilinmeyen hata');
+        }
+      } catch {
+        durumGoster(
+          'Mesaj gönderilemedi. Lütfen tekrar deneyin veya info@antconvention.com adresine e-posta gönderin.',
+          'hata',
+        );
+      } finally {
+        buton.disabled = false;
+        butonMetin.textContent = varsayilanMetin;
+      }
+    });
+  }
+</script>

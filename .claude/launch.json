@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "antcon-dev",
+      "runtimeExecutable": "C:/Program Files/nodejs/node.exe",
+      "runtimeArgs": ["node_modules/astro/astro.js", "dev"],
+      "port": 4321,
+      "autoPort": true
+    },
+    {
+      "name": "antcon-preview",
+      "runtimeExecutable": "C:/Program Files/nodejs/node.exe",
+      "runtimeArgs": ["node_modules/astro/astro.js", "preview", "--port", "4455"],
+      "port": 4455
+    }
+  ]
+}

@@ -1,0 +1,481 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import BolumBasligi from '@components/BolumBasligi.astro';
+import Carousel from '@components/Carousel.astro';
+import GeriSayim from '@components/GeriSayim.astro';
+import Ikon from '@components/Ikon.astro';
+import SponsorIzgarasi from '@components/SponsorIzgarasi.astro';
+import logoBeyaz from '@assets/antcon-logo-beyaz.png';
+import { carouselGorselleri, yilinGorselleri } from '@lib/gorseller';
+import {
+  etkinlikGetir,
+  konusmacilariRoleGoreGetir,
+  programiGetir,
+  sponsorlariGetir,
+} from '@lib/icerik';
+import { etkinlikSemasi } from '@lib/schema';
+import {
+  ETKINLIK,
+  SITE,
+  AKTIF_YIL,
+  SON_ETKINLIK_YILI,
+  TARIH_BELLI,
+  BILET_SATISI,
+  ANA_CTA,
+} from '@config/site';
+
+const gorseller = carouselGorselleri(8, SON_ETKINLIK_YILI);
+const gecenYilFotograflari = yilinGorselleri(SON_ETKINLIK_YILI);
+
+// Geride kalan etkinlik (arsiv) ve siradaki etkinlik
+const gecenEtkinlik = await etkinlikGetir(SON_ETKINLIK_YILI);
+const siradakiEtkinlik = await etkinlikGetir(AKTIF_YIL);
+
+// 2026 icerikleri - ana sayfadaki geriye donuk ozet icin
+const gecenRoller = await konusmacilariRoleGoreGetir(SON_ETKINLIK_YILI);
+const gecenKonusmacilar = gecenRoller.hepsi;
+const gecenProgram = await programiGetir(SON_ETKINLIK_YILI);
+const gecenSponsorlar = await sponsorlariGetir(SON_ETKINLIK_YILI);
+
+const gecenOturumSayisi = gecenProgram
+  .flatMap((gun) => gun.oturumlar)
+  .filter((oturum) => oturum.data.tur !== 'mola').length;
+
+/**
+ * Geriye donuk ozet rakamlari.
+ * Icerik dosyasinda `istatistikler` doldurulmussa onlar kullanilir; aksi halde
+ * koleksiyonlardan gercekten sayilabilen degerler gosterilir. Sifir olan
+ * satirlar (orn. henuz girilmemis program) hic gosterilmez.
+ */
+const gecenIstatistikler =
+  gecenEtkinlik && gecenEtkinlik.data.istatistikler.length > 0
+    ? gecenEtkinlik.data.istatistikler
+    : [
+        { deger: gecenEtkinlik?.data.tarihMetni ?? '', etiket: 'Etkinlik tarihi' },
+        { deger: String(gecenOturumSayisi), etiket: 'Program başlığı' },
+        { deger: String(gecenRoller.konusmacilar.length), etiket: 'Konuşmacı' },
+        { deger: String(gecenRoller.juri.length), etiket: 'Cosplay jürisi' },
+        { deger: String(gecenSponsorlar.length), etiket: 'Destekçi' },
+      ].filter((satir) => satir.deger !== '' && satir.deger !== '0');
+
+/**
+ * Schema.org Event.
+ * Siradaki etkinligin tarihi henuz belli olmadigi icin sema uretilmez;
+ * bunun yerine gerceklesmis 2026 etkinligini yayinliyoruz. Tarih
+ * aciklandiginda 2027 semasi da otomatik olarak eklenir.
+ */
+const semalar = [
+  gecenEtkinlik
+    ? etkinlikSemasi(
+        gecenEtkinlik.data,
+        [],
+        gecenKonusmacilar.map((k) => ({ ad: k.data.ad, unvan: k.data.unvan })),
+      )
+    : null,
+  siradakiEtkinlik ? etkinlikSemasi(siradakiEtkinlik.data) : null,
+].filter((s): s is NonNullable<typeof s> => s !== null);
+
+/** 2027 hazirlik durumu - her satir tek bir baslikta nerede olduğumuzu söyler. */
+const HAZIRLIK_DURUMU = [
+  {
+    ikon: 'takvim' as const,
+    baslik: 'Tarih ve mekân',
+    durum: 'Görüşmeler sürüyor',
+    metin:
+      'Takvim ve mekân seçenekleri üzerinde çalışıyoruz. Kesinleştiğinde ilk olarak burada duyuracağız.',
+    tamam: false,
+  },
+  {
+    ikon: 'mikrofon' as const,
+    baslik: 'Program ve konuşmacılar',
+    durum: 'Hazırlanıyor',
+    metin:
+      'Sahne programı ve konuşmacı kadrosu için ön görüşmeler başladı. Başvurular tarih duyurusundan sonra açılacak.',
+    tamam: false,
+  },
+  {
+    ikon: 'bilet' as const,
+    baslik: 'Biletler',
+    durum: 'Satış açılmadı',
+    metin:
+      'Tarih kesinleşmeden bilet satışını açmıyoruz. Duyuru listesine katılarak ilk siz haberdar olabilirsiniz.',
+    tamam: false,
+  },
+  {
+    ikon: 'kivilcim' as const,
+    baslik: 'Sponsorluk',
+    durum: 'Başvurular açık',
+    metin:
+      'Sponsorluk görüşmeleri şimdiden başladı. Erken katılan markalar için daha geniş görünürlük imkânı var.',
+    tamam: true,
+  },
+];
+
+const NEDIR_KARTLARI = [
+  {
+    ikon: 'oyun' as const,
+    baslik: 'Oyun ve E-spor',
+    metin:
+      'Turnuva arenası, serbest oyun alanları ve bağımsız stüdyoların oynanabilir demoları gün boyu açık.',
+  },
+  {
+    ikon: 'kivilcim' as const,
+    baslik: 'Sanatçı Sokağı',
+    metin:
+      'Çizerler, illüstratörler ve bağımsız yayıncılar kendi standlarında işlerini sergiliyor ve satıyor.',
+  },
+  {
+    ikon: 'mikrofon' as const,
+    baslik: 'Konuşma ve Paneller',
+    metin:
+      'Oyun geliştirmeden yapay zekâya, seslendirmeden çizgi romana uzanan bir sahne programı.',
+  },
+  {
+    ikon: 'kupa' as const,
+    baslik: 'Cosplay Yarışması',
+    metin:
+      'Kategori ödülleri, profesyonel jüri ve gün boyu açık kostüm tamir köşesiyle büyük final.',
+  },
+];
+---
+
+<BaseLayout
+  baslik={`${SITE.ad} - ${SITE.slogan}`}
+  aciklama="Antalya'nın ilk convention'ı 28 Haziran 2026'da gerçekleşti. AntCon 2027 hazırlıkları sürüyor: tarih, program ve bilet duyurularını buradan takip edin."
+  yapilandirilmisVeri={semalar}
+>
+  <!-- ============================= HERO ============================= -->
+  <section class="relative overflow-hidden bg-blue-deep" aria-labelledby="hero-baslik">
+    <!-- Dekoratif arka plan -->
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+      <div class="absolute -top-40 -right-32 h-[30rem] w-[30rem] rounded-full bg-main-orange/20 blur-3xl"></div>
+      <div class="absolute -bottom-40 -left-24 h-[26rem] w-[26rem] rounded-full bg-main-blue/40 blur-3xl"></div>
+      <div
+        class="absolute inset-0 opacity-[0.07]"
+        style="background-image:radial-gradient(circle at 1px 1px, white 1px, transparent 0);background-size:32px 32px"
+      >
+      </div>
+    </div>
+
+    <div class="kapsayici relative py-14 md:py-20 lg:py-24">
+      <div class="grid items-center gap-12 lg:grid-cols-12">
+        <!-- Sol: metin -->
+        <div class="lg:col-span-7">
+          <p class="etiket etiket-acik">
+            <span class="inline-block h-px w-6 bg-current" aria-hidden="true"></span>
+            AntCon {AKTIF_YIL} · Antalya
+          </p>
+
+          <h1
+            id="hero-baslik"
+            class="mt-4 font-display text-4xl leading-[1.08] font-bold text-white sm:text-5xl lg:text-6xl"
+          >
+            Antalya'nın Convention'ı
+            <span class="relative inline-block">
+              <span class="relative z-10 text-secondary-orange">geri dönüyor</span>
+          </h1>
+
+          <p class="mt-6 max-w-xl text-lg leading-relaxed text-white/85">
+            Antalya'nın ilk convention'ı <strong class="font-semibold text-white">28 Haziran 2026</strong>'da
+            gerçekleşti. Şimdi ikinci buluşma için hazırlanıyoruz: tarih, mekân ve program üzerinde
+            çalışıyoruz.
+          </p>
+
+          <!-- Durum künyesi -->
+          <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-white/90">
+            <li class="flex items-center gap-2">
+              <Ikon ad="takvim" sinif="w-5 h-5 text-secondary-orange" />
+              {ETKINLIK.tarihMetni}
+            </li>
+            <li class="flex items-center gap-2">
+              <Ikon ad="konum" sinif="w-5 h-5 text-secondary-orange" />
+              {ETKINLIK.mekan.sehir}
+            </li>
+            <li class="flex items-center gap-2">
+              <Ikon ad="kivilcim" sinif="w-5 h-5 text-secondary-orange" />
+              Planlama aşamasında
+            </li>
+          </ul>
+
+          <!-- CTA'lar -->
+          <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <a href={ANA_CTA.href} class="btn btn-turuncu btn-buyuk">
+              <Ikon ad={ANA_CTA.ikon} sinif="w-5 h-5" />
+              {ANA_CTA.metin}
+            </a>
+            <a href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`} class="btn btn-hayalet btn-buyuk">
+              AntCon {SON_ETKINLIK_YILI}'yı İncele
+              <Ikon ad="ok_sag" sinif="w-5 h-5" />
+            </a>
+          </div>
+        </div>
+
+        <!-- Sağ: logo + durum / geri sayım -->
+        <div class="lg:col-span-5">
+          <div class="rounded-2xl border border-white/15 bg-white/5 p-6 backdrop-blur-sm sm:p-8">
+            <Image
+              src={logoBeyaz}
+              alt="AntCon logosu"
+              width={420}
+              height={488}
+              densities={[1, 2]}
+              loading="eager"
+              fetchpriority="high"
+              class="mx-auto h-32 w-auto sm:h-40"
+            />
+
+            {
+              TARIH_BELLI ? (
+                <>
+                  <p class="mt-6 text-center font-display text-sm font-bold tracking-[0.16em] text-orange-glow uppercase">
+                    Etkinliğe Kalan Süre
+                  </p>
+                  <GeriSayim hedef={ETKINLIK.baslangic} bitis={ETKINLIK.bitis} sinif="mt-4" />
+                </>
+              ) : (
+                <>
+                  <p class="mt-6 text-center font-display text-sm font-bold tracking-[0.16em] text-orange-glow uppercase">
+                    AntCon {AKTIF_YIL}
+                  </p>
+                  <p class="mt-3 text-center font-display text-2xl font-bold text-white">
+                    Tarih yakında açıklanacak
+                  </p>
+                  <p class="mt-3 text-center text-sm leading-relaxed text-white/70">
+                    Hazırlıklar sürüyor. Duyurular başladığında haberdar olmak için bize yazın.
+                  </p>
+                  <a href="/iletisim" class="btn btn-turuncu mt-6 w-full">
+                    <Ikon ad="posta" sinif="w-5 h-5" />
+                    Duyuru Listesine Katıl
+                  </a>
+                </>
+              )
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="h-1.5 w-full bg-gradient-to-r from-main-orange via-secondary-orange to-main-blue"
+      aria-hidden="true"
+    >
+    </div>
+  </section>
+
+  <!-- ==================== 2026 GERIYE DONUK OZET ==================== -->
+  {
+    gecenEtkinlik && (
+      <section class="bolum bg-white" aria-labelledby="gecen-yil-baslik">
+        <div class="kapsayici">
+          <div class="flex flex-wrap items-end justify-between gap-6">
+            <BolumBasligi
+              kimlik="gecen-yil-baslik"
+              etiket={`AntCon ${SON_ETKINLIK_YILI}`}
+              baslik="İlk buluşma geride kaldı"
+              aciklama={gecenEtkinlik.data.ozet}
+              sinif="max-w-2xl"
+            />
+            <a
+              href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`}
+              class="btn btn-cizgi btn-kucuk"
+            >
+              Tüm detaylar
+              <Ikon ad="ok_sag" sinif="w-4 h-4" />
+            </a>
+          </div>
+
+          {/* Rakamlar - içerik dosyasında tanımlıysa onları, değilse
+              koleksiyonlardan sayılabilen gerçek değerleri gösteriyoruz. */}
+          <dl class="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {gecenIstatistikler.map((istatistik) => (
+              <div class="kart p-5 text-center">
+                <dt class="sr-yalniz">{istatistik.etiket}</dt>
+                <dd>
+                  <span class="block font-display text-2xl font-bold text-orange-deep md:text-3xl">
+                    {istatistik.deger}
+                  </span>
+                  <span class="mt-1.5 block text-xs font-semibold tracking-wide text-ink-soft uppercase">
+                    {istatistik.etiket}
+                  </span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+
+          {/* 2026 fotoğrafları */}
+          <div class="mt-10">
+            <Carousel
+              gorseller={gorseller}
+              sure={5000}
+              etiket={`AntCon ${SON_ETKINLIK_YILI} etkinlik fotoğrafları`}
+            />
+          </div>
+
+          <p class="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-center text-sm text-ink-soft">
+            <span>
+              Bu kareler 28 Haziran 2026'da etkinlik alanında çekildi
+              {gecenYilFotograflari.length > gorseller.length &&
+                ` · galeride ${gecenYilFotograflari.length} fotoğraf var`}
+              .
+            </span>
+            <a
+              href="/galeri"
+              class="inline-flex items-center gap-2 font-display font-bold text-orange-deep hover:text-orange-darker"
+            >
+              Galeriyi aç
+              <Ikon ad="ok_sag" sinif="w-4 h-4" />
+            </a>
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ========================= ANTCON NEDIR ========================= -->
+  <section class="bolum bg-mist" aria-labelledby="nedir-baslik">
+    <div class="kapsayici">
+      <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+        <div class="lg:col-span-5">
+          <BolumBasligi
+            kimlik="nedir-baslik"
+            etiket="AntCon Nedir?"
+            baslik="Bir şehrin ilk büyük buluşması"
+            aciklama="AntCon, Antalya'da düzenlenen ilk convention organizasyonu. Yıllardır ayrı ayrı büyüyen oyun, çizgi roman, anime ve teknoloji topluluklarını ilk kez aynı çatı altında topladı."
+          />
+          <p class="mt-5 text-base leading-relaxed text-ink-soft">
+            Hedefimiz tek seferlik bir etkinlik değildi: her yıl tekrar eden, şehrin kültür
+            takvimine yerleşen bir gelenek kurmak. 2026 bu geleneğin ilk adımıydı, {AKTIF_YIL} ikincisi
+            olacak.
+          </p>
+          <a href="/hakkinda" class="btn btn-cizgi mt-7">
+            Hikâyemizi oku
+            <Ikon ad="ok_sag" sinif="w-4 h-4" />
+          </a>
+        </div>
+
+        <div class="lg:col-span-7">
+          <ul class="grid gap-4 sm:grid-cols-2">
+            {
+              NEDIR_KARTLARI.map((kart) => (
+                <li class="kart kart-hover p-6">
+                  <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-main-orange/12 text-orange-deep">
+                    <Ikon ad={kart.ikon} sinif="w-6 h-6" />
+                  </span>
+                  <h3 class="mt-4 font-display text-lg font-bold text-blue-deep">{kart.baslik}</h3>
+                  <p class="mt-2 text-sm leading-relaxed text-ink-soft">{kart.metin}</p>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== 2027 HAZIRLIK DURUMU ==================== -->
+  <section class="bolum bg-blue-deep" aria-labelledby="hazirlik-baslik">
+    <div class="kapsayici">
+      <BolumBasligi
+        kimlik="hazirlik-baslik"
+        etiket={`AntCon ${AKTIF_YIL}`}
+        baslik="Hazırlıklar nerede?"
+        aciklama="İkinci AntCon için çalışmalar sürüyor. Her başlıkta nerede olduğumuzu şeffafça paylaşıyoruz."
+        koyuZemin={true}
+        hizalama="orta"
+      />
+
+      <ul class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          HAZIRLIK_DURUMU.map((madde) => (
+            <li class="flex h-full flex-col rounded-2xl border border-white/12 bg-white/5 p-6">
+              <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-main-orange/20 text-orange-glow">
+                <Ikon ad={madde.ikon} sinif="w-6 h-6" />
+              </span>
+
+              <h3 class="mt-4 font-display text-lg font-bold text-white">{madde.baslik}</h3>
+
+              <p
+                class:list={[
+                  'mt-2 inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold',
+                  madde.tamam
+                    ? 'bg-main-orange text-white'
+                    : 'border border-white/25 text-white/85',
+                ]}
+              >
+                {madde.tamam && <Ikon ad="onay" sinif="w-3.5 h-3.5" />}
+                {madde.durum}
+              </p>
+
+              <p class="mt-3 flex-1 text-sm leading-relaxed text-white/75">{madde.metin}</p>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+        <a href="/iletisim" class="btn btn-turuncu">
+          <Ikon ad="posta" sinif="w-5 h-5" />
+          Duyuru Listesine Katıl
+        </a>
+        <a href="/sponsorlar" class="btn btn-hayalet">Sponsorluk Paketleri</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 2026 DESTEKCILERI ======================== -->
+  {
+    gecenSponsorlar.length > 0 && (
+      <section class="bolum bg-white" aria-labelledby="sponsorlar-baslik">
+        <div class="kapsayici">
+          <BolumBasligi
+            kimlik="sponsorlar-baslik"
+            etiket="Teşekkürler"
+            baslik={`AntCon ${SON_ETKINLIK_YILI} destekçileri`}
+            aciklama="İlk AntCon'u mümkün kılan kurumlar ve markalar. AntCon 2027 sponsorluk görüşmeleri şimdiden başladı."
+            hizalama="orta"
+          />
+          <div class="mt-10">
+            <SponsorIzgarasi
+              sponsorlar={gecenSponsorlar}
+              sutunlar="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+              boyut="orta"
+            />
+          </div>
+          <p class="mt-8 text-center">
+            <a href="/sponsorlar" class="btn btn-cizgi btn-kucuk">
+              {AKTIF_YIL} sponsoru ol
+              <Ikon ad="ok_sag" sinif="w-4 h-4" />
+            </a>
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ============================ SON CTA =========================== -->
+  <section class="relative overflow-hidden bg-blue-darker" aria-labelledby="son-cta-baslik">
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+      <div class="absolute -top-24 left-1/3 h-72 w-72 rounded-full bg-main-orange/20 blur-3xl"></div>
+    </div>
+
+    <div class="kapsayici relative py-16 text-center md:py-20">
+      <p class="etiket etiket-acik justify-center">Bağlantıda kal</p>
+      <h2 id="son-cta-baslik" class="mt-4 font-display text-3xl font-bold text-white md:text-4xl">
+        AntCon {AKTIF_YIL} duyurularını kaçırma
+      </h2>
+      <p class="mx-auto mt-5 max-w-2xl text-lg text-white/80">
+        {BILET_SATISI.bilgiMetni}
+      </p>
+      <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+        <a href="/iletisim" class="btn btn-turuncu btn-buyuk">
+          <Ikon ad="posta" sinif="w-5 h-5" />
+          Bize Ulaş
+        </a>
+        <a href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`} class="btn btn-hayalet btn-buyuk">
+          AntCon {SON_ETKINLIK_YILI} Arşivi
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

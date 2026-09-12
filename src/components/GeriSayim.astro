@@ -1,0 +1,147 @@
+---
+interface Props {
+  /** Hedef tarih - ISO 8601 (örn. "2026-06-28T10:00:00+03:00") */
+  hedef: string;
+  /** Etkinlik bittiğinde gösterilecek mesaj */
+  bittiMesaji?: string;
+  /** Etkinlik devam ederken gösterilecek mesaj */
+  devamMesaji?: string;
+  /** Etkinliğin bitiş anı - devam/bitti ayrımı için */
+  bitis?: string;
+  sinif?: string;
+}
+
+const {
+  hedef,
+  bitis,
+  bittiMesaji = 'AntCon 2026 tamamlandı. Bir sonraki yılda görüşmek üzere!',
+  devamMesaji = 'AntCon şu anda yaşanıyor! 🎉',
+  sinif = '',
+} = Astro.props;
+
+const birimler = [
+  { anahtar: 'gun', etiket: 'Gün' },
+  { anahtar: 'saat', etiket: 'Saat' },
+  { anahtar: 'dakika', etiket: 'Dakika' },
+  { anahtar: 'saniye', etiket: 'Saniye' },
+];
+---
+
+<div
+  class:list={['w-full', sinif]}
+  data-geri-sayim
+  data-hedef={hedef}
+  data-bitis={bitis ?? hedef}
+  data-bitti-mesaji={bittiMesaji}
+  data-devam-mesaji={devamMesaji}
+>
+  <!-- Ekran okuyucular için tek seferlik özet: her saniye okunmasını istemiyoruz -->
+  <p class="sr-yalniz" data-geri-sayim-ozet aria-live="polite">
+    Etkinliğe kalan süre hesaplanıyor.
+  </p>
+
+  <ul
+    class="grid grid-cols-4 gap-2 sm:gap-3"
+    data-geri-sayim-liste
+    aria-hidden="true"
+  >
+    {
+      birimler.map((birim) => (
+        <li class="rounded-xl border border-white/15 bg-white/10 px-1 py-3 text-center backdrop-blur-sm sm:rounded-2xl sm:px-3 sm:py-4">
+          <span
+            class="block font-display text-3xl leading-none font-bold tabular-nums text-white sm:text-4xl md:text-5xl"
+            data-birim={birim.anahtar}
+          >
+            --
+          </span>
+          <span class="mt-1.5 block text-[0.65rem] font-semibold tracking-[0.14em] text-orange-glow uppercase sm:text-xs">
+            {birim.etiket}
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p
+    class="hidden rounded-2xl border border-main-orange/40 bg-main-orange/15 px-5 py-4 text-center font-display text-lg font-bold text-white"
+    data-geri-sayim-mesaj
+  >
+  </p>
+</div>
+
+<script>
+  // Geri sayım - tüm geri sayım bileşenleri için tek bir zamanlayıcı çalışır.
+  const kutular = document.querySelectorAll<HTMLElement>('[data-geri-sayim]');
+
+  if (kutular.length > 0) {
+    const ikiHane = (sayi: number) => String(sayi).padStart(2, '0');
+
+    const kutuGuncelle = (kutu: HTMLElement): boolean => {
+      const hedef = new Date(kutu.dataset.hedef ?? '').getTime();
+      const bitis = new Date(kutu.dataset.bitis ?? '').getTime();
+      const simdi = Date.now();
+
+      const liste = kutu.querySelector<HTMLElement>('[data-geri-sayim-liste]');
+      const mesaj = kutu.querySelector<HTMLElement>('[data-geri-sayim-mesaj]');
+      const ozet = kutu.querySelector<HTMLElement>('[data-geri-sayim-ozet]');
+
+      // Etkinlik başladı mı / bitti mi?
+      if (simdi >= hedef) {
+        const devamEdiyor = simdi < bitis;
+        const metin = devamEdiyor
+          ? (kutu.dataset.devamMesaji ?? '')
+          : (kutu.dataset.bittiMesaji ?? '');
+        if (liste) liste.classList.add('hidden');
+        if (mesaj) {
+          mesaj.textContent = metin;
+          mesaj.classList.remove('hidden');
+        }
+        if (ozet) ozet.textContent = metin;
+        return false; // bu kutu için sayım durdu
+      }
+
+      const fark = hedef - simdi;
+      const gun = Math.floor(fark / 86_400_000);
+      const saat = Math.floor((fark % 86_400_000) / 3_600_000);
+      const dakika = Math.floor((fark % 3_600_000) / 60_000);
+      const saniye = Math.floor((fark % 60_000) / 1000);
+
+      const degerler: Record<string, string> = {
+        gun: String(gun),
+        saat: ikiHane(saat),
+        dakika: ikiHane(dakika),
+        saniye: ikiHane(saniye),
+      };
+
+      for (const [anahtar, deger] of Object.entries(degerler)) {
+        const alan = kutu.querySelector<HTMLElement>(`[data-birim="${anahtar}"]`);
+        if (alan && alan.textContent !== deger) alan.textContent = deger;
+      }
+
+      // Ekran okuyucu özetini yalnızca gün değişince güncelle (gürültüyü önler)
+      if (ozet && ozet.dataset.gun !== String(gun)) {
+        ozet.dataset.gun = String(gun);
+        ozet.textContent = `Etkinliğe ${gun} gün ${saat} saat kaldı.`;
+      }
+
+      return true;
+    };
+
+    let zamanlayici: ReturnType<typeof setInterval> | undefined;
+
+    const hepsiniGuncelle = () => {
+      let devamEden = 0;
+      kutular.forEach((kutu) => {
+        if (kutuGuncelle(kutu)) devamEden += 1;
+      });
+      // Tüm geri sayımlar bittiyse zamanlayıcıyı durdur
+      if (devamEden === 0 && zamanlayici !== undefined) clearInterval(zamanlayici);
+      return devamEden;
+    };
+
+    // İlk çizim: hiçbiri aktif değilse zamanlayıcıyı hiç başlatma
+    if (hepsiniGuncelle() > 0) {
+      zamanlayici = setInterval(hepsiniGuncelle, 1000);
+    }
+  }
+</script>

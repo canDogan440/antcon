@@ -1,0 +1,97 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Ikon from '@components/Ikon.astro';
+import { fiyatBicimle } from '@lib/icerik';
+
+interface Props {
+  bilet: CollectionEntry<'biletler'>;
+}
+
+const { bilet } = Astro.props;
+const {
+  ad,
+  fiyat,
+  eskiFiyat,
+  paraSembolu,
+  aciklama,
+  ozellikler,
+  oneCikan,
+  durum,
+  satinAlUrl,
+  butonMetni,
+  rozet,
+} = bilet.data;
+
+const satisAcik = durum === 'satista';
+
+const DURUM_METNI: Record<string, string> = {
+  tukendi: 'Tükendi',
+  yakinda: 'Yakında',
+  'sona-erdi': 'Satış sona erdi',
+};
+---
+
+<article
+  class:list={[
+    'kart relative flex h-full flex-col p-6 md:p-7',
+    oneCikan ? 'border-2 border-main-orange shadow-lift lg:scale-[1.03]' : 'kart-hover',
+    !satisAcik && 'opacity-75',
+  ]}
+>
+  {
+    (oneCikan || rozet) && (
+      <span class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-deep px-4 py-1 text-xs font-bold whitespace-nowrap text-white shadow-cta">
+        {rozet ?? 'En Çok Tercih Edilen'}
+      </span>
+    )
+  }
+
+  <header>
+    <h3 class="font-display text-xl font-bold text-blue-deep">{ad}</h3>
+    <p class="mt-2 text-sm leading-relaxed text-ink-soft">{aciklama}</p>
+  </header>
+
+  <div class="mt-5 flex items-baseline gap-2 border-y border-line py-5">
+    <span class="font-display text-4xl font-bold text-blue-deep">
+      {fiyatBicimle(fiyat, paraSembolu)}
+    </span>
+    {
+      eskiFiyat && eskiFiyat > fiyat && (
+        <span class="text-base font-semibold text-ink-soft line-through">
+          {fiyatBicimle(eskiFiyat, paraSembolu)}
+        </span>
+      )
+    }
+  </div>
+
+  <ul class="mt-5 flex-1 space-y-2.5">
+    {
+      ozellikler.map((ozellik) => (
+        <li class="flex items-start gap-2.5 text-sm text-ink-soft">
+          <Ikon ad="onay" sinif="w-4 h-4 mt-1 shrink-0 text-orange-deep" />
+          <span>{ozellik}</span>
+        </li>
+      ))
+    }
+  </ul>
+
+  {
+    satisAcik ? (
+      <a
+        href={satinAlUrl}
+        class:list={['btn mt-7 w-full', oneCikan ? 'btn-turuncu' : 'btn-cizgi']}
+        {...satinAlUrl.startsWith('http')
+          ? { target: '_blank', rel: 'noopener noreferrer' }
+          : {}}
+      >
+        <Ikon ad="bilet" sinif="w-5 h-5" />
+        {butonMetni}
+        <span class="sr-yalniz">- {ad}</span>
+      </a>
+    ) : (
+      <p class="mt-7 w-full rounded-full border-2 border-line bg-mist py-3 text-center font-display font-bold text-ink-soft">
+        {DURUM_METNI[durum] ?? 'Satışta değil'}
+      </p>
+    )
+  }
+</article>

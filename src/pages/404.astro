@@ -1,0 +1,70 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Ikon from '@components/Ikon.astro';
+import logoBeyaz from '@assets/antcon-logo-beyaz.png';
+import { ANA_MENU } from '@config/site';
+---
+
+<BaseLayout
+  baslik="Sayfa bulunamadı"
+  aciklama="Aradığınız sayfa bulunamadı. AntCon 2026 ana sayfasına dönebilir veya menüden ilerleyebilirsiniz."
+  indeksleme={false}
+  yapiskanCta={false}
+>
+  <section class="relative overflow-hidden bg-blue-deep">
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+      <div class="absolute -top-32 -right-24 h-96 w-96 rounded-full bg-main-orange/20 blur-3xl"></div>
+      <div class="absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-main-blue/40 blur-3xl"></div>
+    </div>
+
+    <div class="kapsayici relative flex min-h-[70vh] flex-col items-center justify-center py-20 text-center">
+      <Image
+        src={logoBeyaz}
+        alt=""
+        width={140}
+        height={163}
+        densities={[1, 2]}
+        loading="eager"
+        class="h-24 w-auto opacity-90"
+      />
+
+      <p class="mt-8 font-display text-6xl font-bold text-secondary-orange md:text-7xl">404</p>
+      <h1 class="mt-4 font-display text-2xl font-bold text-white md:text-3xl">
+        Bu sayfayı bulamadık
+      </h1>
+      <p class="mx-auto mt-4 max-w-lg text-white/75">
+        Aradığınız sayfa taşınmış, adı değişmiş ya da hiç var olmamış olabilir. Aşağıdaki
+        bağlantılardan devam edebilirsiniz.
+      </p>
+
+      <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+        <a href="/" class="btn btn-turuncu btn-buyuk">
+          <Ikon ad="ok_sol" sinif="w-5 h-5" />
+          Ana sayfaya dön
+        </a>
+        <a href="/program" class="btn btn-hayalet btn-buyuk">Programa göz at</a>
+      </div>
+
+      <nav class="mt-12 w-full max-w-2xl" aria-label="Site bağlantıları">
+        <h2 class="font-display text-sm font-bold tracking-[0.16em] text-orange-glow uppercase">
+          Site haritası
+        </h2>
+        <ul class="mt-4 flex flex-wrap justify-center gap-2">
+          {
+            ANA_MENU.map((oge) => (
+              <li>
+                <a
+                  href={oge.href}
+                  class="inline-block rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-main-orange hover:bg-main-orange"
+                >
+                  {oge.ad}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </section>
+</BaseLayout>

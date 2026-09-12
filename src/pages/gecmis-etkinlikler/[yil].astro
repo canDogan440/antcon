@@ -1,0 +1,307 @@
+---
+import { Image } from 'astro:assets';
+import { render, type CollectionEntry } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SayfaBasligi from '@components/SayfaBasligi.astro';
+import BolumBasligi from '@components/BolumBasligi.astro';
+import ProgramZamanCizelgesi from '@components/ProgramZamanCizelgesi.astro';
+import KonusmaciKarti from '@components/KonusmaciKarti.astro';
+import SponsorIzgarasi from '@components/SponsorIzgarasi.astro';
+import Ikon from '@components/Ikon.astro';
+import {
+  tumEtkinlikler,
+  programiGetir,
+  konusmacilariGetir,
+  konusmacilariRoleGoreGetir,
+  sponsorlariGetir,
+  tarihBicimle,
+  gecmisteMi,
+} from '@lib/icerik';
+import { kirintiSemasi } from '@lib/schema';
+import Carousel from '@components/Carousel.astro';
+import { carouselGorselleri, yedekKapak } from '@lib/gorseller';
+import { SON_ETKINLIK_YILI } from '@config/site';
+
+/**
+ * Her etkinlik yılı için otomatik olarak bir sayfa üretilir.
+ * src/content/etkinlikler/ klasörüne 2027.md eklediğinizde
+ * /gecmis-etkinlikler/2027 sayfası kendiliğinden oluşur.
+ */
+export const getStaticPaths: GetStaticPaths = async () => {
+  const etkinlikler = await tumEtkinlikler();
+  return etkinlikler.map((etkinlik) => ({
+    params: { yil: String(etkinlik.data.yil) },
+    props: { etkinlik },
+  }));
+};
+
+interface Props {
+  etkinlik: CollectionEntry<'etkinlikler'>;
+}
+
+const { etkinlik } = Astro.props;
+const yil = etkinlik.data.yil;
+
+const [gunler, konusmacilar, roller, sponsorlar, { Content }] = await Promise.all([
+  programiGetir(yil),
+  konusmacilariGetir(yil),
+  konusmacilariRoleGoreGetir(yil),
+  sponsorlariGetir(yil),
+  render(etkinlik),
+]);
+
+const gecmisMi = gecmisteMi(etkinlik.data);
+const planlamaAsamasinda = etkinlik.data.durum === 'planlama';
+
+// Her yilin arsiv sayfasi kendi klasorundeki fotograflari gosterir
+// (images/galeri/<yil>/). Fotografi olmayan yilda bolum hic cikmaz.
+const galeriGorselleri = carouselGorselleri(8, yil);
+
+const yedek = yedekKapak(yil);
+const kapakSrc = etkinlik.data.kapak ?? yedek?.src;
+const kapakMetni =
+  etkinlik.data.kapakAlt ?? yedek?.alt ?? `AntCon ${yil} etkinliğinden bir kare`;
+---
+
+<BaseLayout
+  baslik={`${etkinlik.data.baslik} - Etkinlik Arşivi`}
+  aciklama={etkinlik.data.ozet}
+  yapilandirilmisVeri={[
+    kirintiSemasi([
+      { ad: 'Geçmiş Etkinlikler', href: '/gecmis-etkinlikler' },
+      { ad: String(yil), href: `/gecmis-etkinlikler/${yil}` },
+    ]),
+  ]}
+>
+  <SayfaBasligi
+    etiket={`AntCon ${yil}`}
+    baslik={etkinlik.data.baslik}
+    aciklama={etkinlik.data.slogan}
+    kirintilar={[
+      { ad: 'Geçmiş Etkinlikler', href: '/gecmis-etkinlikler' },
+      { ad: String(yil), href: `/gecmis-etkinlikler/${yil}` },
+    ]}
+  />
+
+  <!-- Künye + özet -->
+  <section class="bolum bg-white">
+    <div class="kapsayici">
+      <div class="grid gap-10 lg:grid-cols-12 lg:gap-14">
+        <div class="lg:col-span-7">
+          {
+            kapakSrc && (
+              <Image
+                src={kapakSrc}
+                alt={kapakMetni}
+                width={1280}
+                widths={[640, 960, 1280]}
+                sizes="(min-width: 1024px) 640px, 92vw"
+                format="webp"
+                quality={72}
+                loading="eager"
+                class="mb-8 aspect-[16/9] w-full rounded-2xl object-cover"
+              />
+            )
+          }
+
+          <div class="metin-akisi">
+            <p class="text-lg font-medium text-ink">{etkinlik.data.ozet}</p>
+            <Content />
+          </div>
+
+          {
+            etkinlik.data.oneCikanlar.length > 0 && (
+              <div class="mt-8">
+                <h2 class="font-display text-lg font-bold text-blue-deep">Öne çıkanlar</h2>
+                <ul class="mt-4 flex flex-wrap gap-2">
+                  {etkinlik.data.oneCikanlar.map((oge) => (
+                    <li class="rounded-full bg-main-orange/12 px-4 py-2 text-sm font-semibold text-orange-deep">
+                      {oge}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
+        </div>
+
+        <aside class="lg:col-span-5">
+          <div class="kart sticky top-24 p-6">
+            <span
+              class:list={[
+                'inline-block rounded-full px-3 py-1 text-xs font-bold',
+                gecmisMi
+                  ? 'bg-mist text-ink-soft'
+                  : planlamaAsamasinda
+                    ? 'bg-secondary-blue/25 text-blue-deep'
+                    : 'bg-orange-deep text-white',
+              ]}
+            >
+              {gecmisMi ? 'Tamamlandı' : planlamaAsamasinda ? 'Planlama aşamasında' : 'Yaklaşan etkinlik'}
+            </span>
+
+            <h2 class="mt-4 font-display text-lg font-bold text-blue-deep">Künye</h2>
+            <dl class="mt-4 space-y-4 text-sm">
+              <div class="flex gap-3">
+                <dt class="sr-yalniz">Tarih</dt>
+                <Ikon ad="takvim" sinif="w-5 h-5 shrink-0 text-orange-deep" />
+                <dd>
+                  <strong class="block text-blue-deep">
+                    {etkinlik.data.tarihMetni ||
+                      (etkinlik.data.baslangic ? tarihBicimle(etkinlik.data.baslangic) : '')}
+                  </strong>
+                </dd>
+              </div>
+              <div class="flex gap-3">
+                <dt class="sr-yalniz">Mekân</dt>
+                <Ikon ad="konum" sinif="w-5 h-5 shrink-0 text-orange-deep" />
+                <dd>
+                  <strong class="block text-blue-deep">
+                    {etkinlik.data.mekan.ad || etkinlik.data.mekan.sehir}
+                  </strong>
+                  <span class="text-ink-soft">
+                    {etkinlik.data.mekan.ad
+                      ? etkinlik.data.mekan.sehir
+                      : gecmisMi
+                        ? ''
+                        : 'Mekân yakında açıklanacak'}
+                  </span>
+                </dd>
+              </div>
+            </dl>
+
+            {
+              etkinlik.data.istatistikler.length > 0 && (
+                <dl class="mt-6 grid grid-cols-3 gap-3 border-t border-line pt-6">
+                  {etkinlik.data.istatistikler.map((istatistik) => (
+                    <div class="text-center">
+                      <dt class="sr-yalniz">{istatistik.etiket}</dt>
+                      <dd>
+                        <span class="block font-display text-2xl font-bold text-orange-deep">
+                          {istatistik.deger}
+                        </span>
+                        <span class="mt-1 block text-[0.7rem] font-semibold text-ink-soft uppercase">
+                          {istatistik.etiket}
+                        </span>
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              )
+            }
+
+            {
+              !gecmisMi && etkinlik.data.biletUrl && (
+                <a href={etkinlik.data.biletUrl} class="btn btn-turuncu mt-6 w-full">
+                  <Ikon ad="bilet" sinif="w-5 h-5" />
+                  Bilet Al
+                </a>
+              )
+            }
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fotoğraflar -->
+  {
+    galeriGorselleri.length > 0 && (
+      <section class="bolum bg-blue-deep">
+        <div class="kapsayici">
+          <BolumBasligi
+            etiket="Kareler"
+            baslik={`${yil} etkinliğinden fotoğraflar`}
+            koyuZemin={true}
+            hizalama="orta"
+          />
+          <div class="mt-10">
+            <Carousel
+              gorseller={galeriGorselleri}
+              sure={5000}
+              etiket={`AntCon ${yil} etkinlik fotoğrafları`}
+            />
+          </div>
+          <p class="mt-8 text-center">
+            <a href="/galeri" class="btn btn-hayalet btn-kucuk">
+              Tüm galeriyi aç
+              <Ikon ad="ok_sag" sinif="w-4 h-4" />
+            </a>
+          </p>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Program -->
+  {
+    gunler.length > 0 && (
+      <section class="bolum bg-mist">
+        <div class="kapsayici">
+          <BolumBasligi etiket="Program" baslik={`${yil} program akışı`} />
+          <div class="mt-8">
+            <ProgramZamanCizelgesi gunler={gunler} konusmacilar={konusmacilar} />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Konuşmacılar -->
+  {
+    roller.konusmacilar.length > 0 && (
+      <section class="bolum bg-white">
+        <div class="kapsayici">
+          <BolumBasligi etiket="Sahne" baslik={`${yil} konuşmacıları`} />
+          <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {roller.konusmacilar.map((konusmaci) => (
+              <li>
+                <KonusmaciKarti konusmaci={konusmaci} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Cosplay jürisi -->
+  {
+    roller.juri.length > 0 && (
+      <section class="bolum bg-mist">
+        <div class="kapsayici">
+          <BolumBasligi etiket="Yarışma" baslik={`${yil} cosplay jürisi`} />
+          <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {roller.juri.map((uye) => (
+              <li>
+                <KonusmaciKarti konusmaci={uye} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Sponsorlar -->
+  {
+    sponsorlar.length > 0 && (
+      <section class="bolum bg-white">
+        <div class="kapsayici">
+          <BolumBasligi etiket="Destekçiler" baslik={`${yil} sponsorları`} />
+          <div class="mt-10">
+            <SponsorIzgarasi sponsorlar={sponsorlar} />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <div class="bg-white py-12 text-center">
+    <a href="/gecmis-etkinlikler" class="btn btn-cizgi">
+      <Ikon ad="ok_sol" sinif="w-4 h-4" />
+      Tüm yıllara dön
+    </a>
+  </div>
+</BaseLayout>

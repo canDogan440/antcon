@@ -1,0 +1,108 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SayfaBasligi from '@components/SayfaBasligi.astro';
+import SssAkordiyon from '@components/SssAkordiyon.astro';
+import Ikon from '@components/Ikon.astro';
+import { sssKategoriyeGoreGetir, sssGetir } from '@lib/icerik';
+import { kirintiSemasi, sssSemasi } from '@lib/schema';
+import { AKTIF_YIL, ILETISIM } from '@config/site';
+
+const gruplar = await sssKategoriyeGoreGetir(AKTIF_YIL);
+const tumSorular = await sssGetir(AKTIF_YIL);
+
+// FAQPage şeması için düz metin cevaplar (Markdown işaretleri temizlenir)
+const semaSorulari = tumSorular.map((soru) => ({
+  soru: soru.data.soru,
+  cevap: (soru.body ?? '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/[*_`#>]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim(),
+}));
+---
+
+<BaseLayout
+  baslik="Sıkça Sorulan Sorular"
+  aciklama="AntCon 2026 hakkında sık sorulan sorular: bilet ve iade koşulları, ulaşım, cosplay kuralları, engelli erişimi, stant ve gönüllü başvuruları."
+  yapilandirilmisVeri={[
+    kirintiSemasi([{ ad: 'SSS', href: '/sss' }]),
+    sssSemasi(semaSorulari),
+  ]}
+>
+  <SayfaBasligi
+    etiket="SSS"
+    baslik="Sıkça sorulan sorular"
+    aciklama="Aradığınız cevabı bulamazsanız iletişim formundan bize yazmanız yeterli."
+    kirintilar={[{ ad: 'SSS', href: '/sss' }]}
+  />
+
+  <section class="bolum bg-mist">
+    <div class="kapsayici">
+      <div class="grid gap-10 lg:grid-cols-12 lg:gap-14">
+        <!-- Kategori menüsü -->
+        <nav class="lg:col-span-3" aria-label="Soru kategorileri">
+          <div class="kart sticky top-24 p-5">
+            <h2 class="font-display text-sm font-bold tracking-[0.14em] text-blue-deep uppercase">
+              Kategoriler
+            </h2>
+            <ul class="mt-4 space-y-1">
+              {
+                gruplar.map((grup) => (
+                  <li>
+                    <a
+                      href={`#kategori-${grup.anahtar}`}
+                      class="flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-mist hover:text-orange-deep"
+                    >
+                      {grup.ad}
+                      <span class="rounded-full bg-mist px-2 py-0.5 text-xs text-ink-soft">
+                        {grup.sorular.length}
+                      </span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </nav>
+
+        <!-- Sorular -->
+        <div class="lg:col-span-9">
+          {
+            gruplar.length === 0 ? (
+              <p class="kart p-8 text-center text-ink-soft">Henüz soru eklenmedi.</p>
+            ) : (
+              gruplar.map((grup) => (
+                <section id={`kategori-${grup.anahtar}`} class="mt-12 scroll-mt-28 first:mt-0">
+                  <h2 class="aksan-cizgi font-display text-xl font-bold text-blue-deep md:text-2xl">
+                    {grup.ad}
+                  </h2>
+                  <div class="mt-7">
+                    <SssAkordiyon sorular={grup.sorular} grup={`sss-${grup.anahtar}`} />
+                  </div>
+                </section>
+              ))
+            )
+          }
+
+          <!-- Hâlâ soru mu var? -->
+          <div class="kart mt-14 flex flex-col items-center gap-5 bg-blue-deep p-8 text-center md:flex-row md:text-left">
+            <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-main-orange/20 text-orange-glow">
+              <Ikon ad="posta" sinif="w-7 h-7" />
+            </span>
+            <div class="flex-1">
+              <h2 class="font-display text-xl font-bold text-white">Cevabını bulamadın mı?</h2>
+              <p class="mt-2 text-sm text-white/75">
+                {ILETISIM.email} adresine yazabilir veya iletişim formunu kullanabilirsin.
+                Genellikle 2 iş günü içinde dönüş yapıyoruz.
+              </p>
+            </div>
+            <a href="/iletisim" class="btn btn-turuncu shrink-0">
+              Soru Sor
+              <Ikon ad="ok_sag" sinif="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

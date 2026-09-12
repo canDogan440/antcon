@@ -1,0 +1,140 @@
+---
+import '@fontsource-variable/inter';
+import '@fontsource-variable/space-grotesk';
+import '../styles/global.css';
+
+import Navbar from '@components/Navbar.astro';
+import Footer from '@components/Footer.astro';
+import YapiskanBiletCta from '@components/YapiskanBiletCta.astro';
+import { SITE, SITE_URL, DILLER, AKTIF_YIL } from '@config/site';
+import { organizasyonSemasi, websiteSemasi } from '@lib/schema';
+
+interface Props {
+  /** Sayfaya ozel <title>. Sonuna otomatik olarak "| AntCon <aktif yil>" eklenir. */
+  baslik: string;
+  /** 150-160 karakter arasi meta description. */
+  aciklama: string;
+  /** Paylasim gorseli. Verilmezse varsayilan OG gorseli kullanilir. */
+  ogGorsel?: string;
+  /** Google'in indekslemesini istemedigimiz sayfalar icin (orn. 404). */
+  indeksleme?: boolean;
+  /** Sayfaya ozel Schema.org nesneleri. */
+  yapilandirilmisVeri?: Record<string, unknown>[];
+  /** <body> uzerine eklenecek ek siniflar. */
+  bodySinifi?: string;
+  /** Ekranin altinda sabit duran ana CTA butonu gorunsun mu? */
+  yapiskanCta?: boolean;
+}
+
+const {
+  baslik,
+  aciklama,
+  ogGorsel = '/og-image.png',
+  indeksleme = true,
+  yapilandirilmisVeri = [],
+  bodySinifi = '',
+  yapiskanCta = true,
+} = Astro.props;
+
+const tamBaslik = baslik.includes(SITE.ad) ? baslik : `${baslik} | ${SITE.ad} ${AKTIF_YIL}`;
+const kanonik = new URL(Astro.url.pathname.replace(/\/+$/, '') || '/', SITE_URL).href;
+const ogGorselMutlak = new URL(ogGorsel, SITE_URL).href;
+
+// Tum Schema.org nesnelerini tek bir @graph icinde birlestiriyoruz.
+const grafik = {
+  '@context': 'https://schema.org',
+  '@graph': [organizasyonSemasi, websiteSemasi, ...yapilandirilmisVeri],
+};
+---
+
+<!doctype html>
+<html lang="tr" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{tamBaslik}</title>
+    <meta name="description" content={aciklama} />
+    <link rel="canonical" href={kanonik} />
+    {!indeksleme && <meta name="robots" content="noindex, nofollow" />}
+    {
+      indeksleme && (
+        <meta
+          name="robots"
+          content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        />
+      )
+    }
+
+    {/* Dil alternatifleri - ileride /en eklendiginde src/config/site.ts icindeki
+        DILLER dizisine bir satir eklemek yeterli. */}
+    {
+      DILLER.map((dil) => (
+        <link
+          rel="alternate"
+          hreflang={dil.hreflang}
+          href={new URL(dil.prefix + Astro.url.pathname, SITE_URL).href}
+        />
+      ))
+    }
+    <link rel="alternate" hreflang="x-default" href={kanonik} />
+
+    {/* Ikonlar */}
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#004aad" />
+
+    {/* Open Graph */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.tamAd} />
+    <meta property="og:locale" content={SITE.locale} />
+    <meta property="og:title" content={tamBaslik} />
+    <meta property="og:description" content={aciklama} />
+    <meta property="og:url" content={kanonik} />
+    <meta property="og:image" content={ogGorselMutlak} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${SITE.ad} - ${SITE.slogan}`} />
+
+    {/* Twitter / X Card */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={SITE.twitterHandle} />
+    <meta name="twitter:title" content={tamBaslik} />
+    <meta name="twitter:description" content={aciklama} />
+    <meta name="twitter:image" content={ogGorselMutlak} />
+    <meta name="twitter:image:alt" content={`${SITE.ad} - ${SITE.slogan}`} />
+
+    {/* Genel */}
+    <meta name="author" content={SITE.ad} />
+    <meta name="geo.region" content="TR-07" />
+    <meta name="geo.placename" content="Antalya" />
+
+    <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
+
+    {/* Schema.org yapilandirilmis veri */}
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(grafik)}
+    />
+
+    <slot name="head" />
+  </head>
+
+  <body class={bodySinifi}>
+    <a href="#ana-icerik" class="atlama-baglantisi">İçeriğe geç</a>
+
+    <Navbar />
+
+    <main id="ana-icerik">
+      <slot />
+    </main>
+
+    <Footer />
+
+    {yapiskanCta && <YapiskanBiletCta />}
+  </body>
+</html>

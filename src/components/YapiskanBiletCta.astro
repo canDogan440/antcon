@@ -1,0 +1,54 @@
+---
+import Ikon from '@components/Ikon.astro';
+import { ANA_CTA, ETKINLIK, TARIH_BELLI } from '@config/site';
+---
+
+<!--
+  Sayfa kaydırıldıkça görünür kalan ana çağrı butonu.
+  Bilet satışı kapalıyken "Haberdar Ol", açıldığında "Bilet Al" olur
+  (src/config/site.ts -> ANA_CTA).
+-->
+<div
+  id="yapiskan-cta"
+  class="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-4 opacity-0 transition-[opacity,transform] duration-300 translate-y-4 sm:justify-end sm:px-6 sm:pb-6"
+  data-cta-hedef={ANA_CTA.href}
+>
+  <a href={ANA_CTA.href} class="btn btn-turuncu pointer-events-auto shadow-lift" data-yapiskan-baglanti>
+    <Ikon ad={ANA_CTA.ikon} sinif="w-5 h-5" />
+    <span>{ANA_CTA.metin}</span>
+    {
+      TARIH_BELLI && (
+        <span class="hidden text-sm font-semibold opacity-90 sm:inline">
+          · {ETKINLIK.tarihMetni}
+        </span>
+      )
+    }
+  </a>
+</div>
+
+<script>
+  const kutu = document.getElementById('yapiskan-cta');
+  const baglanti = kutu?.querySelector<HTMLAnchorElement>('[data-yapiskan-baglanti]');
+
+  if (kutu && baglanti) {
+    const gorunurSiniflar = ['opacity-100', 'translate-y-0'];
+    const gizliSiniflar = ['opacity-0', 'translate-y-4'];
+
+    // Kullanıcı zaten hedef sayfadaysa butonu hiç gösterme.
+    const hedef = (kutu.dataset.ctaHedef ?? '').replace(/\/+$/, '');
+    const buSayfada = hedef !== '' && window.location.pathname.replace(/\/+$/, '') === hedef;
+
+    const guncelle = () => {
+      const gorunsun = !buSayfada && window.scrollY > 640;
+      kutu.classList.toggle('pointer-events-none', !gorunsun);
+      gorunurSiniflar.forEach((s) => kutu.classList.toggle(s, gorunsun));
+      gizliSiniflar.forEach((s) => kutu.classList.toggle(s, !gorunsun));
+      // Görünmezken klavye sırasından çıkar
+      baglanti.tabIndex = gorunsun ? 0 : -1;
+      kutu.setAttribute('aria-hidden', String(!gorunsun));
+    };
+
+    guncelle();
+    window.addEventListener('scroll', guncelle, { passive: true });
+  }
+</script>

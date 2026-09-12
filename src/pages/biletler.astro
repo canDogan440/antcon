@@ -1,0 +1,243 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SayfaBasligi from '@components/SayfaBasligi.astro';
+import BiletKarti from '@components/BiletKarti.astro';
+import GeriSayim from '@components/GeriSayim.astro';
+import Ikon from '@components/Ikon.astro';
+import BolumBasligi from '@components/BolumBasligi.astro';
+import SssAkordiyon from '@components/SssAkordiyon.astro';
+import { biletleriGetir, sssGetir, etkinlikGetir } from '@lib/icerik';
+import { etkinlikSemasi, kirintiSemasi } from '@lib/schema';
+import {
+  AKTIF_YIL,
+  ETKINLIK,
+  SON_ETKINLIK_YILI,
+  TARIH_BELLI,
+  BILET_SATISI,
+} from '@config/site';
+
+const biletler = await biletleriGetir(AKTIF_YIL);
+const tumSss = await sssGetir(AKTIF_YIL);
+const biletSorulari = tumSss.filter((s) => s.data.kategori === 'bilet');
+
+const satisAcik = BILET_SATISI.acik && biletler.length > 0;
+
+const siradakiEtkinlik = await etkinlikGetir(AKTIF_YIL);
+const eventSemasi = siradakiEtkinlik
+  ? etkinlikSemasi(
+      siradakiEtkinlik.data,
+      biletler.map((b) => ({
+        ad: b.data.ad,
+        fiyat: b.data.fiyat,
+        paraBirimi: b.data.paraBirimi,
+        url: b.data.satinAlUrl,
+        durum: b.data.durum,
+      })),
+    )
+  : null;
+
+/** Satis acilmadan once ne bekleyebileceklerini anlatan adimlar. */
+const SURECC = [
+  {
+    ikon: 'takvim' as const,
+    baslik: '1. Tarih duyurulur',
+    metin: 'Mekân ve takvim kesinleştiğinde etkinlik tarihi bu sitede ve sosyal medyada açıklanır.',
+  },
+  {
+    ikon: 'posta' as const,
+    baslik: '2. Duyuru listesi bilgilendirilir',
+    metin:
+      'İletişim formundan bize yazan herkese, satış herkese açılmadan önce e-posta gönderiyoruz.',
+  },
+  {
+    ikon: 'bilet' as const,
+    baslik: '3. Erken kayıt açılır',
+    metin:
+      'Sınırlı sayıda indirimli erken kayıt bileti satışa çıkar; ardından standart bilet tipleri açılır.',
+  },
+];
+
+/** AntCon 2026'da sunulanlar - 2027'de de benzer bir kapsam planlanıyor. */
+const GECEN_YIL_KAPSAMI = [
+  'Tüm gün etkinlik alanına sınırsız giriş',
+  'Ana sahne konuşmaları ve panellere katılım',
+  'Sanatçı sokağı ve stant alanı',
+  'Cosplay yarışması finali',
+  'Sentetik kılıç turnuvası',
+  'Poke topu ve Ejderha yumurtası boyama atölyeleri',
+];
+---
+
+<BaseLayout
+  baslik="Biletler"
+  aciklama={`AntCon ${AKTIF_YIL} bilet satışı henüz başlamadı. Etkinlik tarihi kesinleştiğinde erken kayıt biletleri satışa çıkacak; duyuru listesine katılarak ilk siz haberdar olun.`}
+  yapilandirilmisVeri={[
+    kirintiSemasi([{ ad: 'Biletler', href: '/biletler' }]),
+    ...(eventSemasi ? [eventSemasi] : []),
+  ]}
+  yapiskanCta={false}
+>
+  <SayfaBasligi
+    etiket="Biletler"
+    baslik={satisAcik ? 'Yerini şimdiden ayır' : 'Bilet satışı henüz başlamadı'}
+    aciklama={
+      satisAcik
+        ? `${ETKINLIK.tarihMetni} · Tek gün · Tüm alanlara erişim.`
+        : `AntCon ${AKTIF_YIL} planlama aşamasında. Tarih kesinleşmeden bilet satışını açmıyoruz.`
+    }
+    kirintilar={[{ ad: 'Biletler', href: '/biletler' }]}
+  />
+
+  <!-- Geri sayım şeridi - yalnızca tarih açıklandığında -->
+  {
+    TARIH_BELLI && (
+      <section class="bg-blue-darker py-8">
+        <div class="kapsayici flex flex-col items-center gap-6 md:flex-row md:justify-between">
+          <div class="text-center md:text-left">
+            <p class="etiket etiket-acik">Etkinliğe kalan</p>
+            <p class="mt-1 font-display text-lg font-bold text-white">
+              {ETKINLIK.tarihMetni}
+              {ETKINLIK.gunMetni && `, ${ETKINLIK.gunMetni}`}
+            </p>
+          </div>
+          <GeriSayim hedef={ETKINLIK.baslangic} bitis={ETKINLIK.bitis} sinif="max-w-md" />
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Bilet kartları veya "yakında" durumu -->
+  <section class="bolum bg-white">
+    <div class="kapsayici">
+      <h2 class="sr-yalniz">AntCon {AKTIF_YIL} bilet durumu</h2>
+
+      {
+        satisAcik ? (
+          <>
+            <ul class="grid items-stretch gap-6 pt-4 sm:grid-cols-2 lg:grid-cols-4">
+              {biletler.map((bilet) => (
+                <li>
+                  <BiletKarti bilet={bilet} />
+                </li>
+              ))}
+            </ul>
+            <p class="mt-8 text-center text-sm text-ink-soft">
+              Fiyatlara KDV dahildir. 0-6 yaş arası çocuklar bir yetişkin refakatinde ücretsiz
+              giriş yapar.
+            </p>
+          </>
+        ) : (
+          <div class="kart mx-auto max-w-3xl p-8 text-center md:p-12">
+            <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-main-orange/12 text-orange-deep">
+              <Ikon ad="bilet" sinif="w-8 h-8" />
+            </span>
+
+            <h3 class="mt-5 font-display text-2xl font-bold text-blue-deep">
+              Satış açıldığında ilk siz bilin
+            </h3>
+            <p class="mx-auto mt-4 max-w-xl leading-relaxed text-ink-soft">
+              {BILET_SATISI.bilgiMetni}
+            </p>
+
+            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+              <a href="/iletisim" class="btn btn-turuncu">
+                <Ikon ad="posta" sinif="w-5 h-5" />
+                Duyuru Listesine Katıl
+              </a>
+              <a href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`} class="btn btn-cizgi">
+                AntCon {SON_ETKINLIK_YILI}'yı gör
+              </a>
+            </div>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- Satış süreci -->
+  {
+    !satisAcik && (
+      <section class="bolum bg-mist">
+        <div class="kapsayici">
+          <BolumBasligi
+            etiket="Süreç"
+            baslik="Bilet satışı nasıl ilerleyecek?"
+            aciklama="Sırayla şu adımları izleyeceğiz; her adımı bu sayfadan ve sosyal medyadan duyuracağız."
+            hizalama="orta"
+          />
+
+          <ol class="mt-12 grid gap-5 md:grid-cols-3">
+            {SURECC.map((adim) => (
+              <li class="kart kart-hover p-6">
+                <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-main-orange/12 text-orange-deep">
+                  <Ikon ad={adim.ikon} sinif="w-6 h-6" />
+                </span>
+                <h3 class="mt-4 font-display text-lg font-bold text-blue-deep">{adim.baslik}</h3>
+                <p class="mt-2 text-sm leading-relaxed text-ink-soft">{adim.metin}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 2026'da bilete dahil olanlar -->
+  <section class:list={['bolum', satisAcik ? 'bg-mist' : 'bg-white']}>
+    <div class="kapsayici">
+      <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+        <div class="lg:col-span-5">
+          <BolumBasligi
+            etiket="Kapsam"
+            baslik={
+              satisAcik
+                ? 'Her bilette standart olarak var'
+                : `AntCon ${SON_ETKINLIK_YILI}'da bilete dahil olanlar`
+            }
+            aciklama={
+              satisAcik
+                ? 'Bilet tipiniz ne olursa olsun aşağıdakilerin tamamına erişiminiz olur.'
+                : `İlk AntCon'da tüm biletler aşağıdakileri kapsıyordu. ${AKTIF_YIL} için de benzer bir kapsam planlıyoruz; kesin içerik satış açıldığında yayınlanacak.`
+            }
+          />
+        </div>
+        <div class="lg:col-span-7">
+          <ul class="grid gap-3 sm:grid-cols-2">
+            {
+              GECEN_YIL_KAPSAMI.map((oge) => (
+                <li class="kart flex items-start gap-3 p-4">
+                  <Ikon ad="onay" sinif="w-5 h-5 mt-0.5 shrink-0 text-orange-deep" />
+                  <span class="text-sm font-medium text-ink">{oge}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bilet SSS -->
+  {
+    biletSorulari.length > 0 && (
+      <section class:list={['bolum', satisAcik ? 'bg-white' : 'bg-mist']}>
+        <div class="kapsayici max-w-3xl">
+          <BolumBasligi
+            etiket="Sık sorulanlar"
+            baslik="Bilet ve kayıt hakkında"
+            hizalama="orta"
+          />
+          <div class="mt-10">
+            <SssAkordiyon sorular={biletSorulari} grup="bilet-sss" />
+          </div>
+          <p class="mt-8 text-center">
+            <a href="/sss" class="btn btn-cizgi btn-kucuk">
+              Tüm soruları gör
+              <Ikon ad="ok_sag" sinif="w-4 h-4" />
+            </a>
+          </p>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

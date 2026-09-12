@@ -1,0 +1,256 @@
+---
+import { Image, getImage } from 'astro:assets';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SayfaBasligi from '@components/SayfaBasligi.astro';
+import Ikon from '@components/Ikon.astro';
+import { gorselleriYilaGoreGetir, TUM_GORSELLER } from '@lib/gorseller';
+import { kirintiSemasi } from '@lib/schema';
+import { SON_ETKINLIK_YILI, AKTIF_YIL } from '@config/site';
+
+const yillar = gorselleriYilaGoreGetir();
+const tekYil = yillar.length <= 1;
+
+/**
+ * Buyutme penceresi icin optimize edilmis surumler.
+ * Ham dosyalar dogrudan kullanilmaz; her fotograf icin tek bir 1400px
+ * WebP uretilir ve adresi butonun data- niteliginde tasinir (ayri bir
+ * JSON blogu HTML'i gereksiz buyutuyordu).
+ */
+const buyukAdres = new Map<string, { src: string; en: number; boy: number }>();
+for (const gorsel of TUM_GORSELLER) {
+  const optimize = await getImage({ src: gorsel.src, width: 1400, format: 'webp', quality: 65 });
+  buyukAdres.set(gorsel.dosya, {
+    src: optimize.src,
+    en: Number(optimize.attributes.width ?? 1400),
+    boy: Number(optimize.attributes.height ?? 933),
+  });
+}
+---
+
+<BaseLayout
+  baslik="Galeri"
+  aciklama={`AntCon ${SON_ETKINLIK_YILI} etkinlik alanından fotoğraflar: sahne, standlar, kostümler ve kalabalık. 28 Haziran 2026'da gerçekleşen ilk AntCon'un atmosferini görün.`}
+  yapilandirilmisVeri={[kirintiSemasi([{ ad: 'Galeri', href: '/galeri' }])]}
+>
+  <SayfaBasligi
+    etiket="Galeri"
+    baslik="Etkinlikten kareler"
+    aciklama={
+      tekYil
+        ? `Bu fotoğraflar 28 Haziran 2026'da gerçekleşen ilk AntCon'da çekildi. Büyük boyutta görüntülemek için tıklayın.`
+        : 'AntCon fotoğraf arşivi. Büyük boyutta görüntülemek için bir fotoğrafa tıklayın.'
+    }
+    kirintilar={[{ ad: 'Galeri', href: '/galeri' }]}
+  />
+
+  <section class="bolum bg-white">
+    <div class="kapsayici">
+      {
+        TUM_GORSELLER.length === 0 ? (
+          <p class="kart mx-auto max-w-xl p-8 text-center text-ink-soft">
+            Galeriye henüz görsel eklenmedi. Proje kökündeki{' '}
+            <code class="font-mono">images/galeri/{SON_ETKINLIK_YILI}/</code> klasörüne fotoğraf
+            ekleyip siteyi yeniden derlemeniz yeterli.
+          </p>
+        ) : (
+          yillar.map(({ yil, gorseller }, grupIndeks) => (
+            <div class:list={['mt-16 first:mt-0']} data-galeri-grup={yil}>
+              {!tekYil && (
+                <h2 class="aksan-cizgi font-display text-2xl font-bold text-blue-deep">
+                  AntCon {yil}
+                  <span class="ml-3 align-middle text-base font-semibold text-ink-soft">
+                    {gorseller.length} fotoğraf
+                  </span>
+                </h2>
+              )}
+              {tekYil && <h2 class="sr-yalniz">AntCon {yil} fotoğrafları</h2>}
+
+              <ul
+                class:list={['grid gap-4 sm:grid-cols-2 lg:grid-cols-3', !tekYil && 'mt-8']}
+                data-galeri-liste
+              >
+                {gorseller.map((gorsel, i) => {
+                  const buyuk = buyukAdres.get(gorsel.dosya)!;
+                  // Yalnizca ilk grubun ilk satiri hemen yuklenir; gerisi lazy.
+                  const acilistaYukle = grupIndeks === 0 && i < 3;
+                  return (
+                    <li class="group">
+                      <button
+                        type="button"
+                        class="block w-full overflow-hidden rounded-xl border border-line bg-mist transition-shadow hover:shadow-lift"
+                        data-galeri-ac
+                        data-buyuk-src={buyuk.src}
+                        data-buyuk-en={buyuk.en}
+                        data-buyuk-boy={buyuk.boy}
+                        data-alt={gorsel.alt}
+                        aria-label={`${gorsel.alt} - büyük görüntüle`}
+                      >
+                        <Image
+                          src={gorsel.src}
+                          alt={gorsel.alt}
+                          width={720}
+                          widths={[320, 480, 720]}
+                          sizes="(min-width: 1024px) 380px, (min-width: 640px) 45vw, 92vw"
+                          format="webp"
+                          quality={70}
+                          loading={acilistaYukle ? 'eager' : 'lazy'}
+                          decoding={acilistaYukle ? 'sync' : 'async'}
+                          class="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+
+            </div>
+          ))
+        )
+      }
+
+      <p class="mt-12 text-center text-sm text-ink-soft">
+        AntCon {SON_ETKINLIK_YILI}'dan fotoğrafın mı var?
+        <a href="/iletisim" class="font-semibold text-orange-deep underline underline-offset-2">
+          Bize gönder
+        </a>
+        , galeride yayınlayalım. AntCon {AKTIF_YIL} kareleri de etkinlik sonrası burada yer alacak.
+      </p>
+    </div>
+  </section>
+
+  <!-- Büyük görüntüleme penceresi (native <dialog>: klavye ve odak yönetimi tarayıcıdan gelir) -->
+  <dialog
+    id="galeri-pencere"
+    class="m-auto max-h-[92dvh] w-[min(94vw,72rem)] rounded-2xl bg-blue-darker p-0 backdrop:bg-black/80"
+    aria-label="Büyütülmüş fotoğraf"
+  >
+    <div class="relative">
+      <button
+        type="button"
+        data-galeri-kapat
+        class="absolute top-3 right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-blue-deep transition hover:bg-main-orange hover:text-white"
+        aria-label="Kapat"
+      >
+        <Ikon ad="kapat" sinif="w-5 h-5" />
+      </button>
+
+      <button
+        type="button"
+        data-galeri-onceki
+        class="absolute top-1/2 left-3 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-blue-deep transition hover:bg-main-orange hover:text-white"
+        aria-label="Önceki fotoğraf"
+      >
+        <Ikon ad="ok_sol" sinif="w-5 h-5" />
+      </button>
+      <button
+        type="button"
+        data-galeri-sonraki
+        class="absolute top-1/2 right-3 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-blue-deep transition hover:bg-main-orange hover:text-white"
+        aria-label="Sonraki fotoğraf"
+      >
+        <Ikon ad="ok_sag" sinif="w-5 h-5" />
+      </button>
+
+      <img
+        data-galeri-gorsel
+        src=""
+        alt=""
+        class="max-h-[80dvh] w-full rounded-t-2xl object-contain"
+        decoding="async"
+      />
+      <p data-galeri-metin class="px-6 py-4 text-center text-sm text-white/80" aria-live="polite">
+      </p>
+    </div>
+  </dialog>
+</BaseLayout>
+
+<script>
+  /**
+   * BUYUTME PENCERESI
+   *
+   * NOT - denenip vazgecilen yaklasim: fotograflarin bir kismini `hidden`
+   * ile gizleyip "Daha fazla goster" butonuna baglamak. Olculdugunde ag
+   * trafigini HIC azaltmadi (56 fotografli sayfada iki durumda da 31 istek
+   * / 390 KB): Chrome'un preload tarayicisi HTML'i CSS'ten once tariyor ve
+   * `<img src>` gordugu anda, oge `display:none` olsa bile indirmeye
+   * basliyor (istekler 13. ms'de basliyordu). Karsiliginda gizli gorseller
+   * Google Gorseller'de deger kaybediyordu; bu yuzden kaldirildi.
+   * Yerlesik `loading="lazy"` zaten LCP'yi etkilemiyor (olculen: 200 ms).
+   * Buyuk gorsel adresleri her butonun data- niteliginde duruyor;
+   * ayri bir JSON blogu tasimiyoruz. Pencere yalnizca tiklanan
+   * fotografi indirir.
+   */
+  const pencere = document.getElementById('galeri-pencere') as HTMLDialogElement | null;
+  const butonlar = [...document.querySelectorAll<HTMLButtonElement>('[data-galeri-ac]')];
+
+  if (pencere && butonlar.length > 0) {
+    const gorsel = pencere.querySelector<HTMLImageElement>('[data-galeri-gorsel]');
+    const kapat = pencere.querySelector<HTMLButtonElement>('[data-galeri-kapat]');
+    const onceki = pencere.querySelector<HTMLButtonElement>('[data-galeri-onceki]');
+    const sonraki = pencere.querySelector<HTMLButtonElement>('[data-galeri-sonraki]');
+
+    let aktif = 0;
+
+    const goster = (indeks: number) => {
+      aktif = (indeks + butonlar.length) % butonlar.length;
+      const b = butonlar[aktif];
+      if (!gorsel) return;
+      gorsel.src = b.dataset.buyukSrc ?? '';
+      gorsel.alt = b.dataset.alt ?? '';
+      gorsel.width = Number(b.dataset.buyukEn ?? 1400);
+      gorsel.height = Number(b.dataset.buyukBoy ?? 933);
+    };
+
+    /** Bir sonraki fotografi sessizce onbellege alir - gezinme akici olsun */
+    const onYukle = (indeks: number) => {
+      const b = butonlar[(indeks + butonlar.length) % butonlar.length];
+      const src = b?.dataset.buyukSrc;
+      if (src) new Image().src = src;
+    };
+
+    butonlar.forEach((buton, i) =>
+      buton.addEventListener('click', () => {
+        goster(i);
+        pencere.showModal();
+        onYukle(i + 1);
+      }),
+    );
+
+    kapat?.addEventListener('click', () => pencere.close());
+    onceki?.addEventListener('click', () => {
+      goster(aktif - 1);
+      onYukle(aktif - 1);
+    });
+    sonraki?.addEventListener('click', () => {
+      goster(aktif + 1);
+      onYukle(aktif + 1);
+    });
+
+    // Ok tuslariyla gezinme (Escape'i <dialog> kendisi yonetir)
+    pencere.addEventListener('keydown', (olay) => {
+      if (olay.key === 'ArrowRight') {
+        goster(aktif + 1);
+        onYukle(aktif + 1);
+      }
+      if (olay.key === 'ArrowLeft') {
+        goster(aktif - 1);
+        onYukle(aktif - 1);
+      }
+    });
+
+    // Arka plana tiklayinca kapat
+    pencere.addEventListener('click', (olay) => {
+      if (olay.target === pencere) pencere.close();
+    });
+
+    // Pencere acikken arka plan kaymasin
+    pencere.addEventListener('close', () => {
+      document.body.style.overflow = '';
+    });
+    const asilGoster = pencere.showModal.bind(pencere);
+    pencere.showModal = () => {
+      document.body.style.overflow = 'hidden';
+      asilGoster();
+    };
+  }
+</script>

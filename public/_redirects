@@ -1,0 +1,9 @@
+# Netlify / Cloudflare Pages yonlendirmeleri
+# Eski veya kisa adresleri buraya ekleyebilirsiniz.
+
+/bilet              /biletler        301
+/tickets            /biletler        301
+/program.html       /program         301
+/sponsor            /sponsorlar      301
+/sss.html           /sss             301
+/arsiv              /gecmis-etkinlikler  301

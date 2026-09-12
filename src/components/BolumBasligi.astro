@@ -1,0 +1,72 @@
+---
+interface Props {
+  /** Başlığın üstündeki küçük turuncu etiket */
+  etiket?: string;
+  baslik: string;
+  aciklama?: string;
+  /** h2 varsayılan; sayfa başlığında h1 kullanın */
+  seviye?: 'h1' | 'h2' | 'h3';
+  hizalama?: 'sol' | 'orta';
+  /** Koyu mavi zemin üzerinde kullanılıyorsa true */
+  koyuZemin?: boolean;
+  /** Başlık etiketine verilecek id - bölümün aria-labelledby değeriyle eşleşmeli */
+  kimlik?: string;
+  sinif?: string;
+}
+
+const {
+  etiket,
+  baslik,
+  aciklama,
+  seviye = 'h2',
+  hizalama = 'sol',
+  koyuZemin = false,
+  kimlik,
+  sinif = '',
+} = Astro.props;
+
+const Baslik = seviye;
+const ortali = hizalama === 'orta';
+---
+
+<div
+  class:list={[
+    'max-w-3xl',
+    ortali && 'mx-auto text-center',
+    sinif,
+  ]}
+>
+  {
+    etiket && (
+      <p class:list={['etiket', koyuZemin && 'etiket-acik']}>
+        <span class="inline-block h-px w-6 bg-current" aria-hidden="true" />
+        {etiket}
+      </p>
+    )
+  }
+
+  <Baslik
+    id={kimlik}
+    class:list={[
+      'aksan-cizgi mt-3 text-3xl md:text-4xl',
+      seviye === 'h1' && 'text-4xl md:text-5xl lg:text-[3.25rem]',
+      ortali && 'aksan-cizgi-orta',
+      koyuZemin ? 'text-white' : 'text-blue-deep',
+    ]}
+  >
+    {baslik}
+  </Baslik>
+
+  {
+    aciklama && (
+      <p
+        class:list={[
+          'mt-5 text-base leading-relaxed md:text-lg',
+          koyuZemin ? 'text-white/80' : 'text-ink-soft',
+        ]}
+      >
+        {aciklama}
+      </p>
+    )
+  }
+</div>

@@ -1,0 +1,84 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SayfaBasligi from '@components/SayfaBasligi.astro';
+import { kirintiSemasi } from '@lib/schema';
+import { ILETISIM } from '@config/site';
+---
+
+<BaseLayout
+  baslik="Gizlilik ve Aydınlatma Metni"
+  aciklama="AntCon web sitesinde kişisel verilerin işlenmesine ilişkin KVKK aydınlatma metni ve çerez politikası."
+  yapilandirilmisVeri={[kirintiSemasi([{ ad: 'Gizlilik', href: '/gizlilik' }])]}
+  yapiskanCta={false}
+>
+  <SayfaBasligi
+    etiket="Yasal"
+    baslik="Gizlilik ve Aydınlatma Metni"
+    aciklama="Kişisel verilerinizi nasıl işlediğimize dair açıklama."
+    kirintilar={[{ ad: 'Gizlilik', href: '/gizlilik' }]}
+  />
+
+  <section class="bolum bg-white">
+    <div class="kapsayici">
+      <div class="metin-akisi mx-auto max-w-3xl">
+        <p class="rounded-lg border border-secondary-orange bg-secondary-orange/10 p-4 text-sm text-orange-darker">
+          <strong>Not:</strong> Bu metin bir şablondur. Yayına almadan önce organizasyonun yasal
+          unvanı, adresi ve veri sorumlusu bilgileriyle güncellenmeli ve bir hukuk danışmanına
+          kontrol ettirilmelidir.
+        </p>
+
+        <h2>1. Veri sorumlusu</h2>
+        <p>
+          AntCon organizasyon ekibi, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK)
+          kapsamında veri sorumlusu sıfatıyla hareket eder. İletişim: {ILETISIM.email}
+        </p>
+
+        <h2>2. Hangi verileri topluyoruz?</h2>
+        <ul>
+          <li>
+            <strong>İletişim formu:</strong> ad soyad, e-posta adresi, isteğe bağlı telefon
+            numarası ve mesaj içeriği.
+          </li>
+          <li>
+            <strong>Teknik veriler:</strong> site tamamen statik olarak yayınlanır ve kendi
+            sunucumuzda ziyaretçi kaydı tutulmaz. Barındırma sağlayıcısı güvenlik amacıyla
+            standart erişim kayıtları tutabilir.
+          </li>
+        </ul>
+
+        <h2>3. Verileri hangi amaçla işliyoruz?</h2>
+        <p>
+          İletişim formu üzerinden ilettiğiniz veriler yalnızca talebinize yanıt vermek, başvurunuzu
+          değerlendirmek ve etkinlikle ilgili size geri dönüş yapmak amacıyla işlenir.
+        </p>
+
+        <h2>4. Verilerin aktarımı</h2>
+        <p>
+          İletişim formu gönderimleri, form iletim hizmeti sağlayıcısı üzerinden e-posta adresimize
+          iletilir. Verileriniz bu amaç dışında üçüncü kişilerle paylaşılmaz, pazarlama amacıyla
+          kullanılmaz ve satılmaz.
+        </p>
+
+        <h2>5. Saklama süresi</h2>
+        <p>
+          İletişim kayıtları, talebin sonuçlanmasının ardından en fazla 12 ay saklanır ve sonrasında
+          silinir.
+        </p>
+
+        <h2>6. Çerezler</h2>
+        <p>
+          Site, çalışması için çerez kullanmaz ve reklam/izleme çerezi yerleştirmez. Yalnızca
+          iletişim sayfasındaki Google Haritalar gömülü içeriği, Google'ın kendi çerezlerini
+          kullanabilir.
+        </p>
+
+        <h2>7. Haklarınız</h2>
+        <p>
+          KVKK'nın 11. maddesi uyarınca verilerinize erişme, düzeltilmesini veya silinmesini isteme
+          ve işlemeye itiraz etme haklarına sahipsiniz. Taleplerinizi {ILETISIM.email} adresine
+          iletebilirsiniz.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

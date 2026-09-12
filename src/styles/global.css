@@ -1,0 +1,393 @@
+@import 'tailwindcss';
+
+/* ============================================================
+   ANTCON MARKA TEMASI
+   Tailwind 4 CSS-first konfigürasyonu.
+   @theme içindeki her değişken hem CSS custom property olarak
+   (var(--color-main-orange)) hem de utility class olarak
+   (bg-main-orange, text-main-blue ...) kullanılabilir.
+   ============================================================ */
+@theme {
+  /* --- Marka renkleri (çekirdek palet) --- */
+  --color-main-orange: #fd630e;
+  --color-main-blue: #004aad;
+  --color-secondary-orange: #fe8a4a;
+  --color-secondary-blue: #3d7fd6;
+  --color-white: #ffffff;
+
+  /* --- Türetilmiş tonlar ---
+     Marka mavisi #004aad beyazla 8.13:1 kontrast verdiği için header, hero
+     ve footer gibi metin taşıyan yüzeylerde doğrudan kullanılabiliyor;
+     --color-blue-deep bu yüzden marka mavisinin ta kendisi.
+     --color-blue-darker (#00337a, beyazla 11.9:1) yalnızca bant üstüne bant
+     bindiğinde derinlik yaratmak için kullanılır.
+
+     Turuncuda durum farklı: #fd630e üzerinde beyaz metin yalnızca 3.02:1
+     verdiğinden metin taşıyan turuncu yüzeylerde --color-orange-deep
+     (beyazla 5.16:1) kullanılır. */
+  --color-orange-deep: #c2410c;
+  --color-orange-darker: #9a3309;
+  --color-orange-glow: #ffb185;
+  --color-blue-deep: #004aad;
+  --color-blue-darker: #00337a;
+  --color-ink: #0d1b33;
+  --color-ink-soft: #4a5a75;
+  --color-mist: #f2f6fc;
+  --color-line: #dbe3f0;
+
+  /* --- Tipografi --- */
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: "Space Grotesk", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* --- Gölge ve yarıçap --- */
+  --shadow-card: 0 1px 2px rgb(15 43 56 / 0.06), 0 8px 24px -12px rgb(15 43 56 / 0.18);
+  --shadow-lift: 0 4px 8px rgb(15 43 56 / 0.08), 0 18px 40px -18px rgb(15 43 56 / 0.32);
+  --shadow-cta: 0 6px 18px -6px rgb(194 65 12 / 0.55);
+  --radius-card: 1rem;
+
+  /* --- Animasyonlar --- */
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-fade-up: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   TEMEL AYARLAR
+   ============================================================ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Sticky header'ın altında kalan bölüm başlıkları için */
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-white);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Klavye kullanıcıları için her yerde net bir odak halkası */
+  :focus-visible {
+    outline: 3px solid var(--color-main-orange);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Hareket azaltma tercihi olan kullanıcılar */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ============================================================
+   BİLEŞEN SINIFLARI
+   ============================================================ */
+@layer components {
+  /* --- Sayfa genişliği --- */
+  .kapsayici {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .kapsayici {
+      padding-inline: 2rem;
+    }
+  }
+
+  /* --- Butonlar --------------------------------------------
+     .btn-turuncu : Ana CTA. Beyaz metin / koyu turuncu zemin = 5.16:1 (AA)
+     .btn-mavi    : İkincil. Beyaz metin / koyu mavi zemin    = 8.22:1 (AAA)
+     .btn-hayalet : Koyu zeminde çerçeveli
+     ---------------------------------------------------------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8125rem 1.75rem;
+    border-radius: 9999px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition:
+      background-color 0.18s ease,
+      color 0.18s ease,
+      border-color 0.18s ease,
+      transform 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  .btn:active {
+    transform: translateY(0);
+  }
+
+  .btn-turuncu {
+    background-color: var(--color-orange-deep);
+    color: var(--color-white);
+    box-shadow: var(--shadow-cta);
+  }
+  .btn-turuncu:hover {
+    background-color: var(--color-orange-darker);
+    color: var(--color-white);
+  }
+
+  .btn-mavi {
+    background-color: var(--color-blue-deep);
+    color: var(--color-white);
+  }
+  .btn-mavi:hover {
+    background-color: var(--color-blue-darker);
+  }
+
+  .btn-hayalet {
+    background-color: transparent;
+    color: var(--color-white);
+    border-color: rgb(255 255 255 / 0.55);
+  }
+  .btn-hayalet:hover {
+    background-color: rgb(255 255 255 / 0.14);
+    border-color: var(--color-white);
+  }
+
+  .btn-cizgi {
+    background-color: transparent;
+    color: var(--color-orange-deep);
+    border-color: var(--color-orange-deep);
+  }
+  .btn-cizgi:hover {
+    background-color: var(--color-orange-deep);
+    color: var(--color-white);
+  }
+
+  .btn-kucuk {
+    padding: 0.5rem 1.125rem;
+    font-size: 0.875rem;
+  }
+  .btn-buyuk {
+    padding: 1rem 2.25rem;
+    font-size: 1.0625rem;
+  }
+
+  /* --- Kartlar --- */
+  .kart {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    transition:
+      box-shadow 0.2s ease,
+      transform 0.2s ease,
+      border-color 0.2s ease;
+  }
+  .kart-hover:hover {
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-3px);
+    border-color: var(--color-secondary-blue);
+  }
+
+  /* --- Bölüm etiketi (kicker) --- */
+  .etiket {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-orange-deep);
+  }
+  .etiket-acik {
+    color: var(--color-orange-glow);
+  }
+
+  /* --- Koyu mavi bölüm zemini --- */
+  .zemin-mavi {
+    background-color: var(--color-blue-deep);
+    color: var(--color-white);
+  }
+  .zemin-mavi h1,
+  .zemin-mavi h2,
+  .zemin-mavi h3 {
+    color: var(--color-white);
+  }
+
+  /* --- Turuncu vurgu çizgisi (başlık altı) --- */
+  .aksan-cizgi::after {
+    content: "";
+    display: block;
+    width: 3.5rem;
+    height: 4px;
+    margin-top: 0.875rem;
+    border-radius: 9999px;
+    background-color: var(--color-main-orange);
+  }
+  .aksan-cizgi-orta::after {
+    margin-inline: auto;
+  }
+
+  /* --- İçerik metni --- */
+  .metin-akisi > * + * {
+    margin-top: 1.15rem;
+  }
+  .metin-akisi p {
+    color: var(--color-ink-soft);
+    font-size: 1.0625rem;
+  }
+  .metin-akisi h2 {
+    margin-top: 2.5rem;
+    font-size: 1.75rem;
+    color: var(--color-blue-deep);
+  }
+  .metin-akisi h3 {
+    margin-top: 2rem;
+    font-size: 1.3125rem;
+    color: var(--color-blue-deep);
+  }
+  .metin-akisi ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  .metin-akisi ul li {
+    position: relative;
+    padding-left: 1.75rem;
+    color: var(--color-ink-soft);
+    margin-top: 0.6rem;
+  }
+  .metin-akisi ul li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.66em;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background-color: var(--color-main-orange);
+  }
+  .metin-akisi a {
+    color: var(--color-orange-deep);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .metin-akisi strong {
+    color: var(--color-ink);
+    font-weight: 700;
+  }
+
+  /* --- Ekran okuyucular için gizli, odaklanınca görünür bağlantı --- */
+  .atlama-baglantisi {
+    position: absolute;
+    left: 1rem;
+    top: -100%;
+    z-index: 100;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0 0 0.75rem 0.75rem;
+    background-color: var(--color-orange-deep);
+    color: var(--color-white);
+    font-weight: 700;
+    transition: top 0.2s ease;
+  }
+  .atlama-baglantisi:focus {
+    top: 0;
+  }
+}
+
+@layer utilities {
+  /* Sadece ekran okuyucular için */
+  .sr-yalniz {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Bölüm dolgusu - mobil öncelikli */
+  .bolum {
+    padding-block: 3.5rem;
+  }
+  @media (min-width: 768px) {
+    .bolum {
+      padding-block: 5rem;
+    }
+  }
+
+  /* Yatay kaydırma çubuğunu gizler */
+  .kaydirma-gizle {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .kaydirma-gizle::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Kenarlarda yumuşak solma (sponsor şeridi) */
+  .kenar-solma {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  }
+}

@@ -1,0 +1,119 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SayfaBasligi from '@components/SayfaBasligi.astro';
+import EtkinlikKarti from '@components/EtkinlikKarti.astro';
+import BolumBasligi from '@components/BolumBasligi.astro';
+import Ikon from '@components/Ikon.astro';
+import { tumEtkinlikler, gecmisEtkinlikler, yaklasanEtkinlikler } from '@lib/icerik';
+import { kirintiSemasi } from '@lib/schema';
+
+const hepsi = await tumEtkinlikler();
+const gecmis = await gecmisEtkinlikler();
+const yaklasan = await yaklasanEtkinlikler();
+---
+
+<BaseLayout
+  baslik="Geçmiş Etkinlikler"
+  aciklama="AntCon'un yıllara göre arşivi. Her yılın programı, konuşmacıları ve rakamları tek sayfada."
+  yapilandirilmisVeri={[
+    kirintiSemasi([{ ad: 'Geçmiş Etkinlikler', href: '/gecmis-etkinlikler' }]),
+  ]}
+>
+  <SayfaBasligi
+    etiket="Arşiv"
+    baslik="AntCon yıl yıl"
+    aciklama="AntCon her yıl tekrar eden bir organizasyon. Bu sayfa, her yeni etkinlik eklendiğinde otomatik olarak büyür."
+    kirintilar={[{ ad: 'Geçmiş Etkinlikler', href: '/gecmis-etkinlikler' }]}
+  />
+
+  <!-- Yaklaşan -->
+  {
+    yaklasan.length > 0 && (
+      <section class="bolum bg-white">
+        <div class="kapsayici">
+          <BolumBasligi
+            etiket="Sırada"
+            baslik="Yaklaşan etkinlik"
+            aciklama="Bir sonraki AntCon için hazırlıklar sürüyor. Tarih ve program kesinleştikçe bu kart güncellenecek."
+          />
+          <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {yaklasan.map((etkinlik) => (
+              <li>
+                <EtkinlikKarti etkinlik={etkinlik} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Geçmiş -->
+  <section class="bolum bg-mist">
+    <div class="kapsayici">
+      <BolumBasligi
+        etiket="Arşiv"
+        baslik="Geçmiş yıllar"
+        aciklama="Tamamlanan AntCon etkinlikleri, programları ve rakamlarıyla birlikte."
+      />
+
+      {
+        gecmis.length === 0 ? (
+          <div class="kart mt-10 p-8 text-center md:p-12">
+            <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-main-orange/12 text-orange-deep">
+              <Ikon ad="takvim" sinif="w-8 h-8" />
+            </span>
+            <h3 class="mt-5 font-display text-xl font-bold text-blue-deep">
+              Arşivde henüz tamamlanmış etkinlik yok
+            </h3>
+            <p class="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
+              Bir etkinlik tamamlandığında bu sayfa kendiliğinden dolmaya başlar: her yıl için
+              fotoğraflar, program, konuşmacı kadrosu ve rakamlar burada arşivlenir.
+            </p>
+            <a href="/iletisim" class="btn btn-turuncu mt-7">
+              <Ikon ad="posta" sinif="w-5 h-5" />
+              Bize ulaş
+            </a>
+          </div>
+        ) : (
+          <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {gecmis.map((etkinlik) => (
+              <li>
+                <EtkinlikKarti etkinlik={etkinlik} />
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- Yıl zaman çizelgesi -->
+  {
+    hepsi.length > 0 && (
+      <section class="bolum bg-blue-deep">
+        <div class="kapsayici">
+          <BolumBasligi
+            etiket="Zaman çizelgesi"
+            baslik="Tüm yıllar"
+            koyuZemin={true}
+            hizalama="orta"
+          />
+          <ol class="mt-10 flex flex-wrap justify-center gap-3">
+            {hepsi.map((etkinlik) => (
+              <li>
+                <a
+                  href={`/gecmis-etkinlikler/${etkinlik.data.yil}`}
+                  class="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2.5 font-display font-bold text-white transition-colors hover:border-main-orange hover:bg-main-orange"
+                >
+                  {etkinlik.data.yil}
+                  <Ikon ad="ok_sag" sinif="w-4 h-4" />
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

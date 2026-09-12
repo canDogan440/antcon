@@ -1,0 +1,153 @@
+---
+import { Image } from 'astro:assets';
+import logoBeyaz from '@assets/antcon-logo-beyaz.png';
+import Ikon from '@components/Ikon.astro';
+import { ANA_MENU, SITE, ANA_CTA, AKTIF_YIL } from '@config/site';
+
+const yol = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const aktifMi = (href: string) => yol === href || (href !== '/' && yol.startsWith(href));
+---
+
+<header
+  class="sticky top-0 z-50 border-b border-white/10 bg-blue-deep/95 backdrop-blur supports-[backdrop-filter]:bg-blue-deep/90"
+>
+  <div class="kapsayici">
+    <nav class="flex items-center justify-between gap-4 py-3" aria-label="Ana menü">
+      <!-- Logo -->
+      <a
+        href="/"
+        class="flex shrink-0 items-center gap-2.5 rounded-lg py-1 transition-opacity hover:opacity-85"
+        aria-label={`${SITE.ad} ana sayfa`}
+      >
+        <Image
+          src={logoBeyaz}
+          alt=""
+          width={44}
+          height={51}
+          densities={[1, 2]}
+          loading="eager"
+          class="h-10 w-auto"
+        />
+        <span class="flex flex-col leading-none">
+          <span class="font-display text-xl font-bold tracking-tight text-white">AntCon</span>
+          <span class="text-[0.65rem] font-semibold tracking-[0.18em] text-orange-glow uppercase">
+            Antalya {AKTIF_YIL}
+          </span>
+        </span>
+      </a>
+
+      <!-- Masaüstü menü -->
+      <ul class="hidden items-center gap-0.5 lg:flex">
+        {
+          ANA_MENU.map((oge) => (
+            <li>
+              <a
+                href={oge.href}
+                aria-current={aktifMi(oge.href) ? 'page' : undefined}
+                class:list={[
+                  'relative block rounded-full px-3 py-2 text-[0.9rem] font-semibold transition-colors',
+                  aktifMi(oge.href)
+                    ? 'text-white after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-main-orange'
+                    : 'text-white/80 hover:bg-white/10 hover:text-white',
+                ]}
+              >
+                {oge.ad}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <!-- Sağ taraf: CTA + hamburger -->
+      <div class="flex items-center gap-2">
+        <a href={ANA_CTA.href} class="btn btn-turuncu btn-kucuk hidden sm:inline-flex">
+          <Ikon ad={ANA_CTA.ikon} sinif="w-4 h-4" />
+          {ANA_CTA.metin}
+        </a>
+
+        <button
+          type="button"
+          id="menu-butonu"
+          class="inline-flex h-11 w-11 items-center justify-center rounded-lg text-white transition-colors hover:bg-white/10 lg:hidden"
+          aria-controls="mobil-menu"
+          aria-expanded="false"
+          aria-label="Menüyü aç"
+        >
+          <Ikon ad="menu" sinif="w-6 h-6" id="menu-ikon-ac" />
+          <Ikon ad="kapat" sinif="w-6 h-6 hidden" id="menu-ikon-kapat" />
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Mobil menü -->
+  <div
+    id="mobil-menu"
+    hidden
+    class="border-t border-white/10 bg-blue-darker lg:hidden"
+  >
+    <ul class="kapsayici flex flex-col gap-1 py-4">
+      {
+        ANA_MENU.map((oge) => (
+          <li>
+            <a
+              href={oge.href}
+              aria-current={aktifMi(oge.href) ? 'page' : undefined}
+              class:list={[
+                'flex items-center justify-between rounded-lg px-4 py-3 text-base font-semibold transition-colors',
+                aktifMi(oge.href)
+                  ? 'bg-white/10 text-white'
+                  : 'text-white/85 hover:bg-white/10 hover:text-white',
+              ]}
+            >
+              {oge.ad}
+              <Ikon ad="ok_sag" sinif="w-4 h-4 text-orange-glow" />
+            </a>
+          </li>
+        ))
+      }
+      <li class="mt-2">
+        <a href={ANA_CTA.href} class="btn btn-turuncu w-full">
+          <Ikon ad={ANA_CTA.ikon} sinif="w-5 h-5" />
+          {ANA_CTA.metin}
+        </a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<script>
+  // Mobil menü aç/kapat - erişilebilir davranış (ARIA + Escape + odak yönetimi)
+  const buton = document.getElementById('menu-butonu');
+  const menu = document.getElementById('mobil-menu');
+  const ikonAc = document.getElementById('menu-ikon-ac');
+  const ikonKapat = document.getElementById('menu-ikon-kapat');
+
+  if (buton && menu && ikonAc && ikonKapat) {
+    const ayarla = (acik: boolean) => {
+      menu.hidden = !acik;
+      buton.setAttribute('aria-expanded', String(acik));
+      buton.setAttribute('aria-label', acik ? 'Menüyü kapat' : 'Menüyü aç');
+      ikonAc.classList.toggle('hidden', acik);
+      ikonKapat.classList.toggle('hidden', !acik);
+      document.body.style.overflow = acik ? 'hidden' : '';
+    };
+
+    buton.addEventListener('click', () => {
+      ayarla(menu.hidden);
+    });
+
+    document.addEventListener('keydown', (olay) => {
+      if (olay.key === 'Escape' && !menu.hidden) {
+        ayarla(false);
+        buton.focus();
+      }
+    });
+
+    // Masaüstü genişliğine geçilince menüyü kapat
+    const sorgu = window.matchMedia('(min-width: 1024px)');
+    sorgu.addEventListener('change', (olay) => {
+      if (olay.matches) ayarla(false);
+    });
+  }
+</script>

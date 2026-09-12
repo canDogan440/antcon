@@ -1,0 +1,309 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SayfaBasligi from '@components/SayfaBasligi.astro';
+import SponsorIzgarasi from '@components/SponsorIzgarasi.astro';
+import BolumBasligi from '@components/BolumBasligi.astro';
+import Ikon from '@components/Ikon.astro';
+import {
+  sponsorlariSeviyeyeGoreGetir,
+  konusmacilariRoleGoreGetir,
+  programiGetir,
+} from '@lib/icerik';
+import { kirintiSemasi } from '@lib/schema';
+import { AKTIF_YIL, SON_ETKINLIK_YILI, ILETISIM } from '@config/site';
+
+const gruplar = await sponsorlariSeviyeyeGoreGetir(AKTIF_YIL);
+const gecenGruplar = await sponsorlariSeviyeyeGoreGetir(SON_ETKINLIK_YILI);
+const buYilSponsorVar = gruplar.length > 0;
+
+// "Neden sponsor olmali" bolumundeki rakamlar icerikten sayilir, uydurulmaz.
+// Henuz girilmemis (sifir) degerler listeden dusurulur.
+const gecenRoller = await konusmacilariRoleGoreGetir(SON_ETKINLIK_YILI);
+const gecenOturumSayisi = (await programiGetir(SON_ETKINLIK_YILI))
+  .flatMap((gun) => gun.oturumlar)
+  .filter((o) => o.data.tur !== 'mola').length;
+
+const ILK_YIL_RAKAMLARI = [
+  { deger: String(SON_ETKINLIK_YILI), etiket: 'İlk etkinlik' },
+  { deger: String(gecenOturumSayisi), etiket: 'Program başlığı' },
+  { deger: String(gecenRoller.konusmacilar.length), etiket: 'Konuşmacı' },
+  { deger: String(gecenRoller.juri.length), etiket: 'Cosplay jürisi' },
+].filter((satir) => satir.deger !== '0');
+
+/** Seviyeye gore gorsel yogunluk: ana sponsor daha buyuk gosterilir. */
+const GORUNUM: Record<string, { sutunlar: string; boyut: 'buyuk' | 'orta' | 'kucuk' }> = {
+  ana: { sutunlar: 'grid-cols-1 sm:grid-cols-2', boyut: 'buyuk' },
+  altin: { sutunlar: 'grid-cols-2 sm:grid-cols-3', boyut: 'orta' },
+  gumus: { sutunlar: 'grid-cols-2 sm:grid-cols-4', boyut: 'orta' },
+  bronz: { sutunlar: 'grid-cols-2 sm:grid-cols-4 lg:grid-cols-5', boyut: 'kucuk' },
+  medya: { sutunlar: 'grid-cols-2 sm:grid-cols-4', boyut: 'orta' },
+  destekci: { sutunlar: 'grid-cols-2 sm:grid-cols-4 lg:grid-cols-5', boyut: 'kucuk' },
+};
+
+const PAKETLER = [
+  {
+    ad: 'Ana Sponsor',
+    fiyat: 'Görüşmeye açık',
+    aciklama: 'Etkinliğin isim ortağı olarak en yüksek görünürlük.',
+    oneCikan: true,
+    ozellikler: [
+      'Etkinlik adıyla birlikte anılma hakkı',
+      'Ana sahnede açılış ve kapanışta anons',
+      'Fuaye alanında premium stant (6 m²)',
+      'Tüm basılı ve dijital materyalde birinci sırada logo',
+      'Sosyal medyada özel tanıtım içerikleri',
+      '20 adet davetiye',
+    ],
+  },
+  {
+    ad: 'Altın Sponsor',
+    fiyat: 'Görüşmeye açık',
+    aciklama: 'Yüksek görünürlük ve doğrudan stant teması.',
+    oneCikan: false,
+    ozellikler: [
+      'Sahne arka planında logo',
+      'Fuaye alanında stant (4 m²)',
+      'Web sitesi ve program kitapçığında logo',
+      'Sosyal medyada tanıtım paylaşımı',
+      '10 adet davetiye',
+    ],
+  },
+  {
+    ad: 'Gümüş Sponsor',
+    fiyat: 'Görüşmeye açık',
+    aciklama: 'Uygun maliyetle marka görünürlüğü.',
+    oneCikan: false,
+    ozellikler: [
+      'Web sitesi ve program kitapçığında logo',
+      'Stant alanı (2 m²)',
+      'Sosyal medyada toplu teşekkür paylaşımı',
+      '5 adet davetiye',
+    ],
+  },
+  {
+    ad: 'Destekçi / Medya',
+    fiyat: 'Ayni destek',
+    aciklama: 'Ürün, hizmet veya medya desteğiyle katkı.',
+    oneCikan: false,
+    ozellikler: [
+      'Web sitesi destekçiler bölümünde logo',
+      'Program kitapçığında teşekkür',
+      'Sosyal medyada anılma',
+      '2 adet davetiye',
+    ],
+  },
+];
+
+const NEDEN_SPONSOR = [
+  {
+    ikon: 'kivilcim' as const,
+    baslik: 'Kurulma aşamasında yer alın',
+    metin: `AntCon'un ilki 2026'da gerçekleşti, ${AKTIF_YIL} ikincisi olacak. Geleneğin ilk yıllarında destekçi olmak, markanızı organizasyonun hikâyesinin parçası yapar.`,
+  },
+  {
+    ikon: 'kisiler' as const,
+    baslik: 'Odaklı bir kitle',
+    metin:
+      'Ağırlıklı olarak 16-35 yaş aralığında; oyun, teknoloji ve popüler kültüre ilgili, satın alma kararlarını toplulukla birlikte veren bir katılımcı profili.',
+  },
+  {
+    ikon: 'kure' as const,
+    baslik: 'Etkinlik gününden fazlası',
+    metin:
+      'Etkinlik öncesi duyurular, gün içi sahne anonsları ve sonrasında yayınlanan arşiv sayfası ile görünürlük yıl boyunca sürüyor.',
+  },
+];
+---
+
+<BaseLayout
+  baslik="Sponsorlar"
+  aciklama={`AntCon ${AKTIF_YIL} sponsorluk paketleri ve başvuru bilgileri. Antalya'nın ilk convention'ının kurucu destekçileri arasında yerinizi alın.`}
+  yapilandirilmisVeri={[kirintiSemasi([{ ad: 'Sponsorlar', href: '/sponsorlar' }])]}
+>
+  <SayfaBasligi
+    etiket="Sponsorluk"
+    baslik={`AntCon ${AKTIF_YIL}'yi birlikte kuralım`}
+    aciklama={
+      buYilSponsorVar
+        ? `AntCon ${AKTIF_YIL}'yi mümkün kılan kurumlar ve markalar. Siz de bu listeye katılabilirsiniz.`
+        : `Sponsorluk görüşmeleri açık. Tarih ve program kesinleşmeden karar veren markalar en geniş görünürlük paketlerini seçme önceliğine sahip oluyor.`
+    }
+    kirintilar={[{ ad: 'Sponsorlar', href: '/sponsorlar' }]}
+  />
+
+  <!-- Bu yılın sponsorları (varsa) -->
+  {
+    buYilSponsorVar && (
+      <section class="bolum bg-white">
+        <div class="kapsayici">
+          <h2 class="sr-yalniz">AntCon {AKTIF_YIL} sponsorları</h2>
+          {gruplar.map((grup) => (
+            <div class="mt-12 first:mt-0">
+              <h3 class="aksan-cizgi font-display text-xl font-bold text-blue-deep md:text-2xl">
+                {grup.ad}
+              </h3>
+              <div class="mt-7">
+                <SponsorIzgarasi
+                  sponsorlar={grup.sponsorlar}
+                  sutunlar={GORUNUM[grup.anahtar]?.sutunlar}
+                  boyut={GORUNUM[grup.anahtar]?.boyut ?? 'orta'}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Neden sponsor olmalı -->
+  <section class="bolum bg-blue-deep">
+    <div class="kapsayici">
+      <BolumBasligi
+        etiket="Neden AntCon?"
+        baslik="Markanız için ne anlama geliyor?"
+        koyuZemin={true}
+        hizalama="orta"
+      />
+      <ul class="mt-10 grid gap-5 md:grid-cols-3">
+        {
+          NEDEN_SPONSOR.map((madde) => (
+            <li class="rounded-2xl border border-white/12 bg-white/5 p-6 text-center">
+              <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-main-orange/20 text-orange-glow">
+                <Ikon ad={madde.ikon} sinif="w-7 h-7" />
+              </span>
+              <h3 class="mt-4 font-display text-lg font-bold text-white">{madde.baslik}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-white/75">{madde.metin}</p>
+            </li>
+          ))
+        }
+      </ul>
+
+      {/* İlk yılın sayıları - içerikten hesaplanır */}
+      <dl class="mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-3">
+        {
+          ILK_YIL_RAKAMLARI.map((satir) => (
+            <div class="rounded-xl border border-white/12 bg-white/5 p-5 text-center">
+              <dt class="sr-yalniz">{satir.etiket}</dt>
+              <dd>
+                <span class="block font-display text-xl font-bold text-secondary-orange">
+                  {satir.deger}
+                </span>
+                <span class="mt-1 block text-[0.7rem] font-semibold tracking-wide text-white/70 uppercase">
+                  {satir.etiket}
+                </span>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- Paketler -->
+  <section class="bolum bg-mist">
+    <div class="kapsayici">
+      <BolumBasligi
+        etiket="Paketler"
+        baslik="Sponsorluk seviyeleri"
+        aciklama="Paketler ihtiyacınıza göre özelleştirilebilir. Detaylı sunum dosyası için bize yazın."
+        hizalama="orta"
+      />
+
+      <ul class="mt-12 grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          PAKETLER.map((paket) => (
+            <li>
+              <article
+                class:list={[
+                  'kart relative flex h-full flex-col p-6',
+                  paket.oneCikan ? 'border-2 border-main-orange shadow-lift' : 'kart-hover',
+                ]}
+              >
+                {paket.oneCikan && (
+                  <span class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-deep px-4 py-1 text-xs font-bold whitespace-nowrap text-white">
+                    En Yüksek Görünürlük
+                  </span>
+                )}
+
+                <h3 class="font-display text-lg font-bold text-blue-deep">{paket.ad}</h3>
+                <p class="mt-2 text-sm text-ink-soft">{paket.aciklama}</p>
+                <p class="mt-4 border-y border-line py-4 font-display text-base font-bold text-orange-deep">
+                  {paket.fiyat}
+                </p>
+
+                <ul class="mt-5 flex-1 space-y-2.5">
+                  {paket.ozellikler.map((ozellik) => (
+                    <li class="flex items-start gap-2.5 text-sm text-ink-soft">
+                      <Ikon ad="onay" sinif="w-4 h-4 mt-1 shrink-0 text-orange-deep" />
+                      <span>{ozellik}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <a
+                  href="/iletisim"
+                  class:list={['btn mt-6 w-full', paket.oneCikan ? 'btn-turuncu' : 'btn-cizgi']}
+                >
+                  Teklif İste
+                  <span class="sr-yalniz">- {paket.ad}</span>
+                </a>
+              </article>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="mt-8 text-center text-sm text-ink-soft">
+        Paket içerikleri AntCon {SON_ETKINLIK_YILI} deneyimine dayanmaktadır; {AKTIF_YIL} mekânı ve
+        program yapısı kesinleştiğinde güncellenecektir.
+      </p>
+
+      <!-- <div class="kart mt-12 flex flex-col items-center gap-5 p-8 text-center md:flex-row md:text-left">
+        <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-main-orange/12 text-orange-deep">
+          <Ikon ad="posta" sinif="w-7 h-7" />
+        </span>
+        <div class="flex-1">
+          <h2 class="font-display text-xl font-bold text-blue-deep">Sunum dosyasını isteyin</h2>
+          <p class="mt-2 text-sm text-ink-soft">
+            Kitle analizi, alan planı ve görünürlük detaylarını içeren sponsorluk sunumunu e-posta
+            ile gönderiyoruz.
+          </p>
+        </div>
+        <a href={`mailto:${ILETISIM.email}`} class="btn btn-turuncu shrink-0">
+          {ILETISIM.email}
+        </a>
+      </div> -->
+    </div>
+  </section>
+
+  <!-- Geçen yılın destekçileri -->
+  {
+    gecenGruplar.length > 0 && (
+      <section class="bolum bg-white">
+        <div class="kapsayici">
+          <BolumBasligi
+            etiket="Teşekkürler"
+            baslik={`AntCon ${SON_ETKINLIK_YILI} destekçileri`}
+            aciklama="İlk AntCon'u mümkün kılan kurumlar ve markalar."
+            hizalama="orta"
+          />
+          {gecenGruplar.map((grup) => (
+            <div class="mt-10 first:mt-10">
+              <h3 class="text-center font-display text-base font-bold tracking-[0.12em] text-ink-soft uppercase">
+                {grup.ad}
+              </h3>
+              <div class="mt-5">
+                <SponsorIzgarasi
+                  sponsorlar={grup.sponsorlar}
+                  sutunlar={GORUNUM[grup.anahtar]?.sutunlar}
+                  boyut={GORUNUM[grup.anahtar]?.boyut ?? 'orta'}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

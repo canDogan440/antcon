@@ -1,0 +1,33 @@
+# build output
+dist/
+.output/
+.vercel/
+.netlify/
+
+# generated
+.astro/
+node_modules/
+
+# generated brand assets (scripts/generate-assets.mjs ile uretilir)
+public/favicon-16.png
+public/favicon-32.png
+public/apple-touch-icon.png
+public/icon-192.png
+public/icon-512.png
+public/og-image.png
+src/assets/antcon-logo.png
+src/assets/antcon-logo-beyaz.png
+
+# environment
+.env
+.env.production
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# os
+.DS_Store
+Thumbs.db

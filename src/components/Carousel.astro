@@ -1,0 +1,265 @@
+---
+import { Image } from 'astro:assets';
+import Ikon from '@components/Ikon.astro';
+import type { Gorsel } from '@lib/gorseller';
+
+interface Props {
+  gorseller: Gorsel[];
+  /** Otomatik geçiş süresi (ms). 0 verilirse otomatik oynatma kapalıdır. */
+  sure?: number;
+  /** Bileşenin erişilebilirlik etiketi */
+  etiket?: string;
+  sinif?: string;
+}
+
+const { gorseller, sure = 5000, etiket = 'AntCon fotoğraf galerisi', sinif = '' } = Astro.props;
+const kimlik = `carousel-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+{
+  gorseller.length > 0 && (
+    <section
+      class:list={['relative', sinif]}
+      id={kimlik}
+      data-carousel
+      data-sure={sure}
+      aria-roledescription="karusel"
+      aria-label={etiket}
+    >
+      {/* Kaydırma alanı: CSS scroll-snap sayesinde dokunmatik swipe
+          hiçbir JS gerekmeden çalışır. */}
+      <div
+        class="kaydirma-gizle flex snap-x snap-mandatory overflow-x-auto scroll-smooth rounded-2xl"
+        data-carousel-yol
+        tabindex="0"
+        role="group"
+        aria-label={`${etiket} - ok tuşlarıyla gezinebilirsiniz`}
+      >
+        {gorseller.map((gorsel, i) => (
+          <div
+            class="relative w-full shrink-0 grow-0 basis-full snap-center"
+            data-carousel-slayt
+            role="group"
+            aria-roledescription="slayt"
+            aria-label={`${i + 1} / ${gorseller.length}`}
+          >
+            <Image
+              src={gorsel.src}
+              alt={gorsel.alt}
+              width={1440}
+              widths={[480, 768, 1024, 1200, 1440]}
+              sizes="(min-width: 1280px) 1200px, (min-width: 768px) 92vw, 100vw"
+              format="webp"
+              quality={60}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchpriority={i === 0 ? 'high' : 'auto'}
+              decoding={i === 0 ? 'sync' : 'async'}
+              class="aspect-[16/10] w-full object-cover sm:aspect-[16/9]"
+            />
+            {/* Alt kısımdaki koyu geçiş: üzerindeki kontrollerin okunurluğu için */}
+            <div
+              class="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-blue-darker/80 to-transparent"
+              aria-hidden="true"
+            />
+          </div>
+        ))}
+      </div>
+
+      {gorseller.length > 1 && (
+        <>
+          {/* Oklar */}
+          <button
+            type="button"
+            data-carousel-onceki
+            class="absolute top-1/2 left-2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-blue-deep shadow-card transition hover:bg-main-orange hover:text-white sm:left-4 sm:h-12 sm:w-12"
+            aria-label="Önceki görsel"
+            aria-controls={kimlik}
+          >
+            <Ikon ad="ok_sol" sinif="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            data-carousel-sonraki
+            class="absolute top-1/2 right-2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-blue-deep shadow-card transition hover:bg-main-orange hover:text-white sm:right-4 sm:h-12 sm:w-12"
+            aria-label="Sonraki görsel"
+            aria-controls={kimlik}
+          >
+            <Ikon ad="ok_sag" sinif="w-5 h-5" />
+          </button>
+
+          {/* Noktalar + oynat/duraklat */}
+          <div class="absolute inset-x-0 bottom-3 z-10 flex items-center justify-center gap-3 sm:bottom-5">
+            <div class="flex items-center gap-2 rounded-full bg-blue-darker/70 px-3 py-2 backdrop-blur-sm">
+              {gorseller.map((_, i) => (
+                <button
+                  type="button"
+                  data-carousel-nokta={i}
+                  class="h-2.5 rounded-full bg-white/45 transition-all duration-300 hover:bg-white"
+                  style={i === 0 ? 'width:1.75rem;background-color:var(--color-main-orange)' : 'width:0.625rem'}
+                  aria-label={`${i + 1}. görsele git`}
+                  aria-controls={kimlik}
+                />
+              ))}
+            </div>
+
+            {sure > 0 && (
+              <button
+                type="button"
+                data-carousel-duraklat
+                class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-darker/70 text-white backdrop-blur-sm transition hover:bg-main-orange"
+                aria-label="Otomatik geçişi duraklat"
+              >
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" data-duraklat-ikon>
+                  <rect x="7" y="5" width="3.5" height="14" rx="1" />
+                  <rect x="13.5" y="5" width="3.5" height="14" rx="1" />
+                </svg>
+                <svg class="hidden h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" data-oynat-ikon>
+                  <path d="M8 5.5v13l11-6.5z" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </>
+      )}
+    </section>
+  )
+}
+
+<script>
+  /**
+   * Carousel davranışı.
+   * Kaydırma işini tarayıcının kendi scroll-snap'i yapar; JS yalnızca
+   * ok/nokta kontrollerini, otomatik oynatmayı ve klavye desteğini ekler.
+   */
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((carousel) => {
+    const yol = carousel.querySelector<HTMLElement>('[data-carousel-yol]');
+    const slaytlar = [...carousel.querySelectorAll<HTMLElement>('[data-carousel-slayt]')];
+    const noktalar = [...carousel.querySelectorAll<HTMLButtonElement>('[data-carousel-nokta]')];
+    const onceki = carousel.querySelector<HTMLButtonElement>('[data-carousel-onceki]');
+    const sonraki = carousel.querySelector<HTMLButtonElement>('[data-carousel-sonraki]');
+    const duraklatBtn = carousel.querySelector<HTMLButtonElement>('[data-carousel-duraklat]');
+    const duraklatIkon = carousel.querySelector<SVGElement>('[data-duraklat-ikon]');
+    const oynatIkon = carousel.querySelector<SVGElement>('[data-oynat-ikon]');
+
+    if (!yol || slaytlar.length < 2) return;
+
+    const sure = Number(carousel.dataset.sure ?? 0);
+    const hareketAzalt = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let aktif = 0;
+    let zamanlayici: ReturnType<typeof setInterval> | null = null;
+    let duraklatildi = false;
+
+    const noktalariGuncelle = () => {
+      noktalar.forEach((nokta, i) => {
+        const seciliMi = i === aktif;
+        nokta.style.width = seciliMi ? '1.75rem' : '0.625rem';
+        nokta.style.backgroundColor = seciliMi
+          ? 'var(--color-main-orange)'
+          : 'rgb(255 255 255 / 0.45)';
+        nokta.setAttribute('aria-current', seciliMi ? 'true' : 'false');
+      });
+    };
+
+    const git = (indeks: number, yumusak = true) => {
+      aktif = (indeks + slaytlar.length) % slaytlar.length;
+      yol.scrollTo({
+        left: slaytlar[aktif].offsetLeft - yol.offsetLeft,
+        behavior: yumusak && !hareketAzalt ? 'smooth' : 'auto',
+      });
+      noktalariGuncelle();
+    };
+
+    onceki?.addEventListener('click', () => {
+      git(aktif - 1);
+      yenidenBaslat();
+    });
+    sonraki?.addEventListener('click', () => {
+      git(aktif + 1);
+      yenidenBaslat();
+    });
+    noktalar.forEach((nokta, i) =>
+      nokta.addEventListener('click', () => {
+        git(i);
+        yenidenBaslat();
+      }),
+    );
+
+    // Klavye ile gezinme
+    yol.addEventListener('keydown', (olay) => {
+      if (olay.key === 'ArrowRight') {
+        olay.preventDefault();
+        git(aktif + 1);
+        yenidenBaslat();
+      } else if (olay.key === 'ArrowLeft') {
+        olay.preventDefault();
+        git(aktif - 1);
+        yenidenBaslat();
+      }
+    });
+
+    // Kullanıcı parmağıyla kaydırdığında aktif slaytı takip et
+    let kaydirmaZamani: ReturnType<typeof setTimeout>;
+    yol.addEventListener(
+      'scroll',
+      () => {
+        clearTimeout(kaydirmaZamani);
+        kaydirmaZamani = setTimeout(() => {
+          const yeni = Math.round(yol.scrollLeft / yol.clientWidth);
+          if (yeni !== aktif && yeni >= 0 && yeni < slaytlar.length) {
+            aktif = yeni;
+            noktalariGuncelle();
+          }
+        }, 120);
+      },
+      { passive: true },
+    );
+
+    /* --- Otomatik oynatma --- */
+    const baslat = () => {
+      if (sure <= 0 || duraklatildi || hareketAzalt || zamanlayici) return;
+      zamanlayici = setInterval(() => git(aktif + 1), sure);
+    };
+    const durdur = () => {
+      if (zamanlayici) clearInterval(zamanlayici);
+      zamanlayici = null;
+    };
+    const yenidenBaslat = () => {
+      durdur();
+      baslat();
+    };
+
+    duraklatBtn?.addEventListener('click', () => {
+      duraklatildi = !duraklatildi;
+      duraklatIkon?.classList.toggle('hidden', duraklatildi);
+      oynatIkon?.classList.toggle('hidden', !duraklatildi);
+      duraklatBtn.setAttribute(
+        'aria-label',
+        duraklatildi ? 'Otomatik geçişi başlat' : 'Otomatik geçişi duraklat',
+      );
+      duraklatildi ? durdur() : baslat();
+    });
+
+    // Fare üzerindeyken / odaklanılmışken durdur (WCAG 2.2.2)
+    carousel.addEventListener('mouseenter', durdur);
+    carousel.addEventListener('mouseleave', baslat);
+    carousel.addEventListener('focusin', durdur);
+    carousel.addEventListener('focusout', baslat);
+
+    // Sekme arka plandayken boşuna çalışmasın
+    document.addEventListener('visibilitychange', () => {
+      document.hidden ? durdur() : baslat();
+    });
+
+    // Görünür alana girince başlat
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(
+        (girisler) => girisler.forEach((giris) => (giris.isIntersecting ? baslat() : durdur())),
+        { threshold: 0.25 },
+      ).observe(carousel);
+    } else {
+      baslat();
+    }
+
+    noktalariGuncelle();
+  });
+</script>

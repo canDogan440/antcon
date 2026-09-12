@@ -1,0 +1,67 @@
+---
+import BolumBasligi from '@components/BolumBasligi.astro';
+import Ikon from '@components/Ikon.astro';
+
+interface Props {
+  etiket?: string;
+  baslik: string;
+  aciklama?: string;
+  /** Ekmek kırıntısı yolu (ana sayfa otomatik eklenir) */
+  kirintilar?: { ad: string; href: string }[];
+}
+
+const { etiket, baslik, aciklama, kirintilar = [] } = Astro.props;
+---
+
+<!-- İç sayfaların koyu mavi başlık bölgesi -->
+<section class="relative overflow-hidden bg-blue-deep">
+  <!-- Dekoratif arka plan katmanı -->
+  <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+    <div class="absolute -top-28 -right-24 h-80 w-80 rounded-full bg-main-orange/15 blur-3xl"></div>
+    <div class="absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-main-blue/30 blur-3xl"></div>
+  </div>
+
+  <div class="kapsayici relative py-12 md:py-16">
+    {
+      kirintilar.length > 0 && (
+        <nav aria-label="Sayfa yolu" class="mb-6">
+          <ol class="flex flex-wrap items-center gap-1.5 text-sm text-white/70">
+            <li>
+              <a href="/" class="transition-colors hover:text-orange-glow hover:underline">
+                Ana Sayfa
+              </a>
+            </li>
+            {kirintilar.map((kirinti, i) => (
+              <li class="flex items-center gap-1.5">
+                <Ikon ad="ok_sag" sinif="w-3.5 h-3.5 text-white/40" />
+                {i === kirintilar.length - 1 ? (
+                  <span class="font-semibold text-white" aria-current="page">
+                    {kirinti.ad}
+                  </span>
+                ) : (
+                  <a
+                    href={kirinti.href}
+                    class="transition-colors hover:text-orange-glow hover:underline"
+                  >
+                    {kirinti.ad}
+                  </a>
+                )}
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )
+    }
+
+    <BolumBasligi
+      etiket={etiket}
+      baslik={baslik}
+      aciklama={aciklama}
+      seviye="h1"
+      koyuZemin={true}
+    />
+  </div>
+
+  <!-- Alt kenardaki turuncu vurgu -->
+  <div class="h-1 w-full bg-gradient-to-r from-main-orange via-secondary-orange to-main-blue" aria-hidden="true"></div>
+</section>

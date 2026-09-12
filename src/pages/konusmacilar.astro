@@ -1,0 +1,178 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SayfaBasligi from '@components/SayfaBasligi.astro';
+import KonusmaciKarti from '@components/KonusmaciKarti.astro';
+import Ikon from '@components/Ikon.astro';
+import BolumBasligi from '@components/BolumBasligi.astro';
+import { konusmacilariGetir, konusmacilariRoleGoreGetir } from '@lib/icerik';
+import { kirintiSemasi } from '@lib/schema';
+import { AKTIF_YIL, SON_ETKINLIK_YILI, SITE_URL } from '@config/site';
+
+const konusmacilar = await konusmacilariGetir(AKTIF_YIL);
+const kadroVar = konusmacilar.length > 0;
+
+// Kadro henuz yoksa gecen yilin kadrosunu referans olarak gosteriyoruz.
+const gosterilenYil = kadroVar ? AKTIF_YIL : SON_ETKINLIK_YILI;
+const { konusmacilar: sahne, juri, hepsi: gosterilecek } =
+  await konusmacilariRoleGoreGetir(gosterilenYil);
+
+// Konusmaci listesi icin ItemList semasi - arama sonuclarinda listeyi anlasilir kilar
+const listeSemasi =
+  gosterilecek.length > 0
+    ? {
+        '@type': 'ItemList',
+        name: `AntCon ${gosterilenYil} Konuşmacıları`,
+        numberOfItems: gosterilecek.length,
+        itemListElement: gosterilecek.map((konusmaci, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          item: {
+            '@type': 'Person',
+            name: konusmaci.data.ad,
+            jobTitle: konusmaci.data.unvan,
+            ...(konusmaci.data.kurum
+              ? { worksFor: { '@type': 'Organization', name: konusmaci.data.kurum } }
+              : {}),
+            description: konusmaci.data.kisaBio,
+            url: new URL('/konusmacilar', SITE_URL).href,
+          },
+        })),
+      }
+    : null;
+---
+
+<BaseLayout
+  baslik="Konuşmacılar"
+  aciklama={
+    kadroVar
+      ? `AntCon ${AKTIF_YIL} konuşmacı kadrosu: oyun yönetmenleri, çizgi roman sanatçıları, e-spor analistleri, araştırmacılar ve seslendirme sanatçıları.`
+      : `AntCon ${AKTIF_YIL} konuşmacı kadrosu henüz açıklanmadı. AntCon ${SON_ETKINLIK_YILI} sahnesinde yer alan isimleri inceleyebilir, konuşmacı başvurusu için bize yazabilirsiniz.`
+  }
+  yapilandirilmisVeri={[
+    kirintiSemasi([{ ad: 'Konuşmacılar', href: '/konusmacilar' }]),
+    ...(listeSemasi ? [listeSemasi] : []),
+  ]}
+>
+  <SayfaBasligi
+    etiket="Sahne"
+    baslik={kadroVar ? 'Konuşmacılar' : 'Kadro henüz açıklanmadı'}
+    aciklama={
+      kadroVar
+        ? `AntCon ${AKTIF_YIL} sahnesinde ve atölyelerinde yer alacak isimler.`
+        : `AntCon ${AKTIF_YIL} için konuşmacı görüşmeleri sürüyor. Kadro netleştikçe bu sayfada yayınlanacak.`
+    }
+    kirintilar={[{ ad: 'Konuşmacılar', href: '/konusmacilar' }]}
+  />
+
+  {/* Kadro yoksa durum kutusu */}
+  {
+    !kadroVar && (
+      <section class="bolum bg-white">
+        <div class="kapsayici">
+          <div class="kart mx-auto max-w-3xl p-8 text-center md:p-12">
+            <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-main-orange/12 text-orange-deep">
+              <Ikon ad="mikrofon" sinif="w-8 h-8" />
+            </span>
+            <h2 class="mt-5 font-display text-2xl font-bold text-blue-deep">
+              AntCon {AKTIF_YIL} kadrosu hazırlanıyor
+            </h2>
+            <p class="mx-auto mt-4 max-w-xl leading-relaxed text-ink-soft">
+              Konuşmacı ve atölye eğitmeni başvuruları etkinlik tarihi duyurulduktan sonra resmî
+              olarak açılacak. Anlatmak istediğiniz bir konu varsa şimdiden bize yazabilirsiniz —
+              program hazırlığında değerlendiriyoruz.
+            </p>
+            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+              <a href="/iletisim" class="btn btn-turuncu">
+                <Ikon ad="posta" sinif="w-5 h-5" />
+                Konuşmacı Başvurusu
+              </a>
+              <a href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`} class="btn btn-cizgi">
+                AntCon {SON_ETKINLIK_YILI} arşivi
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {/* Kadro listesi: varsa bu yılın, yoksa geçen yılın */}
+  {
+    gosterilecek.length > 0 && (
+      <section class="bolum bg-mist">
+        <div class="kapsayici">
+          {kadroVar ? (
+            <h2 class="sr-yalniz">AntCon {AKTIF_YIL} konuşmacı kadrosu</h2>
+          ) : (
+            <BolumBasligi
+              etiket={`AntCon ${SON_ETKINLIK_YILI}`}
+              baslik="Geçen yıl sahnedeydiler"
+              aciklama="İlk AntCon'un kadrosu, bu yıl neler bekleyebileceğiniz konusunda fikir veriyor."
+              hizalama="orta"
+              sinif="mb-10"
+            />
+          )}
+
+          {/* Sahne kadrosu */}
+          {sahne.length > 0 && (
+            <>
+              {juri.length > 0 && (
+                <h3 class="aksan-cizgi font-display text-xl font-bold text-blue-deep md:text-2xl">
+                  Konuşmacılar
+                </h3>
+              )}
+              <ul
+                class:list={[
+                  'grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+                  juri.length > 0 && 'mt-7',
+                ]}
+              >
+                {sahne.map((konusmaci) => (
+                  <li>
+                    <KonusmaciKarti konusmaci={konusmaci} />
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          {/* Cosplay jürisi */}
+          {juri.length > 0 && (
+            <div class="mt-14">
+              <h3 class="aksan-cizgi font-display text-xl font-bold text-blue-deep md:text-2xl">
+                Cosplay Jürisi
+              </h3>
+              <ul class="mt-7 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {juri.map((uye) => (
+                  <li>
+                    <KonusmaciKarti konusmaci={uye} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Konuşmacı başvurusu çağrısı - kadro yayındayken */}
+          {kadroVar && (
+            <div class="kart mt-12 flex flex-col items-center gap-6 bg-blue-deep p-8 text-center md:flex-row md:text-left">
+              <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-main-orange/20 text-orange-glow">
+                <Ikon ad="mikrofon" sinif="w-7 h-7" />
+              </span>
+              <div class="flex-1">
+                <h2 class="font-display text-xl font-bold text-white">Sahnede sen de ol</h2>
+                <p class="mt-2 text-sm leading-relaxed text-white/75">
+                  Anlatacak bir hikâyen, göstereceğin bir işin ya da paylaşacağın bir deneyimin
+                  varsa konuşmacı başvurusu yapabilirsin.
+                </p>
+              </div>
+              <a href="/iletisim" class="btn btn-turuncu shrink-0">
+                Başvuru Yap
+                <Ikon ad="ok_sag" sinif="w-4 h-4" />
+              </a>
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

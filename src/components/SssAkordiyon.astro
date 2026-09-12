@@ -1,0 +1,55 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import Ikon from '@components/Ikon.astro';
+
+interface Props {
+  sorular: CollectionEntry<'sss'>[];
+  /** Aynı anda tek soru açık kalsın mı? (native <details name> davranışı) */
+  tekli?: boolean;
+  /** Aynı sayfada birden fazla akordiyon varsa grupları ayırmak için */
+  grup?: string;
+}
+
+const { sorular, tekli = true, grup = 'sss' } = Astro.props;
+
+// Markdown gövdelerini önceden render ediyoruz (build zamanında, sıfır JS).
+const ogeler = await Promise.all(
+  sorular.map(async (soru) => ({
+    veri: soru.data,
+    kimlik: soru.id,
+    Icerik: (await render(soru)).Content,
+  })),
+);
+---
+
+<!--
+  Akordiyon native <details>/<summary> üzerine kuruludur:
+  - JavaScript gerektirmez (JS kapalıyken de çalışır)
+  - Klavye desteği ve ekran okuyucu semantiği tarayıcıdan gelir
+  - name özniteliği sayesinde aynı anda tek soru açık kalır
+-->
+<div class="space-y-3">
+  {
+    ogeler.map(({ veri, kimlik, Icerik }) => (
+      <details
+        name={tekli ? grup : undefined}
+        class="kart group overflow-hidden [&[open]]:border-secondary-blue"
+        id={`sss-${kimlik}`}
+      >
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-display text-base font-bold text-blue-deep transition-colors hover:text-orange-deep [&::-webkit-details-marker]:hidden">
+          <span>{veri.soru}</span>
+          <span
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-mist text-orange-deep transition-transform duration-300 group-open:rotate-180 group-open:bg-orange-deep group-open:text-white"
+            aria-hidden="true"
+          >
+            <Ikon ad="asagi" sinif="w-4 h-4" />
+          </span>
+        </summary>
+
+        <div class="metin-akisi border-t border-line px-5 pt-4 pb-5 text-[0.95rem]">
+          <Icerik />
+        </div>
+      </details>
+    ))
+  }
+</div>

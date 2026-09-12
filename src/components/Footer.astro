@@ -1,0 +1,175 @@
+---
+import { Image } from 'astro:assets';
+import logoBeyaz from '@assets/antcon-logo-beyaz.png';
+import Ikon from '@components/Ikon.astro';
+import {
+  FOOTER_MENU,
+  SOSYAL,
+  SITE,
+  ETKINLIK,
+  ILETISIM,
+  ANA_CTA,
+  AKTIF_YIL,
+  SON_ETKINLIK_YILI,
+  TARIH_BELLI,
+} from '@config/site';
+
+const yil = new Date().getFullYear();
+---
+
+<footer class="bg-blue-deep text-white/80">
+  <!-- Turuncu üst şerit: markanın vurgu rengi -->
+  <div class="h-1.5 w-full bg-main-orange" aria-hidden="true"></div>
+
+  <div class="kapsayici py-12 md:py-16">
+    <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-12">
+      <!-- Marka -->
+      <div class="lg:col-span-4">
+        <a href="/" class="inline-flex items-center gap-3" aria-label={`${SITE.ad} ana sayfa`}>
+          <Image
+            src={logoBeyaz}
+            alt=""
+            width={56}
+            height={65}
+            densities={[1, 2]}
+            loading="lazy"
+            class="h-14 w-auto"
+          />
+          <span class="flex flex-col leading-none">
+            <span class="font-display text-2xl font-bold text-white">AntCon</span>
+            <span class="mt-1 text-[0.7rem] font-semibold tracking-[0.18em] text-orange-glow uppercase">
+              Antalya {AKTIF_YIL}
+            </span>
+          </span>
+        </a>
+
+        <p class="mt-5 max-w-sm text-sm leading-relaxed">
+          {SITE.slogan}. Oyun, teknoloji, çizgi roman ve pop kültürünü Akdeniz'in kalbinde
+          buluşturuyoruz.
+        </p>
+
+        <ul class="mt-6 flex flex-wrap gap-2">
+          {
+            SOSYAL.map((sosyal) => (
+              <li>
+                <a
+                  href={sosyal.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition-colors hover:border-main-orange hover:bg-main-orange hover:text-white"
+                  aria-label={`AntCon ${sosyal.ad} sayfası (yeni sekmede açılır)`}
+                >
+                  <Ikon ad={sosyal.ikon} sinif="w-5 h-5" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Hızlı linkler -->
+      <nav class="lg:col-span-3" aria-labelledby="footer-linkler">
+        <h2 id="footer-linkler" class="font-display text-sm font-bold tracking-[0.16em] text-white uppercase">
+          Hızlı Linkler
+        </h2>
+        <ul class="mt-5 grid grid-cols-2 gap-x-4 gap-y-2.5 lg:grid-cols-1">
+          {
+            FOOTER_MENU.map((oge) => (
+              <li>
+                <a
+                  href={oge.href}
+                  class="text-sm transition-colors hover:text-orange-glow hover:underline"
+                >
+                  {oge.ad}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <!-- Etkinlik bilgileri -->
+      <div class="lg:col-span-3">
+        <h2 class="font-display text-sm font-bold tracking-[0.16em] text-white uppercase">
+          AntCon {AKTIF_YIL}
+        </h2>
+        <ul class="mt-5 space-y-3.5 text-sm">
+          <li class="flex gap-3">
+            <Ikon ad="takvim" sinif="w-5 h-5 shrink-0 text-main-orange" />
+            <span>
+              <strong class="block font-semibold text-white">{ETKINLIK.tarihMetni}</strong>
+              {
+                TARIH_BELLI
+                  ? `${ETKINLIK.gunMetni}, ${ETKINLIK.saatMetni}`
+                  : 'Planlama aşamasında'
+              }
+            </span>
+          </li>
+          <li class="flex gap-3">
+            <Ikon ad="konum" sinif="w-5 h-5 shrink-0 text-main-orange" />
+            <span>
+              <strong class="block font-semibold text-white">
+                {ETKINLIK.mekan.ad || ETKINLIK.mekan.sehir}
+              </strong>
+              {ETKINLIK.mekan.ad ? ETKINLIK.mekan.sehir : 'Mekân yakında açıklanacak'}
+            </span>
+          </li>
+          <li class="flex gap-3">
+            <Ikon ad="posta" sinif="w-5 h-5 shrink-0 text-main-orange" />
+            <a href={`mailto:${ILETISIM.email}`} class="hover:text-orange-glow hover:underline">
+              {ILETISIM.email}
+            </a>
+          </li>
+          {
+            ILETISIM.telefon && (
+              <li class="flex gap-3">
+                <Ikon ad="telefon" sinif="w-5 h-5 shrink-0 text-main-orange" />
+                <a
+                  href={`tel:${ILETISIM.telefonHref}`}
+                  class="hover:text-orange-glow hover:underline"
+                >
+                  {ILETISIM.telefon}
+                </a>
+              </li>
+            )
+          }
+        </ul>
+      </div>
+
+      <!-- CTA kutusu -->
+      <div class="lg:col-span-2">
+        <h2 class="font-display text-sm font-bold tracking-[0.16em] text-white uppercase">
+          Katıl
+        </h2>
+        <p class="mt-5 text-sm">
+          Tarih ve bilet duyurularını kaçırmamak için bize yazın.
+        </p>
+        <a href={ANA_CTA.href} class="btn btn-turuncu btn-kucuk mt-4 w-full">
+          <Ikon ad={ANA_CTA.ikon} sinif="w-4 h-4" />
+          {ANA_CTA.metin}
+        </a>
+        <a href="/sponsorlar" class="btn btn-hayalet btn-kucuk mt-2.5 w-full"> Sponsor Ol </a>
+        <a
+          href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`}
+          class="mt-4 inline-flex items-center gap-1.5 text-sm transition-colors hover:text-orange-glow hover:underline"
+        >
+          AntCon {SON_ETKINLIK_YILI}'yı gör
+          <Ikon ad="ok_sag" sinif="w-3.5 h-3.5" />
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alt şerit -->
+  <div class="border-t border-white/10">
+    <div
+      class="kapsayici flex flex-col items-center justify-between gap-3 py-5 text-xs sm:flex-row"
+    >
+      <p>&copy; {yil} AntCon. Tüm hakları saklıdır.</p>
+      <p class="flex items-center gap-1.5">
+        <Ikon ad="konum" sinif="w-3.5 h-3.5 text-main-orange" />
+        Antalya, Türkiye
+      </p>
+    </div>
+  </div>
+</footer>
