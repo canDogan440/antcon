@@ -1,0 +1,12 @@
+// Cloudflare Workers ayarı - site tamamen statik, Worker kodu yok.
+// Build: npm run build  ·  Deploy: npx wrangler deploy
+{
+  "name": "antcon",
+  "compatibility_date": "2026-09-11",
+  "assets": {
+    // Astro'nun derleme çıktısı
+    "directory": "./dist",
+    // Bulunamayan adreslerde src/pages/404.astro'dan üretilen sayfayı göster
+    "not_found_handling": "404-page"
+  }
+}
