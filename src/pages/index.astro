@@ -15,6 +15,8 @@ import {
   sponsorlariGetir,
 } from '@lib/icerik';
 import { etkinlikSemasi } from '@lib/schema';
+import { sayfaMetinleri } from '@lib/sayfa';
+import { vurgula } from '@lib/metin';
 import {
   ETKINLIK,
   SITE,
@@ -25,14 +27,17 @@ import {
   ANA_CTA,
 } from '@config/site';
 
-const gorseller = carouselGorselleri(8, SON_ETKINLIK_YILI);
-const gecenYilFotograflari = yilinGorselleri(SON_ETKINLIK_YILI);
+const { seoAciklama, hero, gecenYil, nedir, hazirlik, destekciler, sonCta } =
+  await sayfaMetinleri('anasayfa');
+
+const gorseller = await carouselGorselleri(8, SON_ETKINLIK_YILI);
+const gecenYilFotograflari = await yilinGorselleri(SON_ETKINLIK_YILI);
 
 // Geride kalan etkinlik (arsiv) ve siradaki etkinlik
 const gecenEtkinlik = await etkinlikGetir(SON_ETKINLIK_YILI);
 const siradakiEtkinlik = await etkinlikGetir(AKTIF_YIL);
 
-// 2026 icerikleri - ana sayfadaki geriye donuk ozet icin
+// Gecen yilin icerikleri - ana sayfadaki geriye donuk ozet icin
 const gecenRoller = await konusmacilariRoleGoreGetir(SON_ETKINLIK_YILI);
 const gecenKonusmacilar = gecenRoller.hepsi;
 const gecenProgram = await programiGetir(SON_ETKINLIK_YILI);
@@ -44,7 +49,7 @@ const gecenOturumSayisi = gecenProgram
 
 /**
  * Geriye donuk ozet rakamlari.
- * Icerik dosyasinda `istatistikler` doldurulmussa onlar kullanilir; aksi halde
+ * Etkinlik kaydinda "Rakamlar" doldurulmussa onlar kullanilir; aksi halde
  * koleksiyonlardan gercekten sayilabilen degerler gosterilir. Sifir olan
  * satirlar (orn. henuz girilmemis program) hic gosterilmez.
  */
@@ -61,9 +66,9 @@ const gecenIstatistikler =
 
 /**
  * Schema.org Event.
- * Siradaki etkinligin tarihi henuz belli olmadigi icin sema uretilmez;
- * bunun yerine gerceklesmis 2026 etkinligini yayinliyoruz. Tarih
- * aciklandiginda 2027 semasi da otomatik olarak eklenir.
+ * Siradaki etkinligin tarihi henuz belli degilse sema uretilmez;
+ * bunun yerine gerceklesmis etkinligi yayinliyoruz. Tarih
+ * aciklandiginda siradaki etkinligin semasi da otomatik olarak eklenir.
  */
 const semalar = [
   gecenEtkinlik
@@ -75,68 +80,11 @@ const semalar = [
     : null,
   siradakiEtkinlik ? etkinlikSemasi(siradakiEtkinlik.data) : null,
 ].filter((s): s is NonNullable<typeof s> => s !== null);
-
-/** 2027 hazirlik durumu - her satir tek bir baslikta nerede olduğumuzu söyler. */
-const HAZIRLIK_DURUMU = [
-  {
-    ikon: 'takvim' as const,
-    baslik: 'Tarih ve mekân',
-    durum: 'Görüşmeler sürüyor',
-    metin:
-      'Takvim ve mekân seçenekleri üzerinde çalışıyoruz. Kesinleştiğinde ilk olarak burada duyuracağız.',
-    tamam: false,
-  },
-  {
-    ikon: 'mikrofon' as const,
-    baslik: 'Program ve konuşmacılar',
-    durum: 'Hazırlanıyor',
-    metin:
-      'Sahne programı ve konuşmacı kadrosu için ön görüşmeler başladı. Başvurular tarih duyurusundan sonra açılacak.',
-    tamam: false,
-  },
-  {
-    ikon: 'bilet' as const,
-    baslik: 'Biletler',
-    durum: 'Satış açılmadı',
-    metin:
-      'Tarih kesinleşmeden bilet satışını açmıyoruz. Duyuru listesine katılarak ilk siz haberdar olabilirsiniz.',
-    tamam: false,
-  },
-  {
-    ikon: 'kivilcim' as const,
-    baslik: 'Sponsorluk',
-    durum: 'Başvurular açık',
-    metin:
-      'Sponsorluk görüşmeleri şimdiden başladı. Erken katılan markalar için daha geniş görünürlük imkânı var.',
-    tamam: true,
-  },
-];
-
-const NEDIR_KARTLARI = [
-  {
-    ikon: 'kivilcim' as const,
-    baslik: 'Stant Alanı',
-    metin:
-      'Çizgi roman, figürler, bağımsız üreticiler kendi standlarında işlerini sergiliyor ve satıyor.',
-  },
-  {
-    ikon: 'mikrofon' as const,
-    baslik: 'Konuşma ve Paneller',
-    metin:
-      '.',
-  },
-  {
-    ikon: 'kupa' as const,
-    baslik: 'Cosplay Yarışması',
-    metin:
-      'Profesyonel jüri tarafından değerlendirilen cosplay yarışması, etkinliğin en çok ilgi gören bölümlerinden biri.',
-  },
-];
 ---
 
 <BaseLayout
   baslik={`${SITE.ad} - ${SITE.slogan}`}
-  aciklama="Antalya'nın ilk convention'ı 28 Haziran 2026'da gerçekleşti. AntCon 2027 hazırlıkları sürüyor: tarih, program ve bilet duyurularını buradan takip edin."
+  aciklama={seoAciklama}
   yapilandirilmisVeri={semalar}
 >
   <!-- ============================= HERO ============================= -->
@@ -158,23 +106,27 @@ const NEDIR_KARTLARI = [
         <div class="lg:col-span-7">
           <p class="etiket etiket-acik">
             <span class="inline-block h-px w-6 bg-current" aria-hidden="true"></span>
-            AntCon {AKTIF_YIL} · Antalya
+            {hero.ustEtiket}
           </p>
 
           <h1
             id="hero-baslik"
             class="mt-4 font-display text-4xl leading-[1.08] font-bold text-white sm:text-5xl lg:text-6xl"
           >
-            Antalya'nın Convention'ı
-            <span class="relative inline-block">
-              <span class="relative z-10 text-secondary-orange">geri dönüyor</span>
+            {hero.baslik}
+            {
+              hero.baslikVurgu && (
+                <span class="relative inline-block">
+                  <span class="relative z-10 text-secondary-orange">{hero.baslikVurgu}</span>
+                </span>
+              )
+            }
           </h1>
 
-          <p class="mt-6 max-w-xl text-lg leading-relaxed text-white/85">
-            Antalya'nın ilk convention'ı <strong class="font-semibold text-white">28 Haziran 2026</strong>'da
-            gerçekleşti. Şimdi ikinci buluşma için hazırlanıyoruz: tarih, mekân ve program üzerinde
-            çalışıyoruz.
-          </p>
+          <p
+            class="mt-6 max-w-xl text-lg leading-relaxed text-white/85"
+            set:html={vurgula(hero.aciklama, 'font-semibold text-white')}
+          />
 
           <!-- Durum künyesi -->
           <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-white/90">
@@ -186,10 +138,14 @@ const NEDIR_KARTLARI = [
               <Ikon ad="konum" sinif="w-5 h-5 text-secondary-orange" />
               {ETKINLIK.mekan.sehir}
             </li>
-            <li class="flex items-center gap-2">
-              <Ikon ad="kivilcim" sinif="w-5 h-5 text-secondary-orange" />
-              Planlama aşamasında
-            </li>
+            {
+              hero.durumEtiketi && (
+                <li class="flex items-center gap-2">
+                  <Ikon ad="kivilcim" sinif="w-5 h-5 text-secondary-orange" />
+                  {hero.durumEtiketi}
+                </li>
+              )
+            }
           </ul>
 
           <!-- CTA'lar -->
@@ -199,7 +155,7 @@ const NEDIR_KARTLARI = [
               {ANA_CTA.metin}
             </a>
             <a href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`} class="btn btn-hayalet btn-buyuk">
-              AntCon {SON_ETKINLIK_YILI}'yı İncele
+              {hero.ikinciButon}
               <Ikon ad="ok_sag" sinif="w-5 h-5" />
             </a>
           </div>
@@ -210,7 +166,7 @@ const NEDIR_KARTLARI = [
           <div class="rounded-2xl border border-white/15 bg-white/5 p-6 backdrop-blur-sm sm:p-8">
             <Image
               src={logoBeyaz}
-              alt="AntCon logosu"
+              alt={`${SITE.ad} logosu`}
               width={420}
               height={488}
               densities={[1, 2]}
@@ -223,7 +179,7 @@ const NEDIR_KARTLARI = [
               TARIH_BELLI ? (
                 <>
                   <p class="mt-6 text-center font-display text-sm font-bold tracking-[0.16em] text-orange-glow uppercase">
-                    Etkinliğe Kalan Süre
+                    {hero.geriSayimBasligi}
                   </p>
                   <GeriSayim hedef={ETKINLIK.baslangic} bitis={ETKINLIK.bitis} sinif="mt-4" />
                 </>
@@ -233,14 +189,14 @@ const NEDIR_KARTLARI = [
                     AntCon {AKTIF_YIL}
                   </p>
                   <p class="mt-3 text-center font-display text-2xl font-bold text-white">
-                    Tarih yakında açıklanacak
+                    {hero.tarihYokBasligi}
                   </p>
                   <p class="mt-3 text-center text-sm leading-relaxed text-white/70">
-                    Hazırlıklar sürüyor. Duyurular başladığında haberdar olmak için bize yazın.
+                    {hero.tarihYokMetni}
                   </p>
                   <a href="/iletisim" class="btn btn-turuncu mt-6 w-full">
                     <Ikon ad="posta" sinif="w-5 h-5" />
-                    Duyuru Listesine Katıl
+                    {hero.tarihYokButonu}
                   </a>
                 </>
               )
@@ -257,7 +213,7 @@ const NEDIR_KARTLARI = [
     </div>
   </section>
 
-  <!-- ==================== 2026 GERIYE DONUK OZET ==================== -->
+  <!-- ==================== GECEN YIL: GERIYE DONUK OZET ==================== -->
   {
     gecenEtkinlik && (
       <section class="bolum bg-white" aria-labelledby="gecen-yil-baslik">
@@ -265,8 +221,8 @@ const NEDIR_KARTLARI = [
           <div class="flex flex-wrap items-end justify-between gap-6">
             <BolumBasligi
               kimlik="gecen-yil-baslik"
-              etiket={`AntCon ${SON_ETKINLIK_YILI}`}
-              baslik="İlk buluşma geride kaldı"
+              etiket={gecenYil.etiket}
+              baslik={gecenYil.baslik}
               aciklama={gecenEtkinlik.data.ozet}
               sinif="max-w-2xl"
             />
@@ -274,12 +230,12 @@ const NEDIR_KARTLARI = [
               href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`}
               class="btn btn-cizgi btn-kucuk"
             >
-              Tüm detaylar
+              {gecenYil.detayButonu}
               <Ikon ad="ok_sag" sinif="w-4 h-4" />
             </a>
           </div>
 
-          {/* Rakamlar - içerik dosyasında tanımlıysa onları, değilse
+          {/* Rakamlar - etkinlik kaydında tanımlıysa onları, değilse
               koleksiyonlardan sayılabilen gerçek değerleri gösteriyoruz. */}
           <dl class="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {gecenIstatistikler.map((istatistik) => (
@@ -297,7 +253,7 @@ const NEDIR_KARTLARI = [
             ))}
           </dl>
 
-          {/* 2026 fotoğrafları */}
+          {/* Geçen yılın fotoğrafları */}
           <div class="mt-10">
             <Carousel
               gorseller={gorseller}
@@ -308,7 +264,7 @@ const NEDIR_KARTLARI = [
 
           <p class="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-center text-sm text-ink-soft">
             <span>
-              Bu kareler 28 Haziran 2026'da etkinlik alanında çekildi
+              {gecenYil.fotoNotu}
               {gecenYilFotograflari.length > gorseller.length &&
                 ` · galeride ${gecenYilFotograflari.length} fotoğraf var`}
               .
@@ -317,7 +273,7 @@ const NEDIR_KARTLARI = [
               href="/galeri"
               class="inline-flex items-center gap-2 font-display font-bold text-orange-deep hover:text-orange-darker"
             >
-              Galeriyi aç
+              {gecenYil.galeriButonu}
               <Ikon ad="ok_sag" sinif="w-4 h-4" />
             </a>
           </p>
@@ -333,17 +289,13 @@ const NEDIR_KARTLARI = [
         <div class="lg:col-span-5">
           <BolumBasligi
             kimlik="nedir-baslik"
-            etiket="AntCon Nedir?"
-            baslik="Bir şehrin ilk büyük buluşması"
-            aciklama="AntCon, Antalya'da düzenlenen ilk convention organizasyonu. Yıllardır ayrı ayrı büyüyen oyun, çizgi roman, anime ve teknoloji topluluklarını ilk kez aynı çatı altında topladı."
+            etiket={nedir.etiket}
+            baslik={nedir.baslik}
+            aciklama={nedir.aciklama}
           />
-          <p class="mt-5 text-base leading-relaxed text-ink-soft">
-            Hedefimiz tek seferlik bir etkinlik değildi: her yıl tekrar eden, şehrin kültür
-            takvimine yerleşen bir gelenek kurmak. 2026 bu geleneğin ilk adımıydı, {AKTIF_YIL} ikincisi
-            olacak.
-          </p>
+          {nedir.ekMetin && <p class="mt-5 text-base leading-relaxed text-ink-soft">{nedir.ekMetin}</p>}
           <a href="/hakkinda" class="btn btn-cizgi mt-7">
-            Hikâyemizi oku
+            {nedir.buton}
             <Ikon ad="ok_sag" sinif="w-4 h-4" />
           </a>
         </div>
@@ -351,7 +303,7 @@ const NEDIR_KARTLARI = [
         <div class="lg:col-span-7">
           <ul class="grid gap-4 sm:grid-cols-2">
             {
-              NEDIR_KARTLARI.map((kart) => (
+              nedir.kartlar.map((kart) => (
                 <li class="kart kart-hover p-6">
                   <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-main-orange/12 text-orange-deep">
                     <Ikon ad={kart.ikon} sinif="w-6 h-6" />
@@ -367,21 +319,21 @@ const NEDIR_KARTLARI = [
     </div>
   </section>
 
-  <!-- ====================== 2027 HAZIRLIK DURUMU ==================== -->
+  <!-- ====================== HAZIRLIK DURUMU ==================== -->
   <section class="bolum bg-blue-deep" aria-labelledby="hazirlik-baslik">
     <div class="kapsayici">
       <BolumBasligi
         kimlik="hazirlik-baslik"
-        etiket={`AntCon ${AKTIF_YIL}`}
-        baslik="Hazırlıklar nerede?"
-        aciklama="İkinci AntCon için çalışmalar sürüyor. Her başlıkta nerede olduğumuzu şeffafça paylaşıyoruz."
+        etiket={hazirlik.etiket}
+        baslik={hazirlik.baslik}
+        aciklama={hazirlik.aciklama}
         koyuZemin={true}
         hizalama="orta"
       />
 
       <ul class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {
-          HAZIRLIK_DURUMU.map((madde) => (
+          hazirlik.maddeler.map((madde) => (
             <li class="flex h-full flex-col rounded-2xl border border-white/12 bg-white/5 p-6">
               <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-main-orange/20 text-orange-glow">
                 <Ikon ad={madde.ikon} sinif="w-6 h-6" />
@@ -410,23 +362,23 @@ const NEDIR_KARTLARI = [
       <div class="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
         <a href="/iletisim" class="btn btn-turuncu">
           <Ikon ad="posta" sinif="w-5 h-5" />
-          Duyuru Listesine Katıl
+          {hazirlik.birinciButon}
         </a>
-        <a href="/sponsorlar" class="btn btn-hayalet">Sponsorluk Paketleri</a>
+        <a href="/sponsorlar" class="btn btn-hayalet">{hazirlik.ikinciButon}</a>
       </div>
     </div>
   </section>
 
-  <!-- ==================== 2026 DESTEKCILERI ======================== -->
+  <!-- ==================== GECEN YILIN DESTEKCILERI ======================== -->
   {
     gecenSponsorlar.length > 0 && (
       <section class="bolum bg-white" aria-labelledby="sponsorlar-baslik">
         <div class="kapsayici">
           <BolumBasligi
             kimlik="sponsorlar-baslik"
-            etiket="Teşekkürler"
-            baslik={`AntCon ${SON_ETKINLIK_YILI} destekçileri`}
-            aciklama="İlk AntCon'u mümkün kılan kurumlar ve markalar. AntCon 2027 sponsorluk görüşmeleri şimdiden başladı."
+            etiket={destekciler.etiket}
+            baslik={destekciler.baslik}
+            aciklama={destekciler.aciklama}
             hizalama="orta"
           />
           <div class="mt-10">
@@ -438,7 +390,7 @@ const NEDIR_KARTLARI = [
           </div>
           <p class="mt-8 text-center">
             <a href="/sponsorlar" class="btn btn-cizgi btn-kucuk">
-              {AKTIF_YIL} sponsoru ol
+              {destekciler.buton}
               <Ikon ad="ok_sag" sinif="w-4 h-4" />
             </a>
           </p>
@@ -454,9 +406,9 @@ const NEDIR_KARTLARI = [
     </div>
 
     <div class="kapsayici relative py-16 text-center md:py-20">
-      <p class="etiket etiket-acik justify-center">Bağlantıda kal</p>
+      <p class="etiket etiket-acik justify-center">{sonCta.etiket}</p>
       <h2 id="son-cta-baslik" class="mt-4 font-display text-3xl font-bold text-white md:text-4xl">
-        AntCon {AKTIF_YIL} duyurularını kaçırma
+        {sonCta.baslik}
       </h2>
       <p class="mx-auto mt-5 max-w-2xl text-lg text-white/80">
         {BILET_SATISI.bilgiMetni}
@@ -464,10 +416,10 @@ const NEDIR_KARTLARI = [
       <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
         <a href="/iletisim" class="btn btn-turuncu btn-buyuk">
           <Ikon ad="posta" sinif="w-5 h-5" />
-          Bize Ulaş
+          {sonCta.birinciButon}
         </a>
         <a href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`} class="btn btn-hayalet btn-buyuk">
-          AntCon {SON_ETKINLIK_YILI} Arşivi
+          {sonCta.ikinciButon}
         </a>
       </div>
     </div>

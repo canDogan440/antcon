@@ -6,7 +6,7 @@
 ad: ekacosplay
 unvan: ""
 kullaniciAdi: ekacosplay
-foto: ./2026-06-ekacosplay.jpeg
+foto: /src/assets/yuklemeler/konusmacilar/2026-06-ekacosplay.jpeg
 rol: juri
 kisaBio: ""
 sosyal:

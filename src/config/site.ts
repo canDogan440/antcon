@@ -2,103 +2,124 @@
  * ============================================================
  *  ANTCON - MERKEZI SITE AYARLARI
  * ------------------------------------------------------------
- *  Yeni bir yil eklerken veya iletisim bilgisi degistirirken
- *  neredeyse her sey bu dosyadan yonetilir.
- *  Icerik (konusmaci, program, sponsor, bilet, SSS) icin
- *  src/content/ klasorune bakin.
+ *  Degerlerin neredeyse tamami yonetim panelinden (/admin)
+ *  duzenlenen icerik dosyalarindan gelir:
+ *
+ *    src/content/ayarlar/site.json          -> site adi, logo, iletisim, menu
+ *    src/content/ayarlar/bilet-satisi.json  -> bilet satisi acik/kapali
+ *    src/content/etkinlikler/<aktifYil>.md  -> tarih, mekan (siradaki etkinlik)
+ *
+ *  Bu dosya o verileri butun sitenin kullandigi sabitlere cevirir.
+ *  Burada kalan tek elle yonetilen degerler teknik olanlardir
+ *  (alan adi, form anahtari).
  * ============================================================
  */
+import { getCollection } from 'astro:content';
+import { tekKayit } from '@lib/tekil';
+import { doldur, type YerTutucular } from '@lib/metin';
 
 /** Sitenin canli adresi. Alan adi degisirse astro.config.mjs icindeki SITE_URL'i de guncelleyin. */
 export const SITE_URL = 'https://antconvention.com';
 
-/** Sitede one cikarilan (siradaki) etkinlik yili. */
-export const AKTIF_YIL = 2027;
-
-/** En son gerceklesmis etkinligin yili. Ana sayfadaki geriye donuk ozet bunu kullanir. */
-export const SON_ETKINLIK_YILI = 2026;
-
 /** Web3Forms public access key. https://web3forms.com adresinden ucretsiz alinir. */
 export const WEB3FORMS_KEY = '57053f2f-574f-4c69-a207-a5c60fd1274c';
 
-export const SITE = {
-  ad: 'AntCon',
-  tamAd: 'AntCon - Antalya Convention',
-  slogan: "Antalya'nın İlk Convention'ı",
-  aciklama:
-    "AntCon, Antalya'nın ilk convention organizasyonu. İlk etkinlik 28 Haziran 2026'da gerçekleşti; AntCon 2027 için hazırlıklar sürüyor.",
-  dil: 'tr',
-  locale: 'tr_TR',
-  twitterHandle: '@antconvention',
-} as const;
+const site = (await tekKayit('siteAyarlari')).data;
+const bilet = (await tekKayit('biletSatisi')).data;
 
-/**
- * ------------------------------------------------------------
+/** Sitede one cikarilan (siradaki) etkinlik yili. */
+export const AKTIF_YIL = site.aktifYil;
+
+/** En son gerceklesmis etkinligin yili. Ana sayfadaki geriye donuk ozet bunu kullanir. */
+export const SON_ETKINLIK_YILI = site.sonEtkinlikYili;
+
+/* ------------------------------------------------------------
  *  SIRADAKI ETKINLIK
  * ------------------------------------------------------------
- *  AntCon 2027 henuz planlama asamasinda; tarih ve mekan kesinlesmedi.
- *
- *  TARIH KESINLESTIGINDE:
- *    1. baslangic / bitis alanlarina ISO 8601 tarih yazin
- *       (orn. '2027-06-27T10:00:00+03:00')
- *    2. tarihMetni ve gunMetni alanlarini doldurun
- *    3. durum: 'tarih-belli' yapin
- *  Site otomatik olarak geri sayimi, Schema.org Event verisini ve
- *  tarih rozetlerini gostermeye baslar.
- * ------------------------------------------------------------
- */
+ *  "Etkinlik Yillari" koleksiyonundaki aktif yil kaydindan uretilir.
+ *  Baslangic tarihi girildigi an geri sayim, Schema.org Event verisi
+ *  ve tarih rozetleri otomatik olarak acilir.
+ * ------------------------------------------------------------ */
+const [aktifEtkinlik] = await getCollection(
+  'etkinlikler',
+  ({ data }) => data.yil === AKTIF_YIL && !data.taslak,
+);
+if (!aktifEtkinlik) {
+  throw new Error(
+    `Site Ayarlari'nda siradaki etkinlik yili ${AKTIF_YIL} olarak secili, ancak "Etkinlik Yillari" ` +
+      `bolumunde yayinda olan bir AntCon ${AKTIF_YIL} kaydi yok. Once o yilin kaydini olusturun.`,
+  );
+}
+const etkinlik = aktifEtkinlik.data;
+
+/** Google Haritalar adresleri mekan bilgisinden otomatik uretilir. */
+const haritaSorgusu = encodeURIComponent(
+  [etkinlik.mekan.ad, etkinlik.mekan.adres, etkinlik.mekan.ilce, etkinlik.mekan.sehir]
+    .filter(Boolean)
+    .join(', '),
+);
+
 export const ETKINLIK = {
   yil: AKTIF_YIL,
   ad: `AntCon ${AKTIF_YIL}`,
-
-  /** 'planlama' = tarih belli degil · 'tarih-belli' = tarih aciklandi */
-  durum: 'planlama' as 'planlama' | 'tarih-belli',
-
-  /** Tarih kesinlesince ISO 8601 yazin, orn. '2027-06-27T10:00:00+03:00'. Bos birakilirsa geri sayim gosterilmez. */
-  baslangic: '' as string,
-  bitis: '' as string,
-
-  tarihMetni: 'Tarih yakında açıklanacak',
-  gunMetni: '',
-  saatMetni: '',
-
+  /** ISO 8601. Bossa tarih henuz aciklanmamistir; geri sayim gosterilmez. */
+  baslangic: etkinlik.baslangic?.toISOString() ?? '',
+  bitis: etkinlik.bitis?.toISOString() ?? '',
+  tarihMetni: etkinlik.tarihMetni,
+  gunMetni: etkinlik.gunMetni,
+  saatMetni: etkinlik.saatMetni,
   mekan: {
-    /** Mekan kesinlesince doldurun. Bos birakilirsa sadece sehir gosterilir. */
-    ad: '',
-    adres: '',
-    ilce: '',
-    sehir: 'Antalya',
-    postaKodu: '',
-    ulke: 'TR',
-    enlem: 36.8969,
-    boylam: 30.7133,
-    /** Google Maps "Haritayi yerlestir" ciktisindaki src degeri */
-    haritaEmbed: 'https://www.google.com/maps?q=Antalya&output=embed',
-    haritaLink: 'https://www.google.com/maps/search/?api=1&query=Antalya',
+    ...etkinlik.mekan,
+    haritaEmbed: `https://www.google.com/maps?q=${haritaSorgusu}&output=embed`,
+    haritaLink: `https://www.google.com/maps/search/?api=1&query=${haritaSorgusu}`,
   },
-} as const;
+};
 
 /** Tarih aciklandi mi? Geri sayim ve Event semasi bu kontrole bagli. */
 export const TARIH_BELLI = ETKINLIK.baslangic !== '';
 
-/**
- * ------------------------------------------------------------
+/** Tum iletisim tek bir adres uzerinden yurur. Telefon bossa sitede hic gorunmez. */
+export const ILETISIM = {
+  email: site.iletisim.email,
+  telefon: site.iletisim.telefon,
+  telefonHref: site.iletisim.telefon.replace(/[^\d+]/g, ''),
+};
+
+/** Panel metinlerindeki {aktifYil} gibi yer tutucularin degerleri (src/lib/metin.ts). */
+export const YER_TUTUCULAR: YerTutucular = {
+  aktifYil: String(AKTIF_YIL),
+  sonYil: String(SON_ETKINLIK_YILI),
+  tarih: ETKINLIK.tarihMetni,
+  email: ILETISIM.email,
+};
+
+export const SITE = {
+  ad: site.ad,
+  tamAd: site.tamAd,
+  slogan: site.slogan,
+  aciklama: doldur(site.aciklama, YER_TUTUCULAR),
+  dil: 'tr',
+  locale: 'tr_TR',
+  twitterHandle: site.xKullaniciAdi,
+};
+
+/* ------------------------------------------------------------
  *  BILET SATISI
  * ------------------------------------------------------------
- *  Satis acildiginda:
- *    1. acik: true yapin
- *    2. src/content/biletler/ altindaki dosyalarda taslak: false yapin
- *       ve yil degerini AKTIF_YIL ile eslestirin
- *  Site otomatik olarak "Bilet Al" butonlarini ve fiyat tablosunu acar.
- * ------------------------------------------------------------
- */
+ *  Paneldeki "Bilet Satışı Açık mı?" anahtari. Acildiginda navbar,
+ *  footer, hero ve yapiskan buton "Bilet Al"a doner; biletler sayfasi
+ *  fiyat tablosunu (veya satis linkini) gosterir.
+ * ------------------------------------------------------------ */
 export const BILET_SATISI = {
-  acik: false,
-  /** Dis bilet saglayicisi (Biletix, Bubilet vb.) kullanilacaksa tam URL yazin. */
-  hariciUrl: '',
-  bilgiMetni:
-    'AntCon 2027 için bilet satışı henüz başlamadı. Tarih ve bilet bilgileri netleştiğinde ilk siz haberdar olun.',
-} as const;
+  acik: bilet.satisAcik,
+  /** Dis bilet saglayicisinin adresi; bossa /biletler sayfasi kullanilir. */
+  hariciUrl: bilet.satisUrl,
+  /** Satis durumuna uygun bilgi metni */
+  bilgiMetni: doldur(bilet.satisAcik ? bilet.acikMetni : bilet.kapaliMetni, YER_TUTUCULAR),
+  fiyatNotu: doldur(bilet.fiyatNotu, YER_TUTUCULAR),
+  /** Hakkinda sayfasindaki durum kutusunda gorunen kisa ozet */
+  durum: doldur(bilet.satisAcik ? bilet.acikDurum : bilet.kapaliDurum, YER_TUTUCULAR),
+};
 
 /**
  * Sitedeki ana cagri butonu. Bilet satisi kapaliyken "Haberdar Ol"a,
@@ -107,27 +128,15 @@ export const BILET_SATISI = {
  */
 export const ANA_CTA = BILET_SATISI.acik
   ? {
-      metin: 'Bilet Al',
+      metin: bilet.acikButonMetni,
       href: BILET_SATISI.hariciUrl || '/biletler',
       ikon: 'bilet' as const,
     }
   : {
-      metin: 'Haberdar Ol',
+      metin: bilet.kapaliButonMetni,
       href: '/iletisim',
       ikon: 'posta' as const,
     };
-
-/**
- * Tum iletisim tek bir adres uzerinden yurur.
- * Ileride ayri adresler (sponsor@, basin@) acilirsa buraya ekleyip
- * ilgili sayfalarda ILETISIM.email yerine onlari kullanabilirsiniz.
- */
-export const ILETISIM = {
-  email: 'info@antconvention.com',
-  /** Telefon hatti yok. Doldurulursa footer ve iletisim sayfasinda otomatik gorunur. */
-  telefon: '',
-  telefonHref: '',
-} as const;
 
 export type SosyalBaglanti = {
   ad: string;
@@ -136,35 +145,32 @@ export type SosyalBaglanti = {
   ikon: 'instagram' | 'x' | 'linkedin' | 'youtube' | 'discord' | 'tiktok';
 };
 
-/**
- * Yalnizca gercekten var olan hesaplar burada listelenir.
- * Yeni bir hesap acildiginda diziye bir satir eklemek yeterli;
- * footer, iletisim sayfasi ve Schema.org sameAs alani otomatik guncellenir.
- */
-export const SOSYAL: SosyalBaglanti[] = [
-  { ad: 'Instagram', url: 'https://instagram.com/antconvention', ikon: 'instagram' },
-];
+const PLATFORM_ADLARI: Record<SosyalBaglanti['ikon'], string> = {
+  instagram: 'Instagram',
+  x: 'X',
+  linkedin: 'LinkedIn',
+  youtube: 'YouTube',
+  discord: 'Discord',
+  tiktok: 'TikTok',
+};
+
+/** Footer, iletisim sayfasi ve Schema.org sameAs alani bu listeyi kullanir. */
+export const SOSYAL: SosyalBaglanti[] = site.sosyal.map(({ platform, url }) => ({
+  ad: PLATFORM_ADLARI[platform],
+  url,
+  ikon: platform,
+}));
 
 export type MenuOgesi = { ad: string; href: string };
 
-/** Ust menu. Sira burada belirlenir. */
-export const ANA_MENU: MenuOgesi[] = [
-  { ad: 'Hakkında', href: '/hakkinda' },
-  { ad: 'AntCon 2026', href: '/gecmis-etkinlikler/2026' },
-  { ad: 'Program', href: '/program' },
-  { ad: 'Konuşmacılar', href: '/konusmacilar' },
-  { ad: 'Biletler', href: '/biletler' },
-  { ad: 'Sponsorlar', href: '/sponsorlar' },
-  { ad: 'Galeri', href: '/galeri' },
-  { ad: 'SSS', href: '/sss' },
-  { ad: 'İletişim', href: '/iletisim' },
-];
+/** Ust menu. Sira panelde belirlenir. */
+export const ANA_MENU: MenuOgesi[] = site.anaMenu;
 
 /** Footer'daki "Hızlı Linkler" sutunu. */
-export const FOOTER_MENU: MenuOgesi[] = [
-  ...ANA_MENU.filter((oge) => oge.href !== '/gecmis-etkinlikler/2026'),
-  { ad: 'Geçmiş Etkinlikler', href: '/gecmis-etkinlikler' },
-];
+export const FOOTER_MENU: MenuOgesi[] = site.altMenu;
+
+/** Footer metinleri */
+export const FOOTER = doldur(site.footer, YER_TUTUCULAR);
 
 /**
  * Ileride ingilizce versiyon eklendiginde bu diziye

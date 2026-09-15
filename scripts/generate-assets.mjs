@@ -19,13 +19,19 @@
  *  uzerine yazip "npm run assets" demeniz yeterli.
  * ============================================================
  */
-import { mkdir, writeFile, access } from 'node:fs/promises';
+import { mkdir, writeFile, access, readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const KOK = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const KAYNAK_LOGO = join(KOK, 'images', 'AntCon-Logo.png');
+
+// Logo ve paylasim gorseli metinleri yonetim panelinden duzenlenen
+// Site Ayarlari'ndan okunur; panelden logo degisince derleme bunu kullanir.
+const AYARLAR = JSON.parse(
+  await readFile(join(KOK, 'src', 'content', 'ayarlar', 'site.json'), 'utf8'),
+);
+const KAYNAK_LOGO = join(KOK, (AYARLAR.logo || '/images/AntCon-Logo.png').replace(/^\/+/, ''));
 const PUBLIC = join(KOK, 'public');
 const ASSETS = join(KOK, 'src', 'assets');
 
@@ -46,6 +52,31 @@ async function varMi(yol) {
   } catch {
     return false;
   }
+}
+
+function xmlKacis(metin) {
+  return String(metin)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
+ * Paylasim gorselindeki yazilar: aktif yil, o yilin tarih metni ve slogan.
+ * Tarih, etkinlik kaydindaki "tarihMetni" alanindan okunur; boylece panelden
+ * tarih aciklandiginda sosyal medya onizlemesi de guncellenir.
+ */
+async function ogMetinleri() {
+  const yil = AYARLAR.aktifYil;
+  let tarih = 'Tarih yakında açıklanacak';
+  try {
+    const md = await readFile(join(KOK, 'src', 'content', 'etkinlikler', `${yil}.md`), 'utf8');
+    const eslesme = md.match(/^tarihMetni:\s*(.+)$/m);
+    if (eslesme) tarih = eslesme[1].trim().replace(/^(['"])(.*)\1$/, '$2');
+  } catch {
+    // Kayit yoksa varsayilan metin kalir; derlemenin kendisi zaten uyaracak.
+  }
+  return { baslik: `${AYARLAR.ad} ${yil}`, tarih, slogan: AYARLAR.slogan };
 }
 
 /** Saydam kenar boslugunu kirpar; kirpma basarisiz olursa orijinali dondurur. */
@@ -197,6 +228,7 @@ async function main() {
      </svg>`,
   );
 
+  const og = await ogMetinleri();
   const ogYazi = Buffer.from(
     `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
        <style>
@@ -205,9 +237,9 @@ async function main() {
          .tarih  { font: 700 40px "Segoe UI", Arial, Helvetica, sans-serif; fill: ${MARKA.beyaz}; }
        </style>
        <text class="alt"    x="470" y="238">ANTALYA</text>
-       <text class="baslik" x="470" y="318">AntCon 2027</text>
-       <text class="tarih"  x="470" y="392">Tarih yakinda aciklanacak</text>
-       <text class="alt"    x="470" y="450">Antalya'nin Ilk Convention'i</text>
+       <text class="baslik" x="470" y="318">${xmlKacis(og.baslik)}</text>
+       <text class="tarih"  x="470" y="392">${xmlKacis(og.tarih)}</text>
+       <text class="alt"    x="470" y="450">${xmlKacis(og.slogan)}</text>
      </svg>`,
   );
 

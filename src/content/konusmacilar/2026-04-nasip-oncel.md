@@ -6,7 +6,7 @@
 ad: M. Nasip Öncel
 unvan: ""
 kullaniciAdi: 40ipchannel
-foto: ./2026-04-nasip-oncel.jpeg
+foto: /src/assets/yuklemeler/konusmacilar/2026-04-nasip-oncel.jpeg
 rol: konusmaci
 kisaBio: ""
 sosyal:

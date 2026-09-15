@@ -1,0 +1,27 @@
+{
+  "seoAciklamaVar": "AntCon {aktifYil} saat saat program: konuşmalar, paneller, atölyeler, e-spor turnuvası ve cosplay yarışması.",
+  "seoAciklamaYok": "AntCon {aktifYil} programı hazırlanıyor. AntCon {sonYil}'nın program akışını inceleyebilir, yeni program açıklandığında haberdar olmak için duyuru listesine katılabilirsiniz.",
+  "etiket": "Program",
+  "varBaslik": "AntCon {aktifYil} akışı",
+  "varAciklama": "{tarih} · Antalya. Program etkinlik gününe kadar güncellenmeye devam edecek.",
+  "yokBaslik": "Program hazırlanıyor",
+  "yokAciklama": "AntCon {aktifYil} için sahne programı ve atölye takvimi üzerinde çalışıyoruz. Tarih kesinleştikten sonra oturum oturum burada yayınlanacak.",
+  "bakis": {
+    "baslik": "Bir bakışta",
+    "toplamEtiketi": "Toplam oturum",
+    "salonlarEtiketi": "Salonlar",
+    "turlerEtiketi": "Oturum türleri"
+  },
+  "hazirlaniyor": {
+    "baslik": "AntCon {aktifYil} programı üzerinde çalışıyoruz",
+    "metin": "Sahne programı, atölyeler ve turnuva takvimi tarih kesinleştikten sonra netleşecek. Konuşmacı ve atölye başvuruları da o dönemde açılacak.",
+    "birinciButon": "Duyuru Listesine Katıl",
+    "ikinciButon": "{sonYil} programını gör"
+  },
+  "gecenYil": {
+    "etiket": "AntCon {sonYil}",
+    "baslik": "Geçen yıl sahnede neler vardı?",
+    "aciklama": "İlk AntCon'un program akışı {aktifYil} için de bir fikir veriyor. Tam listeyi arşiv sayfasında bulabilirsiniz.",
+    "buton": "{sonYil} arşivini aç"
+  }
+}

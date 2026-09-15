@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>AntCon Yönetim Paneli</title>
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+
+    <!-- Netlify Identity: panele giriş (e-posta + şifre) bu widget ile yapılır. -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  </head>
+  <body>
+    <!--
+      Decap CMS. Sürüm bilerek sabitlendi: yeni bir sürüm paneli bozarsa site
+      yöneticisi bundan etkilenmesin. Güncellemek için sürüm numarasını değiştirin.
+      Ayarlar: public/admin/config.yml
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/decap-cms@3.16.2/dist/decap-cms.js"></script>
+
+    <script>
+      // Decap CMS dokümantasyonundaki standart snippet: davet/şifre sıfırlama
+      // bağlantısıyla gelen kullanıcı giriş yaptıktan sonra panele yönlendirilir.
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on('init', (user) => {
+          if (!user) {
+            window.netlifyIdentity.on('login', () => {
+              document.location.href = '/admin/';
+            });
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

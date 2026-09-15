@@ -1,136 +1,123 @@
 import type { ImageMetadata } from 'astro';
-import { GORSEL_ALT_METINLERI, VARSAYILAN_ALT } from '@config/gorsel-metinleri';
-import { SON_ETKINLIK_YILI } from '@config/site';
+import { getCollection } from 'astro:content';
 
 /**
  * ============================================================
- *  OTOMATIK GORSEL TARAYICI
+ *  GORSELLER
  * ------------------------------------------------------------
- *  Proje kokundeki images/ klasorunu (alt klasorler dahil) tarar
- *  ve bulunan her gorseli carousel + galeri icin hazirlar.
+ *  Icerik dosyalarinda gorseller depo kokune gore yol olarak
+ *  saklanir (yonetim paneli de boyle kaydeder):
  *
- *  KLASOR YAPISI - fotograflar yila gore ayrilir:
+ *    /src/assets/yuklemeler/...   <- panelden yuklenenler
+ *    /images/galeri/<yil>/...     <- galeri fotograflari
  *
- *    images/
- *    ├── AntCon-Logo.png        <- logo (taranmaz)
- *    └── galeri/
- *        ├── 2026/              <- AntCon 2026 fotograflari
- *        │   ├── 01-acilis.jpg
- *        │   └── 02-sahne.jpg
- *        └── 2027/              <- gelecek yil buraya
+ *  gorselBul() bu yolu Astro'nun optimize edebilecegi gorsele
+ *  cevirir: her fotograftan WebP kucuk resimler ve srcset uretilir,
+ *  ziyaretciye asla ham dosya gitmez.
  *
- *  Yil, klasor adindan otomatik okunur. Yil klasoru altinda
- *  olmayan gorseller son etkinlik yiline atanir (geriye donuk
- *  uyumluluk icin).
+ *  Galeri, carousel'ler ve arsiv kapaklari "Galeri" koleksiyonundan
+ *  (src/content/galeri/<yil>.json) beslenir. Siralama listedeki siradir.
  *
- *  YENI GORSEL EKLEMEK: dosyayi ilgili yil klasorune kopyalayin.
- *  Kodda hicbir degisiklik gerekmez.
- *
- *  ONEMLI: Ham fotograf makinesi dosyalarini (5-12 MB) dogrudan
- *  koymayin. `npm run foto` komutu klasordeki fotograflari
- *  2000px genisligine indirger - derleme suresi 3 kat kisalir,
- *  repo boyutu ~47 kat kuculur.
+ *  ONEMLI: Ham fotograf makinesi dosyalari (5-12 MB) derlemeyi
+ *  yavaslatir. `npm run foto` klasordeki fotograflari 2000px'e indirir.
  * ============================================================
  */
 
-/** Carousel/galeri disinda tutulacak dosyalar (logo, ikonlar vb.) */
-const HARIC_TUTULANLAR = ['antcon-logo', 'logo', 'favicon', 'og-image', 'placeholder'];
-
 /**
- * NOT: Negatif desenler ('!...') olmazsa Vite eslesecek her dosyayi
- * pakete dahil eder - 30 MB'lik ham logo dahil. Bu yuzden logo/ikon
- * dosyalarini daha glob asamasinda disarida birakiyoruz.
- * Asagidaki HARIC_TUTULANLAR filtresi ikinci bir guvenlik katmanidir.
+ * NOT: images/ klasorunun koku bilerek taranmiyor; 30 MB'lik ham logo
+ * orada duruyor ve Vite eslesen her dosyayi pakete dahil ediyor. Logo
+ * scripts/generate-assets.mjs tarafindan ayrica isleniyor.
  */
 const modiller = import.meta.glob<{ default: ImageMetadata }>(
   [
-    '../../images/**/*.{jpg,JPG,jpeg,JPEG,png,PNG,webp,WEBP,avif,AVIF}',
-    '!../../images/**/*[Ll]ogo*',
-    '!../../images/**/*LOGO*',
-    '!../../images/**/favicon*',
-    '!../../images/**/og-image*',
+    '/images/galeri/**/*.{jpg,JPG,jpeg,JPEG,png,PNG,webp,WEBP,avif,AVIF}',
+    '/src/assets/yuklemeler/**/*.{jpg,JPG,jpeg,JPEG,png,PNG,webp,WEBP,avif,AVIF}',
   ],
   { eager: true },
 );
 
+const uyarilanlar = new Set<string>();
+
+/**
+ * Icerik dosyasindaki gorsel yolunu Astro gorseline cevirir.
+ * Dosya bulunamazsa derleme durmaz: gorsel yerine yer tutucu gosterilir ve
+ * derleme kaydina bir uyari yazilir (orn. panelde medya kutuphanesinden
+ * kullanimdaki bir gorsel silindiyse).
+ */
+export function gorselBul(yol: string | undefined): ImageMetadata | undefined {
+  if (!yol) return undefined;
+  const modul = modiller[yol] ?? modiller[decodeURI(yol)];
+  if (modul) return modul.default;
+
+  if (!uyarilanlar.has(yol)) {
+    uyarilanlar.add(yol);
+    console.warn(
+      `[gorseller] "${yol}" bulunamadi, sitede gosterilmeyecek. ` +
+        'Gorsel /images/galeri veya /src/assets/yuklemeler altinda olmali; panelden yeniden secin.',
+    );
+  }
+  return undefined;
+}
+
 export type Gorsel = {
   /** Astro <Image /> bilesenine verilecek metadata */
   src: ImageMetadata;
-  /** Dosya adi (uzantiyla) */
+  /** Icerik dosyasindaki yol - galeride anahtar olarak kullanilir */
   dosya: string;
   /** Erisilebilirlik metni */
   alt: string;
-  /** Fotografin ait oldugu etkinlik yili (klasor adindan okunur) */
+  /** Fotografin ait oldugu etkinlik yili */
   yil: number;
 };
 
-function dosyaAdi(yol: string): string {
-  return yol.split('/').pop() ?? yol;
+/** Tum galeri fotograflari; yeni yil basta, her yil kendi liste sirasinda. */
+export async function tumGorseller(): Promise<Gorsel[]> {
+  const yillar = await getCollection('galeri');
+  return yillar
+    .sort((a, b) => b.data.yil - a.data.yil)
+    .flatMap(({ data }) =>
+      data.fotograflar.flatMap((foto) => {
+        const src = gorselBul(foto.gorsel);
+        if (!src) return [];
+        return [
+          {
+            src,
+            dosya: foto.gorsel,
+            alt: foto.aciklama || `AntCon ${data.yil} etkinliğinden bir kare`,
+            yil: data.yil,
+          },
+        ];
+      }),
+    );
 }
-
-function haricMi(yol: string): boolean {
-  const ad = dosyaAdi(yol).toLowerCase();
-  return HARIC_TUTULANLAR.some((parca) => ad.includes(parca));
-}
-
-/** Yol icinde "2026" gibi bir klasor adi ariyoruz; yoksa son etkinlik yili. */
-function yiliCoz(yol: string): number {
-  const klasorler = yol.split('/').slice(0, -1);
-  const yilKlasoru = klasorler.reverse().find((k) => /^20\d{2}$/.test(k));
-  return yilKlasoru ? Number(yilKlasoru) : SON_ETKINLIK_YILI;
-}
-
-/**
- * images/ klasorundeki tum gorseller.
- * Once yila gore (yeni yil basta), sonra dosya adina gore siralanir.
- * Bir yil icindeki sirayi degistirmek isterseniz dosya adlarinin
- * basina 01-, 02- gibi numaralar ekleyin.
- */
-export const TUM_GORSELLER: Gorsel[] = Object.entries(modiller)
-  .filter(([yol]) => !haricMi(yol))
-  .map(([yol, modul]) => {
-    const dosya = dosyaAdi(yol);
-    return {
-      src: modul.default,
-      dosya,
-      alt: GORSEL_ALT_METINLERI[dosya] ?? VARSAYILAN_ALT,
-      yil: yiliCoz(yol),
-    };
-  })
-  .sort((a, b) => b.yil - a.yil || a.dosya.localeCompare(b.dosya, 'tr'));
-
-/** Fotografi bulunan yillar, yeniden eskiye. */
-export const GORSEL_YILLARI: number[] = [...new Set(TUM_GORSELLER.map((g) => g.yil))].sort(
-  (a, b) => b - a,
-);
 
 /** Belirli bir yilin fotograflari. Yil verilmezse tum fotograflar. */
-export function yilinGorselleri(yil?: number): Gorsel[] {
-  return yil === undefined ? TUM_GORSELLER : TUM_GORSELLER.filter((g) => g.yil === yil);
+export async function yilinGorselleri(yil?: number): Promise<Gorsel[]> {
+  const tum = await tumGorseller();
+  return yil === undefined ? tum : tum.filter((g) => g.yil === yil);
 }
 
 /** Yila gore gruplanmis liste - galeri sayfasi bunu kullanir. */
-export function gorselleriYilaGoreGetir(): { yil: number; gorseller: Gorsel[] }[] {
-  return GORSEL_YILLARI.map((yil) => ({ yil, gorseller: yilinGorselleri(yil) }));
+export async function gorselleriYilaGoreGetir(): Promise<{ yil: number; gorseller: Gorsel[] }[]> {
+  const tum = await tumGorseller();
+  const yillar = [...new Set(tum.map((g) => g.yil))];
+  return yillar.map((yil) => ({ yil, gorseller: tum.filter((g) => g.yil === yil) }));
 }
 
 /**
  * Carousel icin ilk N gorsel.
  * Yil verilmezse en yeni fotograf yilindan secer.
  */
-export function carouselGorselleri(adet = 8, yil?: number): Gorsel[] {
-  const kaynak = yilinGorselleri(yil ?? GORSEL_YILLARI[0]);
-  return kaynak.slice(0, adet);
+export async function carouselGorselleri(adet = 8, yil?: number): Promise<Gorsel[]> {
+  const tum = await tumGorseller();
+  const hedefYil = yil ?? tum[0]?.yil;
+  return tum.filter((g) => g.yil === hedefYil).slice(0, adet);
 }
 
 /**
- * Arsiv kartlari ve arsiv sayfasi icin kapak gorseli.
- *
- * Icerik dosyasinda `kapak:` alani doldurulmamissa o yilin ilk fotografi
- * kullanilir. Boylece ayni dosyaya ikinci bir referans verilmez - icerik
- * koleksiyonundaki `image()` alani, kullanilmasa bile ham dosyanin
- * (5-12 MB) dist klasorune kopyalanmasina yol aciyor.
+ * Arsiv kartlari ve arsiv sayfasi icin kapak gorseli: etkinlik kaydinda
+ * `kapak` secilmemisse o yilin galerisindeki ilk fotograf kullanilir.
  */
-export function yedekKapak(yil?: number): Gorsel | undefined {
-  return yilinGorselleri(yil)[0];
+export async function yedekKapak(yil?: number): Promise<Gorsel | undefined> {
+  return (await yilinGorselleri(yil))[0];
 }

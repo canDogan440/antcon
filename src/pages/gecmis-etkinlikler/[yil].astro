@@ -20,8 +20,8 @@ import {
 } from '@lib/icerik';
 import { kirintiSemasi } from '@lib/schema';
 import Carousel from '@components/Carousel.astro';
-import { carouselGorselleri, yedekKapak } from '@lib/gorseller';
-import { SON_ETKINLIK_YILI } from '@config/site';
+import { carouselGorselleri, yedekKapak, gorselBul } from '@lib/gorseller';
+import { sayfaMetinleri } from '@lib/sayfa';
 
 /**
  * Her etkinlik yılı için otomatik olarak bir sayfa üretilir.
@@ -54,12 +54,14 @@ const [gunler, konusmacilar, roller, sponsorlar, { Content }] = await Promise.al
 const gecmisMi = gecmisteMi(etkinlik.data);
 const planlamaAsamasinda = etkinlik.data.durum === 'planlama';
 
-// Her yilin arsiv sayfasi kendi klasorundeki fotograflari gosterir
-// (images/galeri/<yil>/). Fotografi olmayan yilda bolum hic cikmaz.
-const galeriGorselleri = carouselGorselleri(8, yil);
+const { detay } = await sayfaMetinleri('arsivSayfasi');
 
-const yedek = yedekKapak(yil);
-const kapakSrc = etkinlik.data.kapak ?? yedek?.src;
+// Her yilin arsiv sayfasi kendi galerisindeki fotograflari gosterir.
+// Fotografi olmayan yilda bolum hic cikmaz.
+const galeriGorselleri = await carouselGorselleri(8, yil);
+
+const yedek = await yedekKapak(yil);
+const kapakSrc = gorselBul(etkinlik.data.kapak) ?? yedek?.src;
 const kapakMetni =
   etkinlik.data.kapakAlt ?? yedek?.alt ?? `AntCon ${yil} etkinliğinden bir kare`;
 ---
@@ -113,7 +115,9 @@ const kapakMetni =
           {
             etkinlik.data.oneCikanlar.length > 0 && (
               <div class="mt-8">
-                <h2 class="font-display text-lg font-bold text-blue-deep">Öne çıkanlar</h2>
+                <h2 class="font-display text-lg font-bold text-blue-deep">
+                  {detay.oneCikanlarBasligi}
+                </h2>
                 <ul class="mt-4 flex flex-wrap gap-2">
                   {etkinlik.data.oneCikanlar.map((oge) => (
                     <li class="rounded-full bg-main-orange/12 px-4 py-2 text-sm font-semibold text-orange-deep">
@@ -141,7 +145,7 @@ const kapakMetni =
               {gecmisMi ? 'Tamamlandı' : planlamaAsamasinda ? 'Planlama aşamasında' : 'Yaklaşan etkinlik'}
             </span>
 
-            <h2 class="mt-4 font-display text-lg font-bold text-blue-deep">Künye</h2>
+            <h2 class="mt-4 font-display text-lg font-bold text-blue-deep">{detay.kunyeBasligi}</h2>
             <dl class="mt-4 space-y-4 text-sm">
               <div class="flex gap-3">
                 <dt class="sr-yalniz">Tarih</dt>
@@ -211,7 +215,7 @@ const kapakMetni =
       <section class="bolum bg-blue-deep">
         <div class="kapsayici">
           <BolumBasligi
-            etiket="Kareler"
+            etiket={detay.fotograflarEtiketi}
             baslik={`${yil} etkinliğinden fotoğraflar`}
             koyuZemin={true}
             hizalama="orta"
@@ -225,7 +229,7 @@ const kapakMetni =
           </div>
           <p class="mt-8 text-center">
             <a href="/galeri" class="btn btn-hayalet btn-kucuk">
-              Tüm galeriyi aç
+              {detay.galeriButonu}
               <Ikon ad="ok_sag" sinif="w-4 h-4" />
             </a>
           </p>
@@ -301,7 +305,7 @@ const kapakMetni =
   <div class="bg-white py-12 text-center">
     <a href="/gecmis-etkinlikler" class="btn btn-cizgi">
       <Ikon ad="ok_sol" sinif="w-4 h-4" />
-      Tüm yıllara dön
+      {detay.geriButonu}
     </a>
   </div>
 </BaseLayout>

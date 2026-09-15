@@ -136,5 +136,22 @@ const grafik = {
     <Footer />
 
     {yapiskanCta && <YapiskanBiletCta />}
+
+    {/* Netlify Identity: yonetim paneli davet ve sifre sifirlama e-postalarindaki
+        baglanti siteye "#invite_token=..." gibi bir ekle gelir. Widget yalnizca bu
+        durumda yuklenir; normal ziyaretciler icin hicbir ek istek yapilmaz.
+        Kullanici sifresini belirleyip giris yapinca panele (/admin/) yonlendirilir. */}
+    <script is:inline>
+      if (/(invite|recovery|confirmation|email_change)_token=/.test(location.hash)) {
+        var kimlik = document.createElement('script');
+        kimlik.src = 'https://identity.netlify.com/v1/netlify-identity-widget.js';
+        kimlik.onload = function () {
+          window.netlifyIdentity.on('login', function () {
+            document.location.href = '/admin/';
+          });
+        };
+        document.head.appendChild(kimlik);
+      }
+    </script>
   </body>
 </html>

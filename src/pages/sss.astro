@@ -5,7 +5,10 @@ import SssAkordiyon from '@components/SssAkordiyon.astro';
 import Ikon from '@components/Ikon.astro';
 import { sssKategoriyeGoreGetir, sssGetir } from '@lib/icerik';
 import { kirintiSemasi, sssSemasi } from '@lib/schema';
-import { AKTIF_YIL, ILETISIM } from '@config/site';
+import { sayfaMetinleri } from '@lib/sayfa';
+import { AKTIF_YIL } from '@config/site';
+
+const metinler = await sayfaMetinleri('sssSayfasi');
 
 const gruplar = await sssKategoriyeGoreGetir(AKTIF_YIL);
 const tumSorular = await sssGetir(AKTIF_YIL);
@@ -23,16 +26,16 @@ const semaSorulari = tumSorular.map((soru) => ({
 
 <BaseLayout
   baslik="Sıkça Sorulan Sorular"
-  aciklama="AntCon 2026 hakkında sık sorulan sorular: bilet ve iade koşulları, ulaşım, cosplay kuralları, engelli erişimi, stant ve gönüllü başvuruları."
+  aciklama={metinler.seoAciklama}
   yapilandirilmisVeri={[
     kirintiSemasi([{ ad: 'SSS', href: '/sss' }]),
     sssSemasi(semaSorulari),
   ]}
 >
   <SayfaBasligi
-    etiket="SSS"
-    baslik="Sıkça sorulan sorular"
-    aciklama="Aradığınız cevabı bulamazsanız iletişim formundan bize yazmanız yeterli."
+    etiket={metinler.etiket}
+    baslik={metinler.baslik}
+    aciklama={metinler.aciklama}
     kirintilar={[{ ad: 'SSS', href: '/sss' }]}
   />
 
@@ -43,7 +46,7 @@ const semaSorulari = tumSorular.map((soru) => ({
         <nav class="lg:col-span-3" aria-label="Soru kategorileri">
           <div class="kart sticky top-24 p-5">
             <h2 class="font-display text-sm font-bold tracking-[0.14em] text-blue-deep uppercase">
-              Kategoriler
+              {metinler.kategorilerBasligi}
             </h2>
             <ul class="mt-4 space-y-1">
               {
@@ -69,7 +72,7 @@ const semaSorulari = tumSorular.map((soru) => ({
         <div class="lg:col-span-9">
           {
             gruplar.length === 0 ? (
-              <p class="kart p-8 text-center text-ink-soft">Henüz soru eklenmedi.</p>
+              <p class="kart p-8 text-center text-ink-soft">{metinler.bosMetin}</p>
             ) : (
               gruplar.map((grup) => (
                 <section id={`kategori-${grup.anahtar}`} class="mt-12 scroll-mt-28 first:mt-0">
@@ -90,14 +93,11 @@ const semaSorulari = tumSorular.map((soru) => ({
               <Ikon ad="posta" sinif="w-7 h-7" />
             </span>
             <div class="flex-1">
-              <h2 class="font-display text-xl font-bold text-white">Cevabını bulamadın mı?</h2>
-              <p class="mt-2 text-sm text-white/75">
-                {ILETISIM.email} adresine yazabilir veya iletişim formunu kullanabilirsin.
-                Genellikle 2 iş günü içinde dönüş yapıyoruz.
-              </p>
+              <h2 class="font-display text-xl font-bold text-white">{metinler.altKutu.baslik}</h2>
+              <p class="mt-2 text-sm text-white/75">{metinler.altKutu.metin}</p>
             </div>
             <a href="/iletisim" class="btn btn-turuncu shrink-0">
-              Soru Sor
+              {metinler.altKutu.buton}
               <Ikon ad="ok_sag" sinif="w-4 h-4" />
             </a>
           </div>

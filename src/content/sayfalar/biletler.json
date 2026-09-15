@@ -1,0 +1,60 @@
+{
+  "seoAciklamaAcik": "AntCon {aktifYil} biletleri satışta. Bilet tiplerini, fiyatları ve her bilete dahil olanları inceleyin, yerinizi şimdiden ayırın.",
+  "seoAciklamaKapali": "AntCon {aktifYil} bilet satışı henüz başlamadı. Etkinlik tarihi kesinleştiğinde erken kayıt biletleri satışa çıkacak; duyuru listesine katılarak ilk siz haberdar olun.",
+  "etiket": "Biletler",
+  "acikBaslik": "Yerini şimdiden ayır",
+  "acikAciklama": "{tarih} · Tek gün · Tüm alanlara erişim.",
+  "kapaliBaslik": "Bilet satışı henüz başlamadı",
+  "kapaliAciklama": "AntCon {aktifYil} planlama aşamasında. Tarih kesinleşmeden bilet satışını açmıyoruz.",
+  "geriSayimEtiketi": "Etkinliğe kalan",
+  "kapaliKutu": {
+    "baslik": "Satış açıldığında ilk siz bilin",
+    "birinciButon": "Duyuru Listesine Katıl",
+    "ikinciButon": "AntCon {sonYil}'yı gör"
+  },
+  "acikKutu": {
+    "baslik": "Biletler satışta"
+  },
+  "surec": {
+    "etiket": "Süreç",
+    "baslik": "Bilet satışı nasıl ilerleyecek?",
+    "aciklama": "Sırayla şu adımları izleyeceğiz; her adımı bu sayfadan ve sosyal medyadan duyuracağız.",
+    "adimlar": [
+      {
+        "ikon": "takvim",
+        "baslik": "1. Tarih duyurulur",
+        "metin": "Mekân ve takvim kesinleştiğinde etkinlik tarihi bu sitede ve sosyal medyada açıklanır."
+      },
+      {
+        "ikon": "posta",
+        "baslik": "2. Duyuru listesi bilgilendirilir",
+        "metin": "İletişim formundan bize yazan herkese, satış herkese açılmadan önce e-posta gönderiyoruz."
+      },
+      {
+        "ikon": "bilet",
+        "baslik": "3. Erken kayıt açılır",
+        "metin": "Sınırlı sayıda indirimli erken kayıt bileti satışa çıkar; ardından standart bilet tipleri açılır."
+      }
+    ]
+  },
+  "kapsam": {
+    "etiket": "Kapsam",
+    "acikBaslik": "Her bilette standart olarak var",
+    "acikAciklama": "Bilet tipiniz ne olursa olsun aşağıdakilerin tamamına erişiminiz olur.",
+    "kapaliBaslik": "AntCon {sonYil}'da bilete dahil olanlar",
+    "kapaliAciklama": "İlk AntCon'da tüm biletler aşağıdakileri kapsıyordu. {aktifYil} için de benzer bir kapsam planlıyoruz; kesin içerik satış açıldığında yayınlanacak.",
+    "maddeler": [
+      "Tüm gün etkinlik alanına sınırsız giriş",
+      "Ana sahne konuşmaları ve panellere katılım",
+      "Stant alanı",
+      "Cosplay yarışması finali",
+      "Sentetik kılıç turnuvası",
+      "Poke topu ve Ejderha yumurtası boyama atölyeleri"
+    ]
+  },
+  "sss": {
+    "etiket": "Sık sorulanlar",
+    "baslik": "Bilet ve kayıt hakkında",
+    "buton": "Tüm soruları gör"
+  }
+}

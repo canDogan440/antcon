@@ -3,8 +3,7 @@ import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import Ikon from '@components/Ikon.astro';
 import { tarihBicimle, gecmisteMi } from '@lib/icerik';
-import { yedekKapak } from '@lib/gorseller';
-import { SON_ETKINLIK_YILI } from '@config/site';
+import { yedekKapak, gorselBul } from '@lib/gorseller';
 
 interface Props {
   etkinlik: CollectionEntry<'etkinlikler'>;
@@ -16,11 +15,9 @@ const { yil, baslik, slogan, baslangic, tarihMetni, durum, mekan, ozet, kapak, k
 
 const gecmisMi = gecmisteMi(etkinlik.data);
 
-// images/ klasorundeki fotograflar son gerceklesen etkinlige ait; icerik
-// dosyasinda kapak verilmemisse o yil icin ilk fotografi kullaniyoruz.
-// Her yil kendi klasorundeki ilk fotografi kapak olarak kullanir
-const yedek = yedekKapak(yil);
-const kapakSrc = kapak ?? yedek?.src;
+// Etkinlik kaydinda kapak secilmemisse o yilin galerisindeki ilk fotograf kullanilir.
+const yedek = await yedekKapak(yil);
+const kapakSrc = gorselBul(kapak) ?? yedek?.src;
 const kapakMetni = kapakAlt ?? yedek?.alt ?? `AntCon ${yil} etkinliğinden bir kare`;
 
 const DURUM_ROZETI = gecmisMi

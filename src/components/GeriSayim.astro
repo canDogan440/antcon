@@ -1,4 +1,6 @@
 ---
+import { AKTIF_YIL } from '@config/site';
+
 interface Props {
   /** Hedef tarih - ISO 8601 (örn. "2026-06-28T10:00:00+03:00") */
   hedef: string;
@@ -14,7 +16,7 @@ interface Props {
 const {
   hedef,
   bitis,
-  bittiMesaji = 'AntCon 2026 tamamlandı. Bir sonraki yılda görüşmek üzere!',
+  bittiMesaji = `AntCon ${AKTIF_YIL} tamamlandı. Bir sonraki yılda görüşmek üzere!`,
   devamMesaji = 'AntCon şu anda yaşanıyor! 🎉',
   sinif = '',
 } = Astro.props;

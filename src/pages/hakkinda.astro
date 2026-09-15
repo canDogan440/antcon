@@ -6,84 +6,31 @@ import Ikon from '@components/Ikon.astro';
 import BolumBasligi from '@components/BolumBasligi.astro';
 import { carouselGorselleri } from '@lib/gorseller';
 import { kirintiSemasi } from '@lib/schema';
-import { ETKINLIK, AKTIF_YIL, SON_ETKINLIK_YILI, ANA_CTA } from '@config/site';
+import { sayfaMetinleri, sayfaGovdesi } from '@lib/sayfa';
+import {
+  ETKINLIK,
+  AKTIF_YIL,
+  SON_ETKINLIK_YILI,
+  ANA_CTA,
+  BILET_SATISI,
+} from '@config/site';
 
-const gorseller = carouselGorselleri(5, SON_ETKINLIK_YILI);
+const metinler = await sayfaMetinleri('hakkindaSayfasi');
+const hikaye = await sayfaGovdesi('hakkindaSayfasi');
+const { durumKutusu, degerler, yolculuk, galeri } = metinler;
 
-const DEGERLER = [
-  {
-    ikon: 'kisiler' as const,
-    baslik: 'Topluluk önce gelir',
-    metin:
-      'AntCon, yıllardır kendi imkânlarıyla buluşan toplulukların ortak çağrısıyla doğdu. Programı da, kuralları da onlarla birlikte belirliyoruz.',
-  },
-  {
-    ikon: 'konum' as const,
-    baslik: 'Antalya merkezli',
-    metin:
-      "Türkiye'de ki yaratıcı üretimi görünür kılmak istiyoruz.",
-  },
-  {
-    ikon: 'kalkan' as const,
-    baslik: 'Güvenli ve kapsayıcı',
-    metin:
-      'Herkesin kendini rahat hissettiği bir alan kuruyoruz. Taciz ve ayrımcılığa sıfır tolerans; alanda görünür görevli ekibimiz bulunuyor.',
-  },
-  {
-    ikon: 'kivilcim' as const,
-    baslik: 'Her yıl tekrar eden bir gelenek',
-    metin: `AntCon tek seferlik bir organizasyon değil. 2026 ilk adımdı; ${AKTIF_YIL} ile birlikte bunu şehrin kültür takviminde kalıcı hale getirmeyi hedefliyoruz.`,
-  },
-];
-
-const ZAMAN_CIZELGESI = [
-  {
-    tarih: '2024 - 2025',
-    baslik: 'Fikir ve topluluk çağrısı',
-    metin:
-      "Antalya'daki oyun, çizgi roman ve anime toplulukları ortak bir etkinlik ihtiyacını dile getirdi. İlk çekirdek ekip bir araya geldi.",
-    durum: 'tamam',
-  },
-  {
-    tarih: 'Ocak 2026',
-    baslik: 'Organizasyonun kuruluşu',
-    metin:
-      'Mekân görüşmeleri tamamlandı, sponsorluk çalışmaları başladı ve AntCon 2026 tarihi kamuoyuyla paylaşıldı.',
-    durum: 'tamam',
-  },
-  {
-    tarih: 'Bahar 2026',
-    baslik: 'Program ve başvurular',
-    metin:
-      'Konuşmacı ve stant başvuruları açıldı. Cosplay yarışması ve e-spor turnuvası kayıtları tamamlandı.',
-    durum: 'tamam',
-  },
-  {
-    tarih: '28 Haziran 2026',
-    baslik: "Antalya'nın ilk convention'ı gerçekleşti",
-    metin:
-      'Kapılar açıldı. Tek günde konuşmalar, atölyeler, turnuvalar ve gösteriler; şehrin ilk büyük buluşması tamamlandı.',
-    durum: 'tamam',
-  },
-  {
-    tarih: 'Şu an',
-    baslik: `AntCon ${AKTIF_YIL} hazırlıkları`,
-    metin:
-      'Tarih ve mekân görüşmeleri sürüyor. Sponsorluk başvuruları açık; program, konuşmacı kadrosu ve bilet satışı takvim kesinleştikten sonra duyurulacak.',
-    durum: 'suan',
-  },
-];
+const gorseller = await carouselGorselleri(5, SON_ETKINLIK_YILI);
 ---
 
 <BaseLayout
   baslik="Hakkında"
-  aciklama="AntCon'un hikâyesi, misyonu ve Antalya'nın ilk convention organizasyonu olma yolculuğu. İlk etkinlik 28 Haziran 2026'da gerçekleşti."
+  aciklama={metinler.seoAciklama}
   yapilandirilmisVeri={[kirintiSemasi([{ ad: 'Hakkında', href: '/hakkinda' }])]}
 >
   <SayfaBasligi
-    etiket="Hakkında"
-    baslik="Bir şehrin ilk convention hikâyesi"
-    aciklama="AntCon, Antalya'da yıllardır ayrı ayrı büyüyen toplulukları ilk kez aynı çatı altında buluşturdu."
+    etiket={metinler.etiket}
+    baslik={metinler.baslik}
+    aciklama={metinler.aciklama}
     kirintilar={[{ ad: 'Hakkında', href: '/hakkinda' }]}
   />
 
@@ -91,52 +38,12 @@ const ZAMAN_CIZELGESI = [
   <section class="bolum bg-white">
     <div class="kapsayici">
       <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
-        <div class="metin-akisi lg:col-span-7">
-          <h2 class="font-display text-2xl font-bold text-blue-deep md:text-3xl">Nasıl başladı?</h2>
-          <p>
-            Antalya, Türkiye'nin en çok ziyaret edilen şehirlerinden biri. Ama yıllarca oyun, çizgi
-            roman, anime ve teknoloji toplulukları için büyük ölçekli bir buluşma noktası yoktu.
-            Meraklılar İstanbul'a, İzmir'e, Ankara'ya gitmek zorunda kalıyordu.
-          </p>
-          <p>
-            <strong>AntCon bu boşluğu kapatmak için doğdu.</strong> Küçük topluluk buluşmalarında
-            defalarca dile getirilen "neden burada olmasın?" sorusunun cevabı olarak, gönüllü bir
-            çekirdek ekiple yola çıktık ve <strong>28 Haziran 2026</strong>'da Antalya'nın ilk
-            convention'ını gerçekleştirdik.
-          </p>
+        <div class="metin-akisi lg:col-span-7" set:html={hikaye} />
 
-          <h2>Misyonumuz</h2>
-          <p>
-            AntCon'un amacı yalnızca bir etkinlik düzenlemek değil; Antalya'da yaratıcı üretimin
-            görünür olduğu, üreticinin izleyiciyle doğrudan buluştuğu kalıcı bir alan kurmak.
-          </p>
-          <ul>
-            <li>Yerel sanatçı ve üreticilere doğrudan satış ve tanıtım imkânı sunmak</li>
-            <li>Sektör profesyonellerini gençlerle aynı sahnede buluşturmak</li>
-            <li>Bölgedeki oyun ve teknoloji ekosistemine görünürlük kazandırmak</li>
-            <li>Her yıl tekrarlanan, büyüyen bir kültür geleneği oluşturmak</li>
-          </ul>
-
-          <h2>Şimdi ne oluyor?</h2>
-          <p>
-            İlk AntCon'un ardından ikinci buluşma için çalışmaya başladık.{' '}
-            <strong>AntCon {AKTIF_YIL} şu anda planlama aşamasında:</strong> tarih ve mekân görüşmeleri
-            sürüyor, program ve konuşmacı kadrosu üzerinde çalışıyoruz. Bilet satışı henüz
-            açılmadı — takvim kesinleşmeden satışa çıkmıyoruz.
-          </p>
-          <p>
-            İlk yılda ne yaptığımızı merak ediyorsanız{' '}
-            <a href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`}>
-              AntCon {SON_ETKINLIK_YILI} arşiv sayfasına
-            </a>{' '}
-            göz atabilirsiniz.
-          </p>
-        </div>
-
-        <!-- Durum kutusu -->
+        <!-- Durum kutusu: tarih, mekân ve bilet satırları ayarlardan otomatik gelir -->
         <aside class="lg:col-span-5">
           <div class="kart sticky top-24 p-6 md:p-7">
-            <h2 class="font-display text-lg font-bold text-blue-deep">Şu anki durum</h2>
+            <h2 class="font-display text-lg font-bold text-blue-deep">{durumKutusu.baslik}</h2>
 
             <dl class="mt-5 space-y-4 text-sm">
               <div class="flex gap-3">
@@ -151,16 +58,20 @@ const ZAMAN_CIZELGESI = [
                 <dt class="sr-yalniz">Mekân</dt>
                 <Ikon ad="konum" sinif="w-5 h-5 shrink-0 text-orange-deep" />
                 <dd>
-                  <strong class="block text-blue-deep">{ETKINLIK.mekan.sehir}</strong>
-                  <span class="text-ink-soft">Mekân görüşmeleri sürüyor</span>
+                  <strong class="block text-blue-deep">
+                    {ETKINLIK.mekan.ad || ETKINLIK.mekan.sehir}
+                  </strong>
+                  <span class="text-ink-soft">
+                    {ETKINLIK.mekan.ad ? ETKINLIK.mekan.sehir : durumKutusu.mekanNotu}
+                  </span>
                 </dd>
               </div>
               <div class="flex gap-3">
                 <dt class="sr-yalniz">Bilet durumu</dt>
                 <Ikon ad="bilet" sinif="w-5 h-5 shrink-0 text-orange-deep" />
                 <dd>
-                  <strong class="block text-blue-deep">Satış açılmadı</strong>
-                  <span class="text-ink-soft">Tarih duyurusundan sonra açılacak</span>
+                  <strong class="block text-blue-deep">{BILET_SATISI.durum.baslik}</strong>
+                  <span class="text-ink-soft">{BILET_SATISI.durum.aciklama}</span>
                 </dd>
               </div>
               <div class="flex gap-3">
@@ -168,7 +79,7 @@ const ZAMAN_CIZELGESI = [
                 <Ikon ad="onay" sinif="w-5 h-5 shrink-0 text-orange-deep" />
                 <dd>
                   <strong class="block text-blue-deep">AntCon {SON_ETKINLIK_YILI}</strong>
-                  <span class="text-ink-soft">28 Haziran 2026'da gerçekleşti</span>
+                  <span class="text-ink-soft">{durumKutusu.gecmisEtkinlikNotu}</span>
                 </dd>
               </div>
             </dl>
@@ -181,7 +92,7 @@ const ZAMAN_CIZELGESI = [
               href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`}
               class="btn btn-cizgi mt-3 w-full"
             >
-              {SON_ETKINLIK_YILI} arşivini gör
+              {durumKutusu.arsivButonu}
             </a>
           </div>
         </aside>
@@ -192,10 +103,10 @@ const ZAMAN_CIZELGESI = [
   <!-- Değerler -->
   <section class="bolum bg-mist">
     <div class="kapsayici">
-      <BolumBasligi etiket="Değerlerimiz" baslik="AntCon'u ne yönlendiriyor?" hizalama="orta" />
+      <BolumBasligi etiket={degerler.etiket} baslik={degerler.baslik} hizalama="orta" />
       <ul class="mt-10 grid gap-5 sm:grid-cols-2">
         {
-          DEGERLER.map((deger) => (
+          degerler.maddeler.map((deger) => (
             <li class="kart kart-hover flex gap-4 p-6">
               <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-main-orange/12 text-orange-deep">
                 <Ikon ad={deger.ikon} sinif="w-6 h-6" />
@@ -214,16 +125,20 @@ const ZAMAN_CIZELGESI = [
   <!-- Zaman çizelgesi -->
   <section class="bolum bg-blue-deep">
     <div class="kapsayici">
-      <BolumBasligi etiket="Yolculuk" baslik="Fikirden sahneye" koyuZemin={true} hizalama="orta" />
+      <BolumBasligi etiket={yolculuk.etiket} baslik={yolculuk.baslik} koyuZemin={true} hizalama="orta" />
 
       <ol class="mx-auto mt-12 max-w-3xl space-y-6 border-l-2 border-white/20 pl-6 sm:pl-10">
         {
-          ZAMAN_CIZELGESI.map((adim) => (
+          yolculuk.adimlar.map((adim) => (
             <li class="relative">
               <span
                 class:list={[
                   'absolute top-6 -left-[1.9rem] flex h-4 w-4 items-center justify-center rounded-full border-2 border-blue-deep sm:-left-[2.9rem]',
-                  adim.durum === 'suan' ? 'bg-white ring-4 ring-main-orange/40' : 'bg-main-orange',
+                  adim.durum === 'suan'
+                    ? 'bg-white ring-4 ring-main-orange/40'
+                    : adim.durum === 'planli'
+                      ? 'bg-white/40'
+                      : 'bg-main-orange',
                 ]}
                 aria-hidden="true"
               />
@@ -258,9 +173,9 @@ const ZAMAN_CIZELGESI = [
   <section class="bolum bg-white">
     <div class="kapsayici">
       <BolumBasligi
-        etiket={`AntCon ${SON_ETKINLIK_YILI}`}
-        baslik="İlk etkinlikten kareler"
-        aciklama="28 Haziran 2026'da etkinlik alanında çekilen fotoğraflar."
+        etiket={galeri.etiket}
+        baslik={galeri.baslik}
+        aciklama={galeri.aciklama}
         hizalama="orta"
       />
       <div class="mt-10">

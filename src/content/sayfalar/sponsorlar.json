@@ -1,0 +1,94 @@
+{
+  "seoAciklama": "AntCon {aktifYil} sponsorluk paketleri ve başvuru bilgileri. Antalya'nın ilk convention'ının kurucu destekçileri arasında yerinizi alın.",
+  "etiket": "Sponsorluk",
+  "baslik": "AntCon {aktifYil}'yi birlikte kuralım",
+  "aciklamaVar": "AntCon {aktifYil}'yi mümkün kılan kurumlar ve markalar. Siz de bu listeye katılabilirsiniz.",
+  "aciklamaYok": "Sponsorluk görüşmeleri açık. Tarih ve program kesinleşmeden karar veren markalar en geniş görünürlük paketlerini seçme önceliğine sahip oluyor.",
+  "neden": {
+    "etiket": "Neden AntCon?",
+    "baslik": "Markanız için ne anlama geliyor?",
+    "maddeler": [
+      {
+        "ikon": "kivilcim",
+        "baslik": "Kurulma aşamasında yer alın",
+        "metin": "AntCon'un ilki 2026'da gerçekleşti, {aktifYil} ikincisi olacak. Geleneğin ilk yıllarında destekçi olmak, markanızı organizasyonun hikâyesinin parçası yapar."
+      },
+      {
+        "ikon": "kisiler",
+        "baslik": "Odaklı bir kitle",
+        "metin": "Ağırlıklı olarak 16-35 yaş aralığında; oyun, teknoloji ve popüler kültüre ilgili, satın alma kararlarını toplulukla birlikte veren bir katılımcı profili."
+      },
+      {
+        "ikon": "kure",
+        "baslik": "Etkinlik gününden fazlası",
+        "metin": "Etkinlik öncesi duyurular, gün içi sahne anonsları ve sonrasında yayınlanan arşiv sayfası ile görünürlük yıl boyunca sürüyor."
+      }
+    ]
+  },
+  "paketler": {
+    "etiket": "Paketler",
+    "baslik": "Sponsorluk seviyeleri",
+    "aciklama": "Paketler ihtiyacınıza göre özelleştirilebilir. Detaylı sunum dosyası için bize yazın.",
+    "oneCikanRozeti": "En Yüksek Görünürlük",
+    "buton": "Teklif İste",
+    "dipnot": "Paket içerikleri AntCon {sonYil} deneyimine dayanmaktadır; {aktifYil} mekânı ve program yapısı kesinleştiğinde güncellenecektir.",
+    "liste": [
+      {
+        "ad": "Ana Sponsor",
+        "fiyat": "Görüşmeye açık",
+        "aciklama": "Etkinliğin isim ortağı olarak en yüksek görünürlük.",
+        "oneCikan": true,
+        "ozellikler": [
+          "Etkinlik adıyla birlikte anılma hakkı",
+          "Ana sahnede açılış ve kapanışta anons",
+          "Fuaye alanında premium stant (6 m²)",
+          "Tüm basılı ve dijital materyalde birinci sırada logo",
+          "Sosyal medyada özel tanıtım içerikleri",
+          "20 adet davetiye"
+        ]
+      },
+      {
+        "ad": "Altın Sponsor",
+        "fiyat": "Görüşmeye açık",
+        "aciklama": "Yüksek görünürlük ve doğrudan stant teması.",
+        "oneCikan": false,
+        "ozellikler": [
+          "Sahne arka planında logo",
+          "Fuaye alanında stant (4 m²)",
+          "Web sitesi ve program kitapçığında logo",
+          "Sosyal medyada tanıtım paylaşımı",
+          "10 adet davetiye"
+        ]
+      },
+      {
+        "ad": "Gümüş Sponsor",
+        "fiyat": "Görüşmeye açık",
+        "aciklama": "Uygun maliyetle marka görünürlüğü.",
+        "oneCikan": false,
+        "ozellikler": [
+          "Web sitesi ve program kitapçığında logo",
+          "Stant alanı (2 m²)",
+          "Sosyal medyada toplu teşekkür paylaşımı",
+          "5 adet davetiye"
+        ]
+      },
+      {
+        "ad": "Destekçi / Medya",
+        "fiyat": "Ayni destek",
+        "aciklama": "Ürün, hizmet veya medya desteğiyle katkı.",
+        "oneCikan": false,
+        "ozellikler": [
+          "Web sitesi destekçiler bölümünde logo",
+          "Program kitapçığında teşekkür",
+          "Sosyal medyada anılma",
+          "2 adet davetiye"
+        ]
+      }
+    ]
+  },
+  "destekciler": {
+    "etiket": "Teşekkürler",
+    "baslik": "AntCon {sonYil} destekçileri",
+    "aciklama": "İlk AntCon'u mümkün kılan kurumlar ve markalar."
+  }
+}

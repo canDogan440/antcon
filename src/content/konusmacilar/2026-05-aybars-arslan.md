@@ -6,7 +6,7 @@
 ad: Aybars Arslan
 unvan: ""
 kullaniciAdi: itsaybarsarslan
-foto: ./2026-05-aybars-arslan.jpeg
+foto: /src/assets/yuklemeler/konusmacilar/2026-05-aybars-arslan.jpeg
 rol: konusmaci
 kisaBio: ""
 sosyal:

@@ -13,6 +13,7 @@ Allow: /
 
 # Arama sonuclarinda gorunmesini istemedigimiz teknik dosyalar
 Disallow: /_astro/
+Disallow: /admin/
 
 Sitemap: ${sitemapUrl}
 `;

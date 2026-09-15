@@ -1,0 +1,10 @@
+# Netlify derleme ayarları.
+# Yönetim panelinden (/admin) yapılan her kayıt main dalına bir commit atar;
+# Netlify bu commit'i görünce siteyi aşağıdaki komutla yeniden derler.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"

@@ -6,7 +6,7 @@
 ad: torkqueen_
 unvan: ""
 kullaniciAdi: torkqueen_
-foto: ./2026-07-torkqueen.jpeg
+foto: /src/assets/yuklemeler/konusmacilar/2026-07-torkqueen.jpeg
 rol: juri
 kisaBio: ""
 sosyal:

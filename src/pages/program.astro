@@ -10,12 +10,17 @@ import {
   OTURUM_TURU_ETIKETLERI,
 } from '@lib/icerik';
 import { kirintiSemasi } from '@lib/schema';
-import { ETKINLIK, AKTIF_YIL, SON_ETKINLIK_YILI, TARIH_BELLI } from '@config/site';
+import { sayfaMetinleri } from '@lib/sayfa';
+import { AKTIF_YIL, SON_ETKINLIK_YILI, ANA_CTA } from '@config/site';
+
+const metinler = await sayfaMetinleri('programSayfasi');
+const { bakis, hazirlaniyor, gecenYil } = metinler;
 
 const gunler = await programiGetir(AKTIF_YIL);
 const konusmacilar = await konusmacilariGetir(AKTIF_YIL);
 
 const tumOturumlar = gunler.flatMap((gun) => gun.oturumlar);
+const programVar = tumOturumlar.length > 0;
 const salonlar = [...new Set(tumOturumlar.map((o) => o.data.salon))];
 const turler = [...new Set(tumOturumlar.map((o) => o.data.tur))].filter((t) => t !== 'mola');
 
@@ -28,41 +33,33 @@ const gecenOturumlar = gecenProgram
 
 <BaseLayout
   baslik="Program"
-  aciklama={
-    tumOturumlar.length > 0
-      ? `AntCon ${AKTIF_YIL} saat saat program: konuşmalar, paneller, atölyeler, e-spor turnuvası ve cosplay yarışması.`
-      : `AntCon ${AKTIF_YIL} programı hazırlanıyor. AntCon ${SON_ETKINLIK_YILI}'nın program akışını inceleyebilir, yeni program açıklandığında haberdar olmak için duyuru listesine katılabilirsiniz.`
-  }
+  aciklama={programVar ? metinler.seoAciklamaVar : metinler.seoAciklamaYok}
   yapilandirilmisVeri={[kirintiSemasi([{ ad: 'Program', href: '/program' }])]}
 >
   <SayfaBasligi
-    etiket="Program"
-    baslik={tumOturumlar.length > 0 ? `AntCon ${AKTIF_YIL} akışı` : 'Program hazırlanıyor'}
-    aciklama={
-      tumOturumlar.length > 0
-        ? `${ETKINLIK.tarihMetni} · ${ETKINLIK.mekan.sehir}. Program etkinlik gününe kadar güncellenmeye devam edecek.`
-        : `AntCon ${AKTIF_YIL} için sahne programı ve atölye takvimi üzerinde çalışıyoruz. Tarih kesinleştikten sonra oturum oturum burada yayınlanacak.`
-    }
+    etiket={metinler.etiket}
+    baslik={programVar ? metinler.varBaslik : metinler.yokBaslik}
+    aciklama={programVar ? metinler.varAciklama : metinler.yokAciklama}
     kirintilar={[{ ad: 'Program', href: '/program' }]}
   />
 
   {
-    tumOturumlar.length > 0 ? (
+    programVar ? (
       /* ---------- Program yayında ---------- */
       <section class="bolum bg-white">
         <div class="kapsayici">
           <div class="grid gap-10 lg:grid-cols-12 lg:gap-14">
             <aside class="lg:order-last lg:col-span-4">
               <div class="kart sticky top-24 p-6">
-                <h2 class="font-display text-lg font-bold text-blue-deep">Bir bakışta</h2>
+                <h2 class="font-display text-lg font-bold text-blue-deep">{bakis.baslik}</h2>
 
                 <dl class="mt-5 space-y-4 text-sm">
                   <div>
-                    <dt class="font-semibold text-blue-deep">Toplam oturum</dt>
-                    <dd class="mt-1 text-ink-soft">{tumOturumlar.length} program başlığı</dd>
+                    <dt class="font-semibold text-blue-deep">{bakis.toplamEtiketi}</dt>
+                    <dd class="mt-1 text-ink-soft">{tumOturumlar.length}</dd>
                   </div>
                   <div>
-                    <dt class="font-semibold text-blue-deep">Salonlar</dt>
+                    <dt class="font-semibold text-blue-deep">{bakis.salonlarEtiketi}</dt>
                     <dd class="mt-1.5 flex flex-wrap gap-1.5">
                       {salonlar.map((salon) => (
                         <span class="rounded-full bg-mist px-2.5 py-1 text-xs font-semibold text-blue-deep">
@@ -72,7 +69,7 @@ const gecenOturumlar = gecenProgram
                     </dd>
                   </div>
                   <div>
-                    <dt class="font-semibold text-blue-deep">Oturum türleri</dt>
+                    <dt class="font-semibold text-blue-deep">{bakis.turlerEtiketi}</dt>
                     <dd class="mt-1.5 flex flex-wrap gap-1.5">
                       {turler.map((tur) => (
                         <span class="rounded-full bg-main-orange/12 px-2.5 py-1 text-xs font-semibold text-orange-deep">
@@ -83,9 +80,9 @@ const gecenOturumlar = gecenProgram
                   </div>
                 </dl>
 
-                <a href={TARIH_BELLI ? '/biletler' : '/iletisim'} class="btn btn-turuncu mt-6 w-full">
-                  <Ikon ad={TARIH_BELLI ? 'bilet' : 'posta'} sinif="w-5 h-5" />
-                  {TARIH_BELLI ? 'Bilet Al' : 'Haberdar Ol'}
+                <a href={ANA_CTA.href} class="btn btn-turuncu mt-6 w-full">
+                  <Ikon ad={ANA_CTA.ikon} sinif="w-5 h-5" />
+                  {ANA_CTA.metin}
                 </a>
               </div>
             </aside>
@@ -107,20 +104,19 @@ const gecenOturumlar = gecenProgram
               </span>
 
               <h2 class="mt-5 font-display text-2xl font-bold text-blue-deep">
-                AntCon {AKTIF_YIL} programı üzerinde çalışıyoruz
+                {hazirlaniyor.baslik}
               </h2>
               <p class="mx-auto mt-4 max-w-xl leading-relaxed text-ink-soft">
-                Sahne programı, atölyeler ve turnuva takvimi tarih kesinleştikten sonra
-                netleşecek. Konuşmacı ve atölye başvuruları da o dönemde açılacak.
+                {hazirlaniyor.metin}
               </p>
 
               <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                 <a href="/iletisim" class="btn btn-turuncu">
                   <Ikon ad="posta" sinif="w-5 h-5" />
-                  Duyuru Listesine Katıl
+                  {hazirlaniyor.birinciButon}
                 </a>
                 <a href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`} class="btn btn-cizgi">
-                  {SON_ETKINLIK_YILI} programını gör
+                  {hazirlaniyor.ikinciButon}
                 </a>
               </div>
             </div>
@@ -132,9 +128,9 @@ const gecenOturumlar = gecenProgram
           <section class="bolum bg-mist">
             <div class="kapsayici">
               <BolumBasligi
-                etiket={`AntCon ${SON_ETKINLIK_YILI}`}
-                baslik="Geçen yıl sahnede neler vardı?"
-                aciklama={`İlk AntCon'un program akışı ${AKTIF_YIL} için de bir fikir veriyor. Tam listeyi arşiv sayfasında bulabilirsiniz.`}
+                etiket={gecenYil.etiket}
+                baslik={gecenYil.baslik}
+                aciklama={gecenYil.aciklama}
                 hizalama="orta"
               />
 
@@ -162,7 +158,7 @@ const gecenOturumlar = gecenProgram
 
               <p class="mt-8 text-center">
                 <a href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`} class="btn btn-cizgi btn-kucuk">
-                  {SON_ETKINLIK_YILI} arşivini aç
+                  {gecenYil.buton}
                   <Ikon ad="ok_sag" sinif="w-4 h-4" />
                 </a>
               </p>

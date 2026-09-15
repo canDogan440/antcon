@@ -6,6 +6,7 @@ import {
   FOOTER_MENU,
   SOSYAL,
   SITE,
+  FOOTER,
   ETKINLIK,
   ILETISIM,
   ANA_CTA,
@@ -36,7 +37,7 @@ const yil = new Date().getFullYear();
             class="h-14 w-auto"
           />
           <span class="flex flex-col leading-none">
-            <span class="font-display text-2xl font-bold text-white">AntCon</span>
+            <span class="font-display text-2xl font-bold text-white">{SITE.ad}</span>
             <span class="mt-1 text-[0.7rem] font-semibold tracking-[0.18em] text-orange-glow uppercase">
               Antalya {AKTIF_YIL}
             </span>
@@ -44,8 +45,7 @@ const yil = new Date().getFullYear();
         </a>
 
         <p class="mt-5 max-w-sm text-sm leading-relaxed">
-          {SITE.slogan}. Oyun, teknoloji, çizgi roman ve pop kültürünü Akdeniz'in kalbinde
-          buluşturuyoruz.
+          {SITE.slogan}. {FOOTER.tanitim}
         </p>
 
         <ul class="mt-6 flex flex-wrap gap-2">
@@ -139,16 +139,16 @@ const yil = new Date().getFullYear();
       <!-- CTA kutusu -->
       <div class="lg:col-span-2">
         <h2 class="font-display text-sm font-bold tracking-[0.16em] text-white uppercase">
-          Katıl
+          {FOOTER.katilBasligi}
         </h2>
-        <p class="mt-5 text-sm">
-          Tarih ve bilet duyurularını kaçırmamak için bize yazın.
-        </p>
+        <p class="mt-5 text-sm">{FOOTER.katilMetni}</p>
         <a href={ANA_CTA.href} class="btn btn-turuncu btn-kucuk mt-4 w-full">
           <Ikon ad={ANA_CTA.ikon} sinif="w-4 h-4" />
           {ANA_CTA.metin}
         </a>
-        <a href="/sponsorlar" class="btn btn-hayalet btn-kucuk mt-2.5 w-full"> Sponsor Ol </a>
+        <a href="/sponsorlar" class="btn btn-hayalet btn-kucuk mt-2.5 w-full">
+          {FOOTER.sponsorButonu}
+        </a>
         <a
           href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`}
           class="mt-4 inline-flex items-center gap-1.5 text-sm transition-colors hover:text-orange-glow hover:underline"
@@ -165,10 +165,10 @@ const yil = new Date().getFullYear();
     <div
       class="kapsayici flex flex-col items-center justify-between gap-3 py-5 text-xs sm:flex-row"
     >
-      <p>&copy; {yil} AntCon. Tüm hakları saklıdır.</p>
+      <p>&copy; {yil} {FOOTER.telif}</p>
       <p class="flex items-center gap-1.5">
         <Ikon ad="konum" sinif="w-3.5 h-3.5 text-main-orange" />
-        Antalya, Türkiye
+        {FOOTER.konum}
       </p>
     </div>
   </div>

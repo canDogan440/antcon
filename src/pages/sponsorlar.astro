@@ -10,7 +10,11 @@ import {
   programiGetir,
 } from '@lib/icerik';
 import { kirintiSemasi } from '@lib/schema';
-import { AKTIF_YIL, SON_ETKINLIK_YILI, ILETISIM } from '@config/site';
+import { sayfaMetinleri } from '@lib/sayfa';
+import { AKTIF_YIL, SON_ETKINLIK_YILI } from '@config/site';
+
+const metinler = await sayfaMetinleri('sponsorlarSayfasi');
+const { neden, paketler, destekciler } = metinler;
 
 const gruplar = await sponsorlariSeviyeyeGoreGetir(AKTIF_YIL);
 const gecenGruplar = await sponsorlariSeviyeyeGoreGetir(SON_ETKINLIK_YILI);
@@ -39,95 +43,17 @@ const GORUNUM: Record<string, { sutunlar: string; boyut: 'buyuk' | 'orta' | 'kuc
   medya: { sutunlar: 'grid-cols-2 sm:grid-cols-4', boyut: 'orta' },
   destekci: { sutunlar: 'grid-cols-2 sm:grid-cols-4 lg:grid-cols-5', boyut: 'kucuk' },
 };
-
-const PAKETLER = [
-  {
-    ad: 'Ana Sponsor',
-    fiyat: 'Görüşmeye açık',
-    aciklama: 'Etkinliğin isim ortağı olarak en yüksek görünürlük.',
-    oneCikan: true,
-    ozellikler: [
-      'Etkinlik adıyla birlikte anılma hakkı',
-      'Ana sahnede açılış ve kapanışta anons',
-      'Fuaye alanında premium stant (6 m²)',
-      'Tüm basılı ve dijital materyalde birinci sırada logo',
-      'Sosyal medyada özel tanıtım içerikleri',
-      '20 adet davetiye',
-    ],
-  },
-  {
-    ad: 'Altın Sponsor',
-    fiyat: 'Görüşmeye açık',
-    aciklama: 'Yüksek görünürlük ve doğrudan stant teması.',
-    oneCikan: false,
-    ozellikler: [
-      'Sahne arka planında logo',
-      'Fuaye alanında stant (4 m²)',
-      'Web sitesi ve program kitapçığında logo',
-      'Sosyal medyada tanıtım paylaşımı',
-      '10 adet davetiye',
-    ],
-  },
-  {
-    ad: 'Gümüş Sponsor',
-    fiyat: 'Görüşmeye açık',
-    aciklama: 'Uygun maliyetle marka görünürlüğü.',
-    oneCikan: false,
-    ozellikler: [
-      'Web sitesi ve program kitapçığında logo',
-      'Stant alanı (2 m²)',
-      'Sosyal medyada toplu teşekkür paylaşımı',
-      '5 adet davetiye',
-    ],
-  },
-  {
-    ad: 'Destekçi / Medya',
-    fiyat: 'Ayni destek',
-    aciklama: 'Ürün, hizmet veya medya desteğiyle katkı.',
-    oneCikan: false,
-    ozellikler: [
-      'Web sitesi destekçiler bölümünde logo',
-      'Program kitapçığında teşekkür',
-      'Sosyal medyada anılma',
-      '2 adet davetiye',
-    ],
-  },
-];
-
-const NEDEN_SPONSOR = [
-  {
-    ikon: 'kivilcim' as const,
-    baslik: 'Kurulma aşamasında yer alın',
-    metin: `AntCon'un ilki 2026'da gerçekleşti, ${AKTIF_YIL} ikincisi olacak. Geleneğin ilk yıllarında destekçi olmak, markanızı organizasyonun hikâyesinin parçası yapar.`,
-  },
-  {
-    ikon: 'kisiler' as const,
-    baslik: 'Odaklı bir kitle',
-    metin:
-      'Ağırlıklı olarak 16-35 yaş aralığında; oyun, teknoloji ve popüler kültüre ilgili, satın alma kararlarını toplulukla birlikte veren bir katılımcı profili.',
-  },
-  {
-    ikon: 'kure' as const,
-    baslik: 'Etkinlik gününden fazlası',
-    metin:
-      'Etkinlik öncesi duyurular, gün içi sahne anonsları ve sonrasında yayınlanan arşiv sayfası ile görünürlük yıl boyunca sürüyor.',
-  },
-];
 ---
 
 <BaseLayout
   baslik="Sponsorlar"
-  aciklama={`AntCon ${AKTIF_YIL} sponsorluk paketleri ve başvuru bilgileri. Antalya'nın ilk convention'ının kurucu destekçileri arasında yerinizi alın.`}
+  aciklama={metinler.seoAciklama}
   yapilandirilmisVeri={[kirintiSemasi([{ ad: 'Sponsorlar', href: '/sponsorlar' }])]}
 >
   <SayfaBasligi
-    etiket="Sponsorluk"
-    baslik={`AntCon ${AKTIF_YIL}'yi birlikte kuralım`}
-    aciklama={
-      buYilSponsorVar
-        ? `AntCon ${AKTIF_YIL}'yi mümkün kılan kurumlar ve markalar. Siz de bu listeye katılabilirsiniz.`
-        : `Sponsorluk görüşmeleri açık. Tarih ve program kesinleşmeden karar veren markalar en geniş görünürlük paketlerini seçme önceliğine sahip oluyor.`
-    }
+    etiket={metinler.etiket}
+    baslik={metinler.baslik}
+    aciklama={buYilSponsorVar ? metinler.aciklamaVar : metinler.aciklamaYok}
     kirintilar={[{ ad: 'Sponsorlar', href: '/sponsorlar' }]}
   />
 
@@ -159,15 +85,10 @@ const NEDEN_SPONSOR = [
   <!-- Neden sponsor olmalı -->
   <section class="bolum bg-blue-deep">
     <div class="kapsayici">
-      <BolumBasligi
-        etiket="Neden AntCon?"
-        baslik="Markanız için ne anlama geliyor?"
-        koyuZemin={true}
-        hizalama="orta"
-      />
+      <BolumBasligi etiket={neden.etiket} baslik={neden.baslik} koyuZemin={true} hizalama="orta" />
       <ul class="mt-10 grid gap-5 md:grid-cols-3">
         {
-          NEDEN_SPONSOR.map((madde) => (
+          neden.maddeler.map((madde) => (
             <li class="rounded-2xl border border-white/12 bg-white/5 p-6 text-center">
               <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-main-orange/20 text-orange-glow">
                 <Ikon ad={madde.ikon} sinif="w-7 h-7" />
@@ -204,15 +125,15 @@ const NEDEN_SPONSOR = [
   <section class="bolum bg-mist">
     <div class="kapsayici">
       <BolumBasligi
-        etiket="Paketler"
-        baslik="Sponsorluk seviyeleri"
-        aciklama="Paketler ihtiyacınıza göre özelleştirilebilir. Detaylı sunum dosyası için bize yazın."
+        etiket={paketler.etiket}
+        baslik={paketler.baslik}
+        aciklama={paketler.aciklama}
         hizalama="orta"
       />
 
       <ul class="mt-12 grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {
-          PAKETLER.map((paket) => (
+          paketler.liste.map((paket) => (
             <li>
               <article
                 class:list={[
@@ -222,7 +143,7 @@ const NEDEN_SPONSOR = [
               >
                 {paket.oneCikan && (
                   <span class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-deep px-4 py-1 text-xs font-bold whitespace-nowrap text-white">
-                    En Yüksek Görünürlük
+                    {paketler.oneCikanRozeti}
                   </span>
                 )}
 
@@ -245,7 +166,7 @@ const NEDEN_SPONSOR = [
                   href="/iletisim"
                   class:list={['btn mt-6 w-full', paket.oneCikan ? 'btn-turuncu' : 'btn-cizgi']}
                 >
-                  Teklif İste
+                  {paketler.buton}
                   <span class="sr-yalniz">- {paket.ad}</span>
                 </a>
               </article>
@@ -254,26 +175,7 @@ const NEDEN_SPONSOR = [
         }
       </ul>
 
-      <p class="mt-8 text-center text-sm text-ink-soft">
-        Paket içerikleri AntCon {SON_ETKINLIK_YILI} deneyimine dayanmaktadır; {AKTIF_YIL} mekânı ve
-        program yapısı kesinleştiğinde güncellenecektir.
-      </p>
-
-      <!-- <div class="kart mt-12 flex flex-col items-center gap-5 p-8 text-center md:flex-row md:text-left">
-        <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-main-orange/12 text-orange-deep">
-          <Ikon ad="posta" sinif="w-7 h-7" />
-        </span>
-        <div class="flex-1">
-          <h2 class="font-display text-xl font-bold text-blue-deep">Sunum dosyasını isteyin</h2>
-          <p class="mt-2 text-sm text-ink-soft">
-            Kitle analizi, alan planı ve görünürlük detaylarını içeren sponsorluk sunumunu e-posta
-            ile gönderiyoruz.
-          </p>
-        </div>
-        <a href={`mailto:${ILETISIM.email}`} class="btn btn-turuncu shrink-0">
-          {ILETISIM.email}
-        </a>
-      </div> -->
+      {paketler.dipnot && <p class="mt-8 text-center text-sm text-ink-soft">{paketler.dipnot}</p>}
     </div>
   </section>
 
@@ -283,9 +185,9 @@ const NEDEN_SPONSOR = [
       <section class="bolum bg-white">
         <div class="kapsayici">
           <BolumBasligi
-            etiket="Teşekkürler"
-            baslik={`AntCon ${SON_ETKINLIK_YILI} destekçileri`}
-            aciklama="İlk AntCon'u mümkün kılan kurumlar ve markalar."
+            etiket={destekciler.etiket}
+            baslik={destekciler.baslik}
+            aciklama={destekciler.aciklama}
             hizalama="orta"
           />
           {gecenGruplar.map((grup) => (

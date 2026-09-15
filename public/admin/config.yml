@@ -1,0 +1,1031 @@
+# ==============================================================
+#  ANTCON YÖNETİM PANELİ (Decap CMS) AYARLARI
+# --------------------------------------------------------------
+#  Panel adresi: https://antconvention.com/admin/
+#  Kullanım kılavuzu: CMS_KULLANIM.md
+#
+#  Buradaki her alan src/content.config.ts içindeki bir şema
+#  alanına karşılık gelir. Bir alan eklerken/silerken iki dosyayı
+#  birlikte güncelleyin; aksi halde derleme hata verir (Netlify bu
+#  durumda sitenin önceki halini yayında tutar).
+# ==============================================================
+
+backend:
+  name: git-gateway
+  branch: main
+  commit_messages:
+    create: 'Panel: {{collection}} / "{{slug}}" eklendi'
+    update: 'Panel: {{collection}} / "{{slug}}" güncellendi'
+    delete: 'Panel: {{collection}} / "{{slug}}" silindi'
+    uploadMedia: 'Panel: "{{path}}" yüklendi'
+    deleteMedia: 'Panel: "{{path}}" silindi'
+
+# Yerel geliştirme: `npx decap-server` çalışıyorsa panel (yalnızca
+# localhost'ta) GitHub yerine doğrudan bu bilgisayardaki dosyalara yazar.
+local_backend: true
+
+locale: tr
+site_url: https://antconvention.com
+display_url: https://antconvention.com
+logo_url: /apple-touch-icon.png
+
+# Panelden yüklenen görseller. src/ altında olmaları bilinçli: Astro bu
+# klasördeki görselleri derlemede WebP'ye çevirip boyutlandırır. public/
+# altına konan bir görsel ise ziyaretçiye olduğu gibi (MB'larca) gider.
+media_folder: src/assets/yuklemeler
+public_folder: /src/assets/yuklemeler
+
+slug:
+  encoding: ascii
+  clean_accents: true
+
+collections:
+  # ------------------------------------------------------------
+  #  HIZLI AYARLAR
+  # ------------------------------------------------------------
+  - name: ayarlar
+    label: "⚙️ Genel Ayarlar"
+    label_singular: "Ayar"
+    description: "Bilet satışını açıp kapatma, site adı, logo, iletişim bilgileri, sosyal medya ve menüler."
+    editor: { preview: false }
+    files:
+      - name: bilet-satisi
+        label: "🎟️ Bilet Satışı (Aç / Kapat)"
+        file: src/content/ayarlar/bilet-satisi.json
+        fields:
+          - label: "Bilet Satışı Açık mı?"
+            name: satisAcik
+            widget: boolean
+            required: false
+            hint: "Açtığınızda sitedeki tüm 'Haberdar Ol' butonları 'Bilet Al' olur ve Biletler sayfası satış bölümünü gösterir. Kapattığınızda satış bölümü gizlenir, yerine bilgilendirme metni çıkar."
+          - label: "Bilet Satış Linki"
+            name: satisUrl
+            widget: string
+            required: false
+            hint: "Biletleri Biletix, Bubilet, Passo gibi bir sitede satıyorsanız tam adresi yapıştırın (https:// ile başlamalı). Boş bırakırsanız butonlar sitedeki Biletler sayfasına gider."
+          - { label: "Buton Metni (satış açıkken)", name: acikButonMetni, widget: string, default: "Bilet Al" }
+          - { label: "Buton Metni (satış kapalıyken)", name: kapaliButonMetni, widget: string, default: "Haberdar Ol" }
+          - label: "Bilgi Metni (satış açıkken)"
+            name: acikMetni
+            widget: text
+            hint: "Ana sayfanın altında ve Biletler sayfasında görünür."
+          - label: "Bilgi Metni (satış kapalıyken)"
+            name: kapaliMetni
+            widget: text
+            hint: "Satış kapalıyken ziyaretçiye ne söylemek istersiniz? Örn. 'Bilet satışı yakında başlıyor'."
+          - label: "Fiyat Notu"
+            name: fiyatNotu
+            widget: text
+            required: false
+            hint: "Bilet kartlarının altında küçük yazıyla görünür (KDV, çocuk indirimi vb.)."
+          - label: "Hakkında Sayfasındaki Durum (satış açıkken)"
+            name: acikDurum
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Açıklama", name: aciklama, widget: string }
+          - label: "Hakkında Sayfasındaki Durum (satış kapalıyken)"
+            name: kapaliDurum
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Açıklama", name: aciklama, widget: string }
+
+      - name: site
+        label: "🌐 Site Ayarları (ad, logo, iletişim, menü)"
+        file: src/content/ayarlar/site.json
+        fields:
+          - { label: "Site Adı", name: ad, widget: string, hint: "Menüde, sekme başlığında ve logonun yanında görünür." }
+          - { label: "Sitenin Tam Adı", name: tamAd, widget: string, hint: "Google ve sosyal medya paylaşımlarında görünür." }
+          - { label: "Slogan", name: slogan, widget: string }
+          - label: "Site Açıklaması"
+            name: aciklama
+            widget: text
+            hint: "Google'da sitenin altında görünen kısa tanıtım. {aktifYil} yazarsanız sıradaki etkinlik yılı otomatik yazılır."
+          - label: "Logo"
+            name: logo
+            widget: image
+            choose_url: false
+            media_folder: /images
+            public_folder: /images
+            hint: "Kare, şeffaf arka planlı PNG yükleyin. Menüdeki beyaz logo, tarayıcı sekmesindeki ikon (favicon) ve sosyal medya paylaşım görseli bundan otomatik üretilir."
+          - label: "Sıradaki Etkinlik Yılı"
+            name: aktifYil
+            widget: number
+            value_type: int
+            min: 2026
+            max: 2100
+            hint: "Sitenin öne çıkardığı etkinlik. DİKKAT: Değiştirmeden önce 'Etkinlik Yılları' bölümünde o yılın kaydını oluşturun, yoksa site güncellenmez."
+          - label: "Son Gerçekleşen Etkinlik Yılı"
+            name: sonEtkinlikYili
+            widget: number
+            value_type: int
+            min: 2026
+            max: 2100
+            hint: "Ana sayfadaki 'geçen yıl' özeti ve fotoğraflar bu yıldan gelir."
+          - label: "İletişim Bilgileri"
+            name: iletisim
+            widget: object
+            fields:
+              - { label: "E-posta Adresi", name: email, widget: string }
+              - { label: "Telefon", name: telefon, widget: string, required: false, hint: "Boş bırakırsanız sitede telefon hiç görünmez. Örn. +90 555 123 45 67" }
+          - label: "Sosyal Medya Hesapları"
+            name: sosyal
+            widget: list
+            label_singular: "Hesap"
+            summary: "{{fields.platform}} — {{fields.url}}"
+            fields:
+              - label: "Platform"
+                name: platform
+                widget: select
+                options:
+                  - { label: "Instagram", value: instagram }
+                  - { label: "X (Twitter)", value: x }
+                  - { label: "LinkedIn", value: linkedin }
+                  - { label: "YouTube", value: youtube }
+                  - { label: "Discord", value: discord }
+                  - { label: "TikTok", value: tiktok }
+              - { label: "Hesap Adresi", name: url, widget: string, hint: "Tam adres, örn. https://instagram.com/antconvention" }
+          - { label: "X (Twitter) Kullanıcı Adı", name: xKullaniciAdi, widget: string, required: false, hint: "@ ile birlikte, örn. @antconvention" }
+          - label: "Üst Menü"
+            name: anaMenu
+            widget: list
+            label_singular: "Menü Öğesi"
+            summary: "{{fields.ad}} → {{fields.href}}"
+            hint: "Sürükleyerek sıralayabilirsiniz."
+            fields: &menuAlanlari
+              - { label: "Menüde Görünen Ad", name: ad, widget: string }
+              - { label: "Bağlantı", name: href, widget: string, hint: "Site içi sayfa için /hakkinda gibi, dış site için https:// ile tam adres." }
+          - label: "Alt Menü (sayfanın en altındaki Hızlı Linkler)"
+            name: altMenu
+            widget: list
+            label_singular: "Menü Öğesi"
+            summary: "{{fields.ad}} → {{fields.href}}"
+            fields: *menuAlanlari
+          - label: "Sayfa Altı (Footer) Metinleri"
+            name: footer
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Tanıtım Cümlesi", name: tanitim, widget: text, hint: "Sloganın hemen arkasından gelir." }
+              - { label: "'Katıl' Sütun Başlığı", name: katilBasligi, widget: string }
+              - { label: "'Katıl' Sütun Metni", name: katilMetni, widget: text }
+              - { label: "Sponsor Butonu", name: sponsorButonu, widget: string }
+              - { label: "Konum Yazısı", name: konum, widget: string }
+              - { label: "Telif Yazısı", name: telif, widget: string, hint: "Başına © ve yıl otomatik eklenir." }
+
+  # ------------------------------------------------------------
+  #  SAYFA METİNLERİ
+  # ------------------------------------------------------------
+  - name: sayfalar
+    label: "📄 Sayfa Metinleri"
+    label_singular: "Sayfa"
+    description: "Her sayfadaki başlıklar, açıklamalar ve buton yazıları. İPUCU: Metinlerde {aktifYil}, {sonYil}, {tarih} veya {email} yazarsanız sitede güncel etkinlik yılı, geçen yıl, etkinlik tarihi ve e-posta adresi ile otomatik değiştirilir. **iki yıldız** arasına aldığınız kelimeler (izin verilen alanlarda) kalın görünür."
+    editor: { preview: false }
+    files:
+      - name: anasayfa
+        label: "Ana Sayfa"
+        file: src/content/sayfalar/anasayfa.json
+        fields:
+          - { label: "Google Açıklaması", name: seoAciklama, widget: text, hint: "Google arama sonuçlarında görünen 1-2 cümle (150-160 karakter ideal)." }
+          - label: "Üst Bölüm (Karşılama)"
+            name: hero
+            widget: object
+            fields:
+              - { label: "Üst Küçük Etiket", name: ustEtiket, widget: string }
+              - { label: "Ana Sayfa Başlığı", name: baslik, widget: string }
+              - { label: "Başlığın Turuncu Kısmı", name: baslikVurgu, widget: string, required: false, hint: "Başlığın devamında turuncu renkte görünür. Boş bırakılabilir." }
+              - { label: "Karşılama Paragrafı", name: aciklama, widget: text, hint: "**iki yıldız** arasına aldığınız kısım kalın görünür." }
+              - { label: "Durum Etiketi", name: durumEtiketi, widget: string, required: false, hint: "Tarih ve şehrin yanında görünen kısa durum, örn. 'Planlama aşamasında'. Boş bırakılırsa gizlenir." }
+              - { label: "İkinci Buton", name: ikinciButon, widget: string, hint: "Geçen yılın arşiv sayfasına gider." }
+              - { label: "Geri Sayım Başlığı", name: geriSayimBasligi, widget: string, hint: "Etkinlik tarihi girildiğinde görünür." }
+              - { label: "Tarih Yokken: Başlık", name: tarihYokBasligi, widget: string }
+              - { label: "Tarih Yokken: Metin", name: tarihYokMetni, widget: text }
+              - { label: "Tarih Yokken: Buton", name: tarihYokButonu, widget: string }
+          - label: "Geçen Yıl Özeti"
+            name: gecenYil
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Detay Butonu", name: detayButonu, widget: string }
+              - { label: "Fotoğraf Notu", name: fotoNotu, widget: string, hint: "Fotoğraf kaydırıcısının altında görünür." }
+              - { label: "Galeri Butonu", name: galeriButonu, widget: string }
+          - label: "AntCon Nedir? Bölümü"
+            name: nedir
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Açıklama", name: aciklama, widget: text }
+              - { label: "Ek Paragraf", name: ekMetin, widget: text, required: false }
+              - { label: "Buton", name: buton, widget: string }
+              - label: "Kartlar"
+                name: kartlar
+                widget: list
+                label_singular: "Kart"
+                summary: "{{fields.baslik}}"
+                fields: &kartAlanlari
+                  - &ikonAlani
+                    label: "İkon"
+                    name: ikon
+                    widget: select
+                    options:
+                      - { label: "📅 Takvim", value: takvim }
+                      - { label: "🕒 Saat", value: saat }
+                      - { label: "📍 Konum", value: konum }
+                      - { label: "🎟️ Bilet", value: bilet }
+                      - { label: "✉️ Zarf", value: posta }
+                      - { label: "📞 Telefon", value: telefon }
+                      - { label: "✔️ Onay", value: onay }
+                      - { label: "⭐ Yıldız", value: yildiz }
+                      - { label: "👥 Kişiler", value: kisiler }
+                      - { label: "🎤 Mikrofon", value: mikrofon }
+                      - { label: "✨ Kıvılcım", value: kivilcim }
+                      - { label: "🎮 Oyun", value: oyun }
+                      - { label: "🏆 Kupa", value: kupa }
+                      - { label: "🛡️ Kalkan", value: kalkan }
+                      - { label: "🌐 Dünya", value: kure }
+                  - { label: "Başlık", name: baslik, widget: string }
+                  - { label: "Metin", name: metin, widget: text }
+          - label: "Hazırlık Durumu Bölümü"
+            name: hazirlik
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Açıklama", name: aciklama, widget: text }
+              - label: "Maddeler"
+                name: maddeler
+                widget: list
+                label_singular: "Madde"
+                summary: "{{fields.baslik}} — {{fields.durum}}"
+                fields:
+                  - *ikonAlani
+                  - { label: "Başlık", name: baslik, widget: string }
+                  - { label: "Durum Rozeti", name: durum, widget: string, hint: "Örn. 'Hazırlanıyor', 'Başvurular açık'" }
+                  - { label: "Metin", name: metin, widget: text }
+                  - { label: "Tamamlandı mı? (rozet turuncu olur)", name: tamam, widget: boolean, required: false, default: false }
+              - { label: "Birinci Buton", name: birinciButon, widget: string }
+              - { label: "İkinci Buton", name: ikinciButon, widget: string }
+          - label: "Destekçiler Bölümü"
+            name: destekciler
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Açıklama", name: aciklama, widget: text }
+              - { label: "Buton", name: buton, widget: string }
+          - label: "Sayfa Sonu Çağrısı"
+            name: sonCta
+            widget: object
+            collapsed: true
+            hint: "Bu bölümün paragrafı 'Bilet Satışı' ayarlarındaki bilgi metninden gelir."
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Birinci Buton", name: birinciButon, widget: string }
+              - { label: "İkinci Buton", name: ikinciButon, widget: string }
+
+      - name: hakkinda
+        label: "Hakkında"
+        file: src/content/sayfalar/hakkinda.md
+        fields:
+          - { label: "Google Açıklaması", name: seoAciklama, widget: text }
+          - { label: "Üst Etiket", name: etiket, widget: string }
+          - { label: "Sayfa Başlığı", name: baslik, widget: string }
+          - { label: "Başlık Altı Açıklama", name: aciklama, widget: text }
+          - label: "Hikâye Metni"
+            name: body
+            widget: markdown
+            buttons: [bold, italic, link, heading-two, heading-three, bulleted-list, numbered-list, quote]
+            editor_components: []
+            hint: "Sayfanın ana metni. Ara başlık eklemek için 'H2' butonunu kullanın."
+          - label: "Sağdaki Durum Kutusu"
+            name: durumKutusu
+            widget: object
+            collapsed: true
+            hint: "Tarih, mekân ve bilet satırları otomatik doldurulur."
+            fields:
+              - { label: "Kutu Başlığı", name: baslik, widget: string }
+              - { label: "Mekân Belli Değilken Yazan Not", name: mekanNotu, widget: string }
+              - { label: "Geçen Yılın Etkinlik Notu", name: gecmisEtkinlikNotu, widget: string }
+              - { label: "Arşiv Butonu", name: arsivButonu, widget: string }
+          - label: "Değerlerimiz"
+            name: degerler
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Maddeler", name: maddeler, widget: list, label_singular: "Değer", summary: "{{fields.baslik}}", fields: *kartAlanlari }
+          - label: "Yolculuk (Zaman Çizelgesi)"
+            name: yolculuk
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - label: "Adımlar"
+                name: adimlar
+                widget: list
+                label_singular: "Adım"
+                summary: "{{fields.tarih}} — {{fields.baslik}}"
+                fields:
+                  - { label: "Tarih", name: tarih, widget: string, hint: "Serbest metin: 'Ocak 2026', 'Şu an' gibi." }
+                  - { label: "Başlık", name: baslik, widget: string }
+                  - { label: "Metin", name: metin, widget: text }
+                  - label: "Durum"
+                    name: durum
+                    widget: select
+                    default: tamam
+                    options:
+                      - { label: "Tamamlandı", value: tamam }
+                      - { label: "Şu an (vurgulu)", value: suan }
+                      - { label: "Planlanan", value: planli }
+          - label: "Fotoğraf Bölümü"
+            name: galeri
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Açıklama", name: aciklama, widget: string }
+
+      - name: biletler
+        label: "Biletler"
+        file: src/content/sayfalar/biletler.json
+        fields:
+          - { label: "Google Açıklaması (satış açıkken)", name: seoAciklamaAcik, widget: text }
+          - { label: "Google Açıklaması (satış kapalıyken)", name: seoAciklamaKapali, widget: text }
+          - { label: "Üst Etiket", name: etiket, widget: string }
+          - { label: "Sayfa Başlığı (satış açıkken)", name: acikBaslik, widget: string }
+          - { label: "Başlık Altı Açıklama (satış açıkken)", name: acikAciklama, widget: text }
+          - { label: "Sayfa Başlığı (satış kapalıyken)", name: kapaliBaslik, widget: string }
+          - { label: "Başlık Altı Açıklama (satış kapalıyken)", name: kapaliAciklama, widget: text }
+          - { label: "Geri Sayım Etiketi", name: geriSayimEtiketi, widget: string }
+          - label: "Satış Kapalıyken Görünen Kutu"
+            name: kapaliKutu
+            widget: object
+            collapsed: true
+            hint: "Kutudaki paragraf 'Bilet Satışı' ayarlarından gelir."
+            fields:
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Birinci Buton", name: birinciButon, widget: string }
+              - { label: "İkinci Buton", name: ikinciButon, widget: string }
+          - label: "Satış Açık Ama Bilet Tipi Eklenmemişken Görünen Kutu"
+            name: acikKutu
+            widget: object
+            collapsed: true
+            hint: "Biletleri dış bir sitede satıyor ve 'Bilet Tipleri' eklemiyorsanız bu kutu satış linkiyle birlikte görünür."
+            fields:
+              - { label: "Başlık", name: baslik, widget: string }
+          - label: "Satış Süreci (satış kapalıyken görünür)"
+            name: surec
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Açıklama", name: aciklama, widget: text }
+              - { label: "Adımlar", name: adimlar, widget: list, label_singular: "Adım", summary: "{{fields.baslik}}", fields: *kartAlanlari }
+          - label: "Bilete Dahil Olanlar"
+            name: kapsam
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık (satış açıkken)", name: acikBaslik, widget: string }
+              - { label: "Açıklama (satış açıkken)", name: acikAciklama, widget: text }
+              - { label: "Başlık (satış kapalıyken)", name: kapaliBaslik, widget: string }
+              - { label: "Açıklama (satış kapalıyken)", name: kapaliAciklama, widget: text }
+              - { label: "Maddeler", name: maddeler, widget: list, label_singular: "Madde", field: { label: "Madde", name: madde, widget: string } }
+          - label: "Bilet SSS Bölümü"
+            name: sss
+            widget: object
+            collapsed: true
+            hint: "Sorular 'Sıkça Sorulan Sorular' bölümünde kategorisi 'Bilet ve Kayıt' olanlardan gelir."
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Buton", name: buton, widget: string }
+
+      - name: konusmacilar
+        label: "Konuşmacılar"
+        file: src/content/sayfalar/konusmacilar.json
+        fields:
+          - { label: "Google Açıklaması (kadro açıklandıysa)", name: seoAciklamaVar, widget: text }
+          - { label: "Google Açıklaması (kadro yokken)", name: seoAciklamaYok, widget: text }
+          - { label: "Üst Etiket", name: etiket, widget: string }
+          - { label: "Sayfa Başlığı (kadro açıklandıysa)", name: varBaslik, widget: string }
+          - { label: "Başlık Altı Açıklama (kadro açıklandıysa)", name: varAciklama, widget: text }
+          - { label: "Sayfa Başlığı (kadro yokken)", name: yokBaslik, widget: string }
+          - { label: "Başlık Altı Açıklama (kadro yokken)", name: yokAciklama, widget: text }
+          - label: "Kadro Yokken Görünen Kutu"
+            name: hazirlaniyor
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Metin", name: metin, widget: text }
+              - { label: "Birinci Buton", name: birinciButon, widget: string }
+              - { label: "İkinci Buton", name: ikinciButon, widget: string }
+          - label: "Geçen Yılın Kadrosu Başlığı"
+            name: gecenYil
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Açıklama", name: aciklama, widget: text }
+          - { label: "Konuşmacılar Ara Başlığı", name: konusmacilarBasligi, widget: string }
+          - { label: "Jüri Ara Başlığı", name: juriBasligi, widget: string }
+          - label: "Başvuru Çağrısı (kadro açıklandıysa)"
+            name: basvuru
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Metin", name: metin, widget: text }
+              - { label: "Buton", name: buton, widget: string }
+
+      - name: program
+        label: "Program"
+        file: src/content/sayfalar/program.json
+        fields:
+          - { label: "Google Açıklaması (program yayındayken)", name: seoAciklamaVar, widget: text }
+          - { label: "Google Açıklaması (program yokken)", name: seoAciklamaYok, widget: text }
+          - { label: "Üst Etiket", name: etiket, widget: string }
+          - { label: "Sayfa Başlığı (program yayındayken)", name: varBaslik, widget: string }
+          - { label: "Başlık Altı Açıklama (program yayındayken)", name: varAciklama, widget: text }
+          - { label: "Sayfa Başlığı (program yokken)", name: yokBaslik, widget: string }
+          - { label: "Başlık Altı Açıklama (program yokken)", name: yokAciklama, widget: text }
+          - label: "'Bir Bakışta' Kutusu"
+            name: bakis
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Kutu Başlığı", name: baslik, widget: string }
+              - { label: "Toplam Oturum Etiketi", name: toplamEtiketi, widget: string }
+              - { label: "Salonlar Etiketi", name: salonlarEtiketi, widget: string }
+              - { label: "Oturum Türleri Etiketi", name: turlerEtiketi, widget: string }
+          - label: "Program Yokken Görünen Kutu"
+            name: hazirlaniyor
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Metin", name: metin, widget: text }
+              - { label: "Birinci Buton", name: birinciButon, widget: string }
+              - { label: "İkinci Buton", name: ikinciButon, widget: string }
+          - label: "Geçen Yılın Programı"
+            name: gecenYil
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Açıklama", name: aciklama, widget: text }
+              - { label: "Buton", name: buton, widget: string }
+
+      - name: sponsorlar
+        label: "Sponsorlar"
+        file: src/content/sayfalar/sponsorlar.json
+        fields:
+          - { label: "Google Açıklaması", name: seoAciklama, widget: text }
+          - { label: "Üst Etiket", name: etiket, widget: string }
+          - { label: "Sayfa Başlığı", name: baslik, widget: string }
+          - { label: "Başlık Altı Açıklama (bu yılın sponsoru varken)", name: aciklamaVar, widget: text }
+          - { label: "Başlık Altı Açıklama (henüz sponsor yokken)", name: aciklamaYok, widget: text }
+          - label: "Neden AntCon? Bölümü"
+            name: neden
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Maddeler", name: maddeler, widget: list, label_singular: "Madde", summary: "{{fields.baslik}}", fields: *kartAlanlari }
+          - label: "Sponsorluk Paketleri"
+            name: paketler
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Açıklama", name: aciklama, widget: text }
+              - { label: "Öne Çıkan Paket Rozeti", name: oneCikanRozeti, widget: string }
+              - { label: "Paket Butonu", name: buton, widget: string }
+              - { label: "Dipnot", name: dipnot, widget: text, required: false }
+              - label: "Paketler"
+                name: liste
+                widget: list
+                label_singular: "Paket"
+                summary: "{{fields.ad}} — {{fields.fiyat}}"
+                fields:
+                  - { label: "Paket Adı", name: ad, widget: string }
+                  - { label: "Fiyat Yazısı", name: fiyat, widget: string, hint: "Serbest metin: '50.000 ₺' veya 'Görüşmeye açık'." }
+                  - { label: "Kısa Açıklama", name: aciklama, widget: string }
+                  - { label: "Öne Çıkan Paket mi?", name: oneCikan, widget: boolean, required: false, default: false }
+                  - { label: "Paket İçeriği", name: ozellikler, widget: list, label_singular: "Madde", field: { label: "Madde", name: madde, widget: string } }
+          - label: "Geçen Yılın Destekçileri Başlığı"
+            name: destekciler
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Açıklama", name: aciklama, widget: text }
+
+      - name: sss
+        label: "Sıkça Sorulan Sorular (sayfa metinleri)"
+        file: src/content/sayfalar/sss.json
+        fields:
+          - { label: "Google Açıklaması", name: seoAciklama, widget: text }
+          - { label: "Üst Etiket", name: etiket, widget: string }
+          - { label: "Sayfa Başlığı", name: baslik, widget: string }
+          - { label: "Başlık Altı Açıklama", name: aciklama, widget: text }
+          - { label: "Kategori Menüsü Başlığı", name: kategorilerBasligi, widget: string }
+          - { label: "Hiç Soru Yokken Yazan Metin", name: bosMetin, widget: string }
+          - label: "Alttaki 'Cevabını Bulamadın mı?' Kutusu"
+            name: altKutu
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Metin", name: metin, widget: text }
+              - { label: "Buton", name: buton, widget: string }
+
+      - name: iletisim
+        label: "İletişim"
+        file: src/content/sayfalar/iletisim.json
+        fields:
+          - { label: "Google Açıklaması", name: seoAciklama, widget: text }
+          - { label: "Üst Etiket", name: etiket, widget: string }
+          - { label: "Sayfa Başlığı", name: baslik, widget: string }
+          - { label: "Başlık Altı Açıklama", name: aciklama, widget: text }
+          - label: "İletişim Formu"
+            name: form
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Form Başlığı", name: baslik, widget: string }
+              - { label: "Konu Seçenekleri", name: konular, widget: list, label_singular: "Konu", field: { label: "Konu", name: konu, widget: string } }
+              - { label: "Gönder Butonu", name: gonderButonu, widget: string }
+              - { label: "Başarılı Gönderim Mesajı", name: basariMesaji, widget: text }
+          - { label: "İletişim Kanalları Başlığı", name: kanallarBasligi, widget: string }
+          - label: "Etkinlik Yeri Kutusu"
+            name: mekan
+            widget: object
+            collapsed: true
+            hint: "Adres, 'Etkinlik Yılları' bölümündeki mekân bilgisinden otomatik gelir."
+            fields:
+              - { label: "Kutu Başlığı", name: baslik, widget: string }
+              - { label: "Yol Tarifi Butonu", name: yolTarifiButonu, widget: string }
+              - { label: "Mekân Belli Değilken: Başlık", name: belirsizBaslik, widget: string }
+              - { label: "Mekân Belli Değilken: Metin", name: belirsizMetin, widget: text }
+              - { label: "Mekân Belli Değilken: Buton", name: arsivButonu, widget: string }
+          - label: "Sosyal Medya Kutusu"
+            name: sosyal
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Metin", name: metin, widget: string }
+
+      - name: galeri
+        label: "Galeri (sayfa metinleri)"
+        file: src/content/sayfalar/galeri.json
+        fields:
+          - { label: "Google Açıklaması", name: seoAciklama, widget: text }
+          - { label: "Üst Etiket", name: etiket, widget: string }
+          - { label: "Sayfa Başlığı", name: baslik, widget: string }
+          - { label: "Açıklama (tek yılın fotoğrafları varken)", name: aciklamaTekYil, widget: text }
+          - { label: "Açıklama (birden fazla yıl varken)", name: aciklamaCokYil, widget: text }
+          - { label: "Alt Not", name: altNot, widget: string }
+          - { label: "Alt Not Bağlantı Yazısı", name: altNotBaglantisi, widget: string }
+          - { label: "Alt Not Devamı", name: altNotDevami, widget: string }
+
+      - name: gecmis-etkinlikler
+        label: "Geçmiş Etkinlikler (arşiv)"
+        file: src/content/sayfalar/gecmis-etkinlikler.json
+        fields:
+          - { label: "Google Açıklaması", name: seoAciklama, widget: text }
+          - { label: "Üst Etiket", name: etiket, widget: string }
+          - { label: "Sayfa Başlığı", name: baslik, widget: string }
+          - { label: "Başlık Altı Açıklama", name: aciklama, widget: text }
+          - label: "Yaklaşan Etkinlik Bölümü"
+            name: yaklasan
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Açıklama", name: aciklama, widget: text }
+          - label: "Geçmiş Yıllar Bölümü"
+            name: gecmis
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+              - { label: "Açıklama", name: aciklama, widget: text }
+              - { label: "Boşken: Başlık", name: bosBaslik, widget: string }
+              - { label: "Boşken: Metin", name: bosMetin, widget: text }
+              - { label: "Boşken: Buton", name: bosButon, widget: string }
+          - label: "Tüm Yıllar Şeridi"
+            name: yillar
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "Etiket", name: etiket, widget: string }
+              - { label: "Başlık", name: baslik, widget: string }
+          - label: "Yıl Detay Sayfası Yazıları"
+            name: detay
+            widget: object
+            collapsed: true
+            fields:
+              - { label: "'Öne Çıkanlar' Başlığı", name: oneCikanlarBasligi, widget: string }
+              - { label: "'Künye' Başlığı", name: kunyeBasligi, widget: string }
+              - { label: "Fotoğraflar Etiketi", name: fotograflarEtiketi, widget: string }
+              - { label: "Galeri Butonu", name: galeriButonu, widget: string }
+              - { label: "Geri Butonu", name: geriButonu, widget: string }
+
+      - name: gizlilik
+        label: "Gizlilik ve Aydınlatma Metni"
+        file: src/content/sayfalar/gizlilik.md
+        fields:
+          - { label: "Google Açıklaması", name: seoAciklama, widget: text }
+          - { label: "Üst Etiket", name: etiket, widget: string }
+          - { label: "Sayfa Başlığı", name: baslik, widget: string }
+          - { label: "Başlık Altı Açıklama", name: aciklama, widget: string }
+          - { label: "Uyarı Kutusu", name: uyari, widget: text, required: false, hint: "Metnin üstündeki sarı kutu. Hukuki kontrol tamamlanınca silebilirsiniz; boş bırakılırsa gizlenir." }
+          - label: "Aydınlatma Metni"
+            name: body
+            widget: markdown
+            buttons: [bold, italic, link, heading-two, heading-three, bulleted-list, numbered-list]
+            editor_components: []
+
+      - name: bulunamadi
+        label: "Sayfa Bulunamadı (404)"
+        file: src/content/sayfalar/404.json
+        fields:
+          - { label: "Google Açıklaması", name: seoAciklama, widget: text }
+          - { label: "Başlık", name: baslik, widget: string }
+          - { label: "Metin", name: metin, widget: text }
+          - { label: "Birinci Buton", name: birinciButon, widget: string }
+          - { label: "İkinci Buton", name: ikinciButon, widget: string }
+          - { label: "Site Haritası Başlığı", name: haritaBasligi, widget: string }
+
+  # ------------------------------------------------------------
+  #  ETKİNLİK YILLARI
+  # ------------------------------------------------------------
+  - name: etkinlikler
+    label: "📅 Etkinlik Yılları (tarih, mekân)"
+    label_singular: "Etkinlik Yılı"
+    description: "Her AntCon yılı için bir kayıt. 'Site Ayarları'nda seçili sıradaki yılın kaydı, ana sayfadaki tarihi, geri sayımı, mekânı ve haritayı belirler."
+    folder: src/content/etkinlikler
+    extension: md
+    format: frontmatter
+    create: true
+    slug: "{{yil}}"
+    identifier_field: baslik
+    summary: "{{baslik}} — {{tarihMetni}}"
+    sortable_fields: [yil]
+    editor: { preview: false }
+    fields:
+      - { label: "Yıl", name: yil, widget: number, value_type: int, min: 2026, max: 2100 }
+      - { label: "Başlık", name: baslik, widget: string, hint: "Örn. AntCon 2028" }
+      - { label: "Slogan", name: slogan, widget: string, required: false }
+      - label: "Durum"
+        name: durum
+        widget: select
+        default: planlama
+        options:
+          - { label: "Planlama aşamasında (tarih belli değil)", value: planlama }
+          - { label: "Yaklaşan (tarih açıklandı)", value: yaklasan }
+          - { label: "Gerçekleşti (arşivde)", value: gecmis }
+          - { label: "İptal edildi", value: iptal }
+      - label: "Başlangıç Tarihi ve Saati"
+        name: baslangic
+        widget: datetime
+        required: false
+        format: "YYYY-MM-DDTHH:mm:ssZ"
+        date_format: "DD.MM.YYYY"
+        time_format: "HH:mm"
+        hint: "Tarih kesinleşince doldurun: ana sayfada geri sayım otomatik başlar. Belli değilse boş bırakın."
+      - label: "Bitiş Tarihi ve Saati"
+        name: bitis
+        widget: datetime
+        required: false
+        format: "YYYY-MM-DDTHH:mm:ssZ"
+        date_format: "DD.MM.YYYY"
+        time_format: "HH:mm"
+      - { label: "Tarih Yazısı", name: tarihMetni, widget: string, hint: "Sitede yazı olarak görünen tarih, örn. '27 Haziran 2027' veya 'Tarih yakında açıklanacak'." }
+      - { label: "Gün Yazısı", name: gunMetni, widget: string, required: false, hint: "Örn. Pazar" }
+      - { label: "Saat Yazısı", name: saatMetni, widget: string, required: false, hint: "Örn. 10:00 - 20:00" }
+      - label: "Mekân"
+        name: mekan
+        widget: object
+        hint: "Mekân adını yazdığınızda iletişim sayfasında adres ve Google Haritalar otomatik görünür."
+        fields:
+          - { label: "Mekân Adı", name: ad, widget: string, required: false, hint: "Belli değilse boş bırakın." }
+          - { label: "Adres", name: adres, widget: string, required: false }
+          - { label: "İlçe", name: ilce, widget: string, required: false }
+          - { label: "Posta Kodu", name: postaKodu, widget: string, required: false }
+          - { label: "Şehir", name: sehir, widget: string, default: "Antalya" }
+      - { label: "Kısa Özet", name: ozet, widget: text, hint: "Arşiv kartında ve Google'da görünür." }
+      - { label: "Kapak Fotoğrafı", name: kapak, widget: image, required: false, choose_url: false, hint: "Boş bırakırsanız o yılın galerisindeki ilk fotoğraf kullanılır." }
+      - { label: "Kapak Fotoğrafı Açıklaması", name: kapakAlt, widget: string, required: false, hint: "Görme engelli ziyaretçiler ve Google için fotoğrafta ne olduğunu anlatın." }
+      - { label: "Bilet Linki (arşiv sayfası için)", name: biletUrl, widget: string, required: false }
+      - label: "Rakamlar"
+        name: istatistikler
+        widget: list
+        label_singular: "Rakam"
+        summary: "{{fields.deger}} {{fields.etiket}}"
+        hint: "Etkinlik sonrası: ziyaretçi sayısı, stant sayısı gibi. Ana sayfadaki geçen yıl özetinde de görünür."
+        fields:
+          - { label: "Değer", name: deger, widget: string, hint: "Örn. 2.400" }
+          - { label: "Etiket", name: etiket, widget: string, hint: "Örn. Ziyaretçi" }
+      - { label: "Öne Çıkanlar", name: oneCikanlar, widget: list, label_singular: "Madde", field: { label: "Madde", name: madde, widget: string } }
+      - { label: "Taslak (sitede gizle)", name: taslak, widget: boolean, required: false, default: false }
+      - label: "Detaylı Metin"
+        name: body
+        widget: markdown
+        required: false
+        buttons: [bold, italic, link, heading-two, heading-three, bulleted-list, numbered-list]
+        editor_components: []
+        hint: "Arşiv sayfasında özetin altında görünür."
+
+  # ------------------------------------------------------------
+  #  KONUŞMACILAR
+  # ------------------------------------------------------------
+  - name: konusmacilar
+    label: "🎤 Konuşmacılar ve Jüri"
+    label_singular: "Konuşmacı"
+    folder: src/content/konusmacilar
+    extension: md
+    format: frontmatter
+    create: true
+    slug: "{{yil}}-{{slug}}"
+    identifier_field: ad
+    summary: "{{yil}} · {{ad}}"
+    sortable_fields: [yil, sira, ad]
+    view_groups:
+      - { label: "Yıl", field: yil }
+    editor: { preview: false }
+    fields:
+      - { label: "Ad Soyad", name: ad, widget: string }
+      - { label: "Unvan / Meslek", name: unvan, widget: string, required: false, hint: "Bilinmiyorsa boş bırakın; kartta @kullanıcı adı görünür." }
+      - { label: "Kurum", name: kurum, widget: string, required: false }
+      - { label: "Sosyal Medya Kullanıcı Adı", name: kullaniciAdi, widget: string, required: false, hint: "@ işareti olmadan." }
+      - label: "Rolü"
+        name: rol
+        widget: select
+        default: konusmaci
+        options:
+          - { label: "Konuşmacı", value: konusmaci }
+          - { label: "Cosplay Jürisi", value: juri }
+      - { label: "Kısa Tanıtım", name: kisaBio, widget: text, required: false, hint: "1-2 cümle." }
+      - label: "Fotoğraf"
+        name: foto
+        widget: image
+        required: false
+        choose_url: false
+        media_folder: /src/assets/yuklemeler/konusmacilar
+        public_folder: /src/assets/yuklemeler/konusmacilar
+        hint: "Dikey (4:5) fotoğraf idealdir, örn. 1200x1500 piksel. Fotoğraf yoksa baş harfler gösterilir."
+      - { label: "Fotoğraf Açıklaması", name: fotoAlt, widget: string, required: false, hint: "Boş bırakırsanız '<Ad> portre fotoğrafı' yazılır." }
+      - label: "Sosyal Medya Adresleri"
+        name: sosyal
+        widget: object
+        collapsed: true
+        hint: "Tam adres yazın (https:// ile)."
+        fields:
+          - { label: "Instagram", name: instagram, widget: string, required: false }
+          - { label: "X (Twitter)", name: x, widget: string, required: false }
+          - { label: "LinkedIn", name: linkedin, widget: string, required: false }
+          - { label: "YouTube", name: youtube, widget: string, required: false }
+          - { label: "GitHub", name: github, widget: string, required: false }
+          - { label: "Web Sitesi", name: web, widget: string, required: false }
+      - { label: "Etiketler", name: etiketler, widget: list, required: false, hint: "Fotoğrafın üstünde görünür (ilk ikisi). Virgülle ayırın: Podcast, Cosplay" }
+      - { label: "Öne Çıkan mı?", name: oneCikan, widget: boolean, required: false, default: false }
+      - &yilAlani { label: "Etkinlik Yılı", name: yil, widget: number, value_type: int, min: 2026, max: 2100, hint: "Hangi yılın etkinliğine ait? Örn. 2027" }
+      - &siraAlani { label: "Sıra", name: sira, widget: number, value_type: int, required: false, hint: "Küçük sayı önce görünür." }
+      - &taslakAlani { label: "Taslak (sitede gizle)", name: taslak, widget: boolean, required: false, default: false }
+
+  # ------------------------------------------------------------
+  #  PROGRAM
+  # ------------------------------------------------------------
+  - name: program
+    label: "🗓️ Program Akışı"
+    label_singular: "Oturum"
+    description: "Her oturum ayrı bir kayıttır. Sitede güne ve saate göre otomatik sıralanır."
+    folder: src/content/program
+    extension: md
+    format: frontmatter
+    create: true
+    slug: "{{yil}}-{{slug}}"
+    identifier_field: baslik
+    summary: "{{yil}} · {{baslangic}} · {{baslik}}"
+    sortable_fields: [yil, gun, baslangic]
+    view_groups:
+      - { label: "Yıl", field: yil }
+    editor: { preview: false }
+    fields:
+      - { label: "Oturum Başlığı", name: baslik, widget: string }
+      - { label: "Açıklama", name: aciklama, widget: text, required: false }
+      - label: "Gün"
+        name: gun
+        widget: datetime
+        format: "YYYY-MM-DD"
+        date_format: "DD.MM.YYYY"
+        time_format: false
+      - { label: "Gün Etiketi", name: gunEtiketi, widget: string, required: false, hint: "Boş bırakırsanız tarihten otomatik üretilir (örn. '28 Haziran 2026 Pazar')." }
+      - { label: "Başlangıç Saati", name: baslangic, widget: string, pattern: ['^\d{2}:\d{2}$', 'Saati 10:00 biçiminde yazın'], hint: "Örn. 10:00" }
+      - { label: "Bitiş Saati", name: bitis, widget: string, pattern: ['^\d{2}:\d{2}$', 'Saati 10:45 biçiminde yazın'], hint: "Örn. 10:45" }
+      - { label: "Salon", name: salon, widget: string, default: "Ana Sahne" }
+      - label: "Oturum Türü"
+        name: tur
+        widget: select
+        default: konusma
+        options:
+          - { label: "Açılış", value: acilis }
+          - { label: "Konuşma", value: konusma }
+          - { label: "Panel", value: panel }
+          - { label: "Atölye", value: atolye }
+          - { label: "Gösteri", value: gosteri }
+          - { label: "Turnuva", value: turnuva }
+          - { label: "Mola", value: mola }
+          - { label: "Kapanış", value: kapanis }
+      - label: "Konuşmacılar"
+        name: konusmacilar
+        widget: relation
+        collection: konusmacilar
+        value_field: "{{slug}}"
+        search_fields: [ad]
+        display_fields: [ad, yil]
+        multiple: true
+        required: false
+        options_length: 50
+        hint: "Önce 'Konuşmacılar' bölümüne eklenmiş olmaları gerekir."
+      - *yilAlani
+      - *siraAlani
+      - *taslakAlani
+
+  # ------------------------------------------------------------
+  #  SPONSORLAR
+  # ------------------------------------------------------------
+  - name: sponsorlar
+    label: "🤝 Sponsorlar"
+    label_singular: "Sponsor"
+    folder: src/content/sponsorlar
+    extension: md
+    format: frontmatter
+    create: true
+    slug: "{{yil}}-{{slug}}"
+    identifier_field: ad
+    summary: "{{yil}} · {{ad}} ({{seviye}})"
+    sortable_fields: [yil, sira, ad]
+    view_groups:
+      - { label: "Yıl", field: yil }
+    editor: { preview: false }
+    fields:
+      - { label: "Sponsor Adı", name: ad, widget: string }
+      - label: "Seviye"
+        name: seviye
+        widget: select
+        default: destekci
+        options:
+          - { label: "Ana Sponsor", value: ana }
+          - { label: "Altın Sponsor", value: altin }
+          - { label: "Gümüş Sponsor", value: gumus }
+          - { label: "Bronz Sponsor", value: bronz }
+          - { label: "Medya Sponsoru", value: medya }
+          - { label: "Destekçi", value: destekci }
+      - { label: "Logo", name: logo, widget: image, required: false, choose_url: false, hint: "Şeffaf arka planlı PNG veya SVG idealdir. Logo yoksa sponsorun adı yazı olarak gösterilir." }
+      - { label: "Web Sitesi / Sosyal Medya Adresi", name: url, widget: string, required: false, hint: "Tam adres (https:// ile)." }
+      - { label: "Kısa Açıklama", name: aciklama, widget: string, required: false }
+      - *yilAlani
+      - *siraAlani
+      - *taslakAlani
+
+  # ------------------------------------------------------------
+  #  BİLET TİPLERİ
+  # ------------------------------------------------------------
+  - name: biletler
+    label: "💳 Bilet Tipleri ve Fiyatlar"
+    label_singular: "Bilet Tipi"
+    description: "Biletler sayfasındaki fiyat kartları. Kartlar yalnızca 'Genel Ayarlar > Bilet Satışı' açıkken ve kart taslak değilken görünür."
+    folder: src/content/biletler
+    extension: md
+    format: frontmatter
+    create: true
+    slug: "{{yil}}-{{slug}}"
+    identifier_field: ad
+    summary: "{{yil}} · {{ad}} — {{fiyat}} ₺"
+    sortable_fields: [yil, sira, fiyat]
+    view_groups:
+      - { label: "Yıl", field: yil }
+    editor: { preview: false }
+    fields:
+      - { label: "Bilet Adı", name: ad, widget: string, hint: "Örn. Erken Kayıt" }
+      - { label: "Fiyat", name: fiyat, widget: number, value_type: float, min: 0, hint: "Sadece rakam. Ücretsiz için 0 yazın." }
+      - { label: "İndirimsiz (Üstü Çizili) Fiyat", name: eskiFiyat, widget: number, value_type: float, min: 0, required: false }
+      - { label: "Para Birimi Kodu", name: paraBirimi, widget: string, default: "TRY" }
+      - { label: "Para Birimi Sembolü", name: paraSembolu, widget: string, default: "₺" }
+      - { label: "Açıklama", name: aciklama, widget: text }
+      - { label: "Bilete Dahil Olanlar", name: ozellikler, widget: list, label_singular: "Madde", field: { label: "Madde", name: madde, widget: string } }
+      - label: "Satış Durumu"
+        name: durum
+        widget: select
+        default: satista
+        options:
+          - { label: "Satışta", value: satista }
+          - { label: "Yakında", value: yakinda }
+          - { label: "Tükendi", value: tukendi }
+          - { label: "Satış sona erdi", value: sona-erdi }
+      - { label: "Satın Alma Linki", name: satinAlUrl, widget: string, required: false, hint: "Boş bırakırsanız 'Bilet Satışı' ayarlarındaki genel satış linki kullanılır." }
+      - { label: "Buton Yazısı", name: butonMetni, widget: string, default: "Bilet Al" }
+      - { label: "Rozet", name: rozet, widget: string, required: false, hint: "Kartın üstündeki turuncu etiket, örn. 'Sınırlı Sayıda'." }
+      - { label: "Öne Çıkan Bilet mi?", name: oneCikan, widget: boolean, required: false, default: false }
+      - *yilAlani
+      - *siraAlani
+      - *taslakAlani
+
+  # ------------------------------------------------------------
+  #  SSS
+  # ------------------------------------------------------------
+  - name: sss
+    label: "❓ Sıkça Sorulan Sorular"
+    label_singular: "Soru"
+    folder: src/content/sss
+    extension: md
+    format: frontmatter
+    create: true
+    slug: "{{yil}}-{{slug}}"
+    identifier_field: soru
+    summary: "{{yil}} · {{soru}}"
+    sortable_fields: [yil, sira]
+    view_groups:
+      - { label: "Yıl", field: yil }
+      - { label: "Kategori", field: kategori }
+    editor: { preview: false }
+    fields:
+      - { label: "Soru", name: soru, widget: string }
+      - label: "Kategori"
+        name: kategori
+        widget: select
+        default: genel
+        options:
+          - { label: "Genel", value: genel }
+          - { label: "Bilet ve Kayıt", value: bilet }
+          - { label: "Mekân ve Ulaşım", value: mekan }
+          - { label: "Katılım ve Etkinlikler", value: katilim }
+          - { label: "Sponsorluk", value: sponsorluk }
+      - label: "Cevap"
+        name: body
+        widget: markdown
+        buttons: [bold, italic, link, bulleted-list, numbered-list]
+        editor_components: []
+      - *yilAlani
+      - *siraAlani
+      - *taslakAlani
+
+  # ------------------------------------------------------------
+  #  GALERİ
+  # ------------------------------------------------------------
+  - name: galeri
+    label: "🖼️ Fotoğraf Galerisi"
+    label_singular: "Yıl Galerisi"
+    description: "Her yılın fotoğrafları. Listedeki ilk fotoğraflar ana sayfadaki kaydırıcıda ve arşiv kapağında kullanılır; sürükleyerek sıralayabilirsiniz."
+    folder: src/content/galeri
+    extension: json
+    format: json
+    create: true
+    slug: "{{yil}}"
+    identifier_field: yil
+    summary: "AntCon {{yil}} fotoğrafları"
+    editor: { preview: false }
+    fields:
+      - { label: "Yıl", name: yil, widget: number, value_type: int, min: 2026, max: 2100 }
+      - label: "Fotoğraflar"
+        name: fotograflar
+        widget: list
+        label_singular: "Fotoğraf"
+        collapsed: true
+        summary: "{{fields.aciklama}} ({{fields.gorsel}})"
+        fields:
+          - label: "Fotoğraf"
+            name: gorsel
+            widget: image
+            choose_url: false
+            media_folder: /images/galeri
+            public_folder: /images/galeri
+            hint: "Telefon/fotoğraf makinesi dosyaları çok büyükse (5 MB üstü) yüklemeden önce küçültmeniz site güncellemesini hızlandırır."
+          - { label: "Fotoğrafta Ne Var? (açıklama)", name: aciklama, widget: string, required: false, hint: "Görme engelli ziyaretçiler ve Google için. Boş bırakılırsa 'AntCon <yıl> etkinliğinden bir kare' yazılır." }

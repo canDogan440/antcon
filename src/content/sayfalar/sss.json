@@ -1,0 +1,13 @@
+{
+  "seoAciklama": "AntCon hakkında sık sorulan sorular: bilet ve iade koşulları, ulaşım, cosplay kuralları, engelli erişimi, stant ve gönüllü başvuruları.",
+  "etiket": "SSS",
+  "baslik": "Sıkça sorulan sorular",
+  "aciklama": "Aradığınız cevabı bulamazsanız iletişim formundan bize yazmanız yeterli.",
+  "kategorilerBasligi": "Kategoriler",
+  "bosMetin": "Henüz soru eklenmedi.",
+  "altKutu": {
+    "baslik": "Cevabını bulamadın mı?",
+    "metin": "{email} adresine yazabilir veya iletişim formunu kullanabilirsin. Genellikle 2 iş günü içinde dönüş yapıyoruz.",
+    "buton": "Soru Sor"
+  }
+}

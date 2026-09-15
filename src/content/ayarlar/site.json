@@ -1,0 +1,50 @@
+{
+  "ad": "AntCon",
+  "tamAd": "AntCon - Antalya Convention",
+  "slogan": "Antalya'nın İlk Convention'ı",
+  "aciklama": "AntCon, Antalya'nın ilk convention organizasyonu. İlk etkinlik 28 Haziran 2026'da gerçekleşti; AntCon {aktifYil} için hazırlıklar sürüyor.",
+  "logo": "/images/AntCon-Logo.png",
+  "aktifYil": 2027,
+  "sonEtkinlikYili": 2026,
+  "iletisim": {
+    "email": "info@antconvention.com",
+    "telefon": ""
+  },
+  "sosyal": [
+    {
+      "platform": "instagram",
+      "url": "https://instagram.com/antconvention"
+    }
+  ],
+  "xKullaniciAdi": "@antconvention",
+  "anaMenu": [
+    { "ad": "Hakkında", "href": "/hakkinda" },
+    { "ad": "AntCon 2026", "href": "/gecmis-etkinlikler/2026" },
+    { "ad": "Program", "href": "/program" },
+    { "ad": "Konuşmacılar", "href": "/konusmacilar" },
+    { "ad": "Biletler", "href": "/biletler" },
+    { "ad": "Sponsorlar", "href": "/sponsorlar" },
+    { "ad": "Galeri", "href": "/galeri" },
+    { "ad": "SSS", "href": "/sss" },
+    { "ad": "İletişim", "href": "/iletisim" }
+  ],
+  "altMenu": [
+    { "ad": "Hakkında", "href": "/hakkinda" },
+    { "ad": "Program", "href": "/program" },
+    { "ad": "Konuşmacılar", "href": "/konusmacilar" },
+    { "ad": "Biletler", "href": "/biletler" },
+    { "ad": "Sponsorlar", "href": "/sponsorlar" },
+    { "ad": "Galeri", "href": "/galeri" },
+    { "ad": "SSS", "href": "/sss" },
+    { "ad": "İletişim", "href": "/iletisim" },
+    { "ad": "Geçmiş Etkinlikler", "href": "/gecmis-etkinlikler" }
+  ],
+  "footer": {
+    "tanitim": "Oyun, teknoloji, çizgi roman ve pop kültürünü Akdeniz'in kalbinde buluşturuyoruz.",
+    "katilBasligi": "Katıl",
+    "katilMetni": "Tarih ve bilet duyurularını kaçırmamak için bize yazın.",
+    "sponsorButonu": "Sponsor Ol",
+    "konum": "Antalya, Türkiye",
+    "telif": "AntCon. Tüm hakları saklıdır."
+  }
+}

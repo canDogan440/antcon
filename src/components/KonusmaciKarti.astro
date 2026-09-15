@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import Ikon from '@components/Ikon.astro';
+import { gorselBul } from '@lib/gorseller';
 
 interface Props {
   konusmaci: CollectionEntry<'konusmacilar'>;
@@ -12,6 +13,7 @@ interface Props {
 const { konusmaci, kompakt = false } = Astro.props;
 const { ad, unvan, kurum, kullaniciAdi, kisaBio, foto, fotoAlt, sosyal, etiketler } =
   konusmaci.data;
+const fotoSrc = gorselBul(foto);
 
 /**
  * Alt satir: unvan varsa onu (kurum ile birlikte) gosteririz.
@@ -51,9 +53,9 @@ const sosyalListesi = [
   <!-- Fotoğraf -->
   <div class="relative aspect-[4/5] overflow-hidden bg-mist">
     {
-      foto ? (
+      fotoSrc ? (
         <Image
-          src={foto}
+          src={fotoSrc}
           alt={fotoAlt ?? `${ad} portre fotoğrafı`}
           width={600}
           widths={[240, 400, 600]}

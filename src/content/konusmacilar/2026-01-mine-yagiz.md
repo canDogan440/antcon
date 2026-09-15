@@ -6,7 +6,7 @@
 ad: Mine Yağız
 unvan: ""
 kullaniciAdi: wandsandthecity
-foto: ./2026-01-mine-yagiz.jpeg
+foto: /src/assets/yuklemeler/konusmacilar/2026-01-mine-yagiz.jpeg
 rol: konusmaci
 kisaBio: ""
 sosyal:

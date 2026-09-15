@@ -3,7 +3,7 @@ import path from "node:path";
 
 const dist = "dist";
 const htmls = [];
-(function walk(d){ for (const e of fs.readdirSync(d,{withFileTypes:true})) { const p = path.join(d,e.name); if (e.isDirectory()) walk(p); else if (e.name.endsWith(".html")) htmls.push(p); } })(dist);
+(function walk(d){ for (const e of fs.readdirSync(d,{withFileTypes:true})) { const p = path.join(d,e.name); if (e.isDirectory()) { if (e.name !== "admin") walk(p); /* yonetim paneli site sayfasi degil */ } else if (e.name.endsWith(".html")) htmls.push(p); } })(dist);
 
 let sorun = 0;
 for (const f of htmls.sort()) {

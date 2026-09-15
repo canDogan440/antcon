@@ -1,0 +1,17 @@
+{
+  "satisAcik": false,
+  "satisUrl": "",
+  "acikButonMetni": "Bilet Al",
+  "kapaliButonMetni": "Haberdar Ol",
+  "acikMetni": "AntCon {aktifYil} biletleri satışta. Kontenjan sınırlı; yerinizi şimdiden ayırın.",
+  "kapaliMetni": "AntCon {aktifYil} için bilet satışı henüz başlamadı. Tarih ve bilet bilgileri netleştiğinde ilk siz haberdar olun.",
+  "fiyatNotu": "Fiyatlara KDV dahildir. 0-6 yaş arası çocuklar bir yetişkin refakatinde ücretsiz giriş yapar.",
+  "acikDurum": {
+    "baslik": "Biletler satışta",
+    "aciklama": "Yerinizi şimdiden ayırın"
+  },
+  "kapaliDurum": {
+    "baslik": "Satış açılmadı",
+    "aciklama": "Tarih duyurusundan sonra açılacak"
+  }
+}

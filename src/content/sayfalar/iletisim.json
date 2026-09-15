@@ -1,0 +1,31 @@
+{
+  "seoAciklama": "AntCon ekibine ulaşın: genel sorular, bilet ve kayıt duyuruları, sponsorluk, basın, stant ve gönüllü başvuruları.",
+  "etiket": "İletişim",
+  "baslik": "Bize ulaşın",
+  "aciklama": "Sorularınız, başvurularınız ve iş birliği teklifleriniz için buradayız.",
+  "form": {
+    "baslik": "Mesaj gönderin",
+    "konular": [
+      "Genel bilgi",
+      "Bilet ve kayıt",
+      "Sponsorluk",
+      "Basın ve medya",
+      "Stant / satıcı başvurusu",
+      "Gönüllü başvurusu"
+    ],
+    "gonderButonu": "Mesajı Gönder",
+    "basariMesaji": "Teşekkürler! Mesajınız bize ulaştı. En geç 2 iş günü içinde dönüş yapacağız."
+  },
+  "kanallarBasligi": "İletişim kanalları",
+  "mekan": {
+    "baslik": "AntCon {aktifYil} nerede?",
+    "yolTarifiButonu": "Yol tarifi al",
+    "belirsizBaslik": "Mekân henüz kesinleşmedi",
+    "belirsizMetin": "AntCon {aktifYil} yine Antalya'da gerçekleşecek. Tarih ve mekân duyurulduğunda tam adres, ulaşım ve otopark bilgileri burada haritayla birlikte yayınlanacak.",
+    "arsivButonu": "AntCon {sonYil}'yı gör"
+  },
+  "sosyal": {
+    "baslik": "Sosyal medya",
+    "metin": "Duyurular ve kulis içerikleri için bizi takip edin."
+  }
+}

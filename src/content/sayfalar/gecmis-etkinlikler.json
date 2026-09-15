@@ -1,0 +1,30 @@
+{
+  "seoAciklama": "AntCon'un yıllara göre arşivi. Her yılın programı, konuşmacıları ve rakamları tek sayfada.",
+  "etiket": "Arşiv",
+  "baslik": "AntCon yıl yıl",
+  "aciklama": "AntCon her yıl tekrar eden bir organizasyon. Bu sayfa, her yeni etkinlik eklendiğinde otomatik olarak büyür.",
+  "yaklasan": {
+    "etiket": "Sırada",
+    "baslik": "Yaklaşan etkinlik",
+    "aciklama": "Bir sonraki AntCon için hazırlıklar sürüyor. Tarih ve program kesinleştikçe bu kart güncellenecek."
+  },
+  "gecmis": {
+    "etiket": "Arşiv",
+    "baslik": "Geçmiş yıllar",
+    "aciklama": "Tamamlanan AntCon etkinlikleri, programları ve rakamlarıyla birlikte.",
+    "bosBaslik": "Arşivde henüz tamamlanmış etkinlik yok",
+    "bosMetin": "Bir etkinlik tamamlandığında bu sayfa kendiliğinden dolmaya başlar: her yıl için fotoğraflar, program, konuşmacı kadrosu ve rakamlar burada arşivlenir.",
+    "bosButon": "Bize ulaş"
+  },
+  "yillar": {
+    "etiket": "Zaman çizelgesi",
+    "baslik": "Tüm yıllar"
+  },
+  "detay": {
+    "oneCikanlarBasligi": "Öne çıkanlar",
+    "kunyeBasligi": "Künye",
+    "fotograflarEtiketi": "Kareler",
+    "galeriButonu": "Tüm galeriyi aç",
+    "geriButonu": "Tüm yıllara dön"
+  }
+}

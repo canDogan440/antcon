@@ -9,6 +9,12 @@
       "autoPort": true
     },
     {
+      "name": "decap-server",
+      "runtimeExecutable": "C:/Program Files/nodejs/npx.cmd",
+      "runtimeArgs": ["--yes", "decap-server"],
+      "port": 8081
+    },
+    {
       "name": "antcon-preview",
       "runtimeExecutable": "C:/Program Files/nodejs/node.exe",
       "runtimeArgs": ["node_modules/astro/astro.js", "preview", "--port", "4455"],

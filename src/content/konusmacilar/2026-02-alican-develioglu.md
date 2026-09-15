@@ -9,7 +9,7 @@ kurum: Heretik Podcast
 # DOGRULAYIN: Instagram kullanici adini "Heretik Podcast" isminden turettim.
 # Farkliysa asagidaki kullaniciAdi ve sosyal.instagram satirlarini duzeltin.
 kullaniciAdi: heretikpodcast
-foto: ./2026-02-alican-develioglu.jpeg
+foto: /src/assets/yuklemeler/konusmacilar/2026-02-alican-develioglu.jpeg
 rol: konusmaci
 kisaBio: ""
 sosyal:

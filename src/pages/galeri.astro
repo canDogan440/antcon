@@ -3,11 +3,14 @@ import { Image, getImage } from 'astro:assets';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import SayfaBasligi from '@components/SayfaBasligi.astro';
 import Ikon from '@components/Ikon.astro';
-import { gorselleriYilaGoreGetir, TUM_GORSELLER } from '@lib/gorseller';
+import { gorselleriYilaGoreGetir } from '@lib/gorseller';
 import { kirintiSemasi } from '@lib/schema';
-import { SON_ETKINLIK_YILI, AKTIF_YIL } from '@config/site';
+import { sayfaMetinleri } from '@lib/sayfa';
 
-const yillar = gorselleriYilaGoreGetir();
+const metinler = await sayfaMetinleri('galeriSayfasi');
+
+const yillar = await gorselleriYilaGoreGetir();
+const tumGorseller = yillar.flatMap((grup) => grup.gorseller);
 const tekYil = yillar.length <= 1;
 
 /**
@@ -17,7 +20,7 @@ const tekYil = yillar.length <= 1;
  * JSON blogu HTML'i gereksiz buyutuyordu).
  */
 const buyukAdres = new Map<string, { src: string; en: number; boy: number }>();
-for (const gorsel of TUM_GORSELLER) {
+for (const gorsel of tumGorseller) {
   const optimize = await getImage({ src: gorsel.src, width: 1400, format: 'webp', quality: 65 });
   buyukAdres.set(gorsel.dosya, {
     src: optimize.src,
@@ -29,28 +32,22 @@ for (const gorsel of TUM_GORSELLER) {
 
 <BaseLayout
   baslik="Galeri"
-  aciklama={`AntCon ${SON_ETKINLIK_YILI} etkinlik alanından fotoğraflar: sahne, standlar, kostümler ve kalabalık. 28 Haziran 2026'da gerçekleşen ilk AntCon'un atmosferini görün.`}
+  aciklama={metinler.seoAciklama}
   yapilandirilmisVeri={[kirintiSemasi([{ ad: 'Galeri', href: '/galeri' }])]}
 >
   <SayfaBasligi
-    etiket="Galeri"
-    baslik="Etkinlikten kareler"
-    aciklama={
-      tekYil
-        ? `Bu fotoğraflar 28 Haziran 2026'da gerçekleşen ilk AntCon'da çekildi. Büyük boyutta görüntülemek için tıklayın.`
-        : 'AntCon fotoğraf arşivi. Büyük boyutta görüntülemek için bir fotoğrafa tıklayın.'
-    }
+    etiket={metinler.etiket}
+    baslik={metinler.baslik}
+    aciklama={tekYil ? metinler.aciklamaTekYil : metinler.aciklamaCokYil}
     kirintilar={[{ ad: 'Galeri', href: '/galeri' }]}
   />
 
   <section class="bolum bg-white">
     <div class="kapsayici">
       {
-        TUM_GORSELLER.length === 0 ? (
+        tumGorseller.length === 0 ? (
           <p class="kart mx-auto max-w-xl p-8 text-center text-ink-soft">
-            Galeriye henüz görsel eklenmedi. Proje kökündeki{' '}
-            <code class="font-mono">images/galeri/{SON_ETKINLIK_YILI}/</code> klasörüne fotoğraf
-            ekleyip siteyi yeniden derlemeniz yeterli.
+            Galeriye henüz fotoğraf eklenmedi.
           </p>
         ) : (
           yillar.map(({ yil, gorseller }, grupIndeks) => (
@@ -109,11 +106,10 @@ for (const gorsel of TUM_GORSELLER) {
       }
 
       <p class="mt-12 text-center text-sm text-ink-soft">
-        AntCon {SON_ETKINLIK_YILI}'dan fotoğrafın mı var?
+        {metinler.altNot}
         <a href="/iletisim" class="font-semibold text-orange-deep underline underline-offset-2">
-          Bize gönder
-        </a>
-        , galeride yayınlayalım. AntCon {AKTIF_YIL} kareleri de etkinlik sonrası burada yer alacak.
+          {metinler.altNotBaglantisi}
+        </a>{metinler.altNotDevami}
       </p>
     </div>
   </section>

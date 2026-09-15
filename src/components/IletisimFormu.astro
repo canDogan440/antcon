@@ -1,6 +1,6 @@
 ---
 import Ikon from '@components/Ikon.astro';
-import { WEB3FORMS_KEY, SITE } from '@config/site';
+import { WEB3FORMS_KEY, SITE, ILETISIM } from '@config/site';
 
 interface Props {
   /** E-postanın konu satırı - formun hangi sayfadan geldiğini ayırt etmek için */
@@ -8,12 +8,17 @@ interface Props {
   /** Konu seçim listesi */
   konular?: string[];
   baslik?: string;
+  gonderButonu?: string;
+  /** Gönderim başarılı olduğunda gösterilen mesaj */
+  basariMesaji?: string;
 }
 
 const {
   konu = 'AntCon web sitesi - yeni mesaj',
   konular = ['Genel bilgi', 'Bilet ve kayıt', 'Sponsorluk', 'Basın ve medya', 'Stant / satıcı başvurusu', 'Gönüllü başvurusu'],
   baslik,
+  gonderButonu = 'Mesajı Gönder',
+  basariMesaji = 'Teşekkürler! Mesajınız bize ulaştı. En geç 2 iş günü içinde dönüş yapacağız.',
 } = Astro.props;
 
 const anahtarTanimliMi = !WEB3FORMS_KEY.startsWith('BURAYA');
@@ -37,6 +42,8 @@ const anahtarTanimliMi = !WEB3FORMS_KEY.startsWith('BURAYA');
     class="mt-6 grid gap-5 sm:grid-cols-2"
     novalidate
     data-web3forms-key={WEB3FORMS_KEY}
+    data-basari-mesaji={basariMesaji}
+    data-eposta={ILETISIM.email}
   >
     {/* Web3Forms gizli alanları */}
     <input type="hidden" name="access_key" value={WEB3FORMS_KEY} />
@@ -145,7 +152,7 @@ const anahtarTanimliMi = !WEB3FORMS_KEY.startsWith('BURAYA');
     <div class="sm:col-span-2">
       <button type="submit" class="btn btn-turuncu btn-buyuk w-full sm:w-auto" data-gonder>
         <Ikon ad="posta" sinif="w-5 h-5" />
-        <span data-gonder-metin>Mesajı Gönder</span>
+        <span data-gonder-metin>{gonderButonu}</span>
       </button>
     </div>
 
@@ -172,6 +179,7 @@ const anahtarTanimliMi = !WEB3FORMS_KEY.startsWith('BURAYA');
 
   if (form && durum && buton && butonMetin) {
     const varsayilanMetin = butonMetin.textContent ?? 'Mesajı Gönder';
+    const eposta = form.dataset.eposta ?? '';
 
     const durumGoster = (mesaj: string, tur: 'basarili' | 'hata' | 'bilgi') => {
       durum.textContent = mesaj;
@@ -198,7 +206,7 @@ const anahtarTanimliMi = !WEB3FORMS_KEY.startsWith('BURAYA');
       const anahtar = form.dataset.web3formsKey ?? '';
       if (anahtar.startsWith('BURAYA')) {
         durumGoster(
-          'Form servisi henüz yapılandırılmadı. Bize doğrudan info@antconvention.com adresinden ulaşabilirsiniz.',
+          `Form servisi henüz yapılandırılmadı. Bize doğrudan ${eposta} adresinden ulaşabilirsiniz.`,
           'hata',
         );
         return;
@@ -218,16 +226,13 @@ const anahtarTanimliMi = !WEB3FORMS_KEY.startsWith('BURAYA');
 
         if (yanit.ok && sonuc.success) {
           form.reset();
-          durumGoster(
-            'Teşekkürler! Mesajınız bize ulaştı. En geç 2 iş günü içinde dönüş yapacağız.',
-            'basarili',
-          );
+          durumGoster(form.dataset.basariMesaji ?? '', 'basarili');
         } else {
           throw new Error(sonuc.message ?? 'Bilinmeyen hata');
         }
       } catch {
         durumGoster(
-          'Mesaj gönderilemedi. Lütfen tekrar deneyin veya info@antconvention.com adresine e-posta gönderin.',
+          `Mesaj gönderilemedi. Lütfen tekrar deneyin veya ${eposta} adresine e-posta gönderin.`,
           'hata',
         );
       } finally {

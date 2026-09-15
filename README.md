@@ -2,6 +2,8 @@
 
 AntCon resmî web sitesi. **Astro 5 + Tailwind CSS 4** ile üretilen, **backend'i olmayan, tamamen statik** bir site. Her yıl tekrar eden etkinlik yapısına göre kurgulandı: yeni bir yıl eklemek için kod yazmanız gerekmiyor, sadece `src/content/` klasörüne dosya ekliyorsunuz.
 
+Sitedeki **tüm metinler, görseller ve bilet satışı açık/kapalı durumu**, yazılım bilgisi gerektirmeden **`/admin` yönetim panelinden** (Decap CMS) değiştirilebilir. Panel kullanım kılavuzu: **[CMS_KULLANIM.md](CMS_KULLANIM.md)**.
+
 ## Sitenin şu anki durumu
 
 | | |
@@ -37,21 +39,47 @@ Site `http://localhost:4321` adresinde açılır.
 
 > **Node.js 20 veya üzeri** gerekir (`.nvmrc` → 20).
 
+### Yönetim panelini yerelde çalıştırma
+
+Panel canlıda Netlify Identity ile giriş ister; yerelde ise giriş gerektirmeden doğrudan bilgisayardaki dosyalara yazar (`public/admin/config.yml` → `local_backend: true`). İki terminal açın:
+
+```bash
+npx decap-server
+```
+
+```bash
+npm run dev
+```
+
+Ardından **`http://localhost:4321/admin/index.html`** adresini açıp **Giriş**'e basın. (Astro'nun geliştirme sunucusu `/admin/` klasör adresini açmaz; `index.html`'i yazmak gerekir. Canlı sitede `/admin/` yeterlidir.) Panelde kaydettiğiniz her değişiklik ilgili dosyaya yazılır ve geliştirme sunucusu sayfayı hemen günceller. Değişiklikleri görmek için `git diff` yeterli; commit'i siz atarsınız.
+
 ---
 
 ## 2. İçerik güncelleme (kod bilgisi gerekmez)
 
-Tüm içerik `src/content/` altında **Markdown** dosyalarıdır. Dosyanın en üstündeki `---` çizgileri arasındaki bölüm ayarları, altındaki kısım ise serbest metni tutar.
+İçeriğin tamamı `src/content/` altındadır ve **yönetim panelinden** düzenlenir (bkz. [CMS_KULLANIM.md](CMS_KULLANIM.md)). Dosyaları elle düzenlemek de mümkündür; panel ile elle düzenleme aynı dosyaları kullanır.
 
 ```
 src/content/
-├── etkinlikler/    → Her yıl için bir dosya (arşivin omurgası)
-├── konusmacilar/   → Konuşmacı kartları
-├── program/        → Program akışındaki her oturum için bir dosya
-├── sponsorlar/     → Sponsor logoları ve seviyeleri
-├── biletler/       → Bilet tipleri ve fiyatlar
-└── sss/            → Sıkça sorulan sorular
+├── ayarlar/
+│   ├── site.json          → Site adı, logo, iletişim, sosyal medya, menüler, sıradaki etkinlik yılı
+│   └── bilet-satisi.json  → Bilet satışı açık/kapalı anahtarı, satış linki, bilgi metinleri
+├── sayfalar/              → Her sayfanın başlıkları, açıklamaları, buton yazıları
+│   ├── anasayfa.json, biletler.json, konusmacilar.json, program.json, ...
+│   ├── hakkinda.md        → Markdown gövdesi = "Nasıl başladı?" hikâye metni
+│   └── gizlilik.md        → Markdown gövdesi = aydınlatma metni
+├── galeri/                → Her yıl için bir fotoğraf listesi (sıra + açıklama)
+├── etkinlikler/           → Her yıl için bir dosya (arşivin omurgası; aktif yılınki tarih/mekânı belirler)
+├── konusmacilar/          → Konuşmacı kartları
+├── program/               → Program akışındaki her oturum için bir dosya
+├── sponsorlar/            → Sponsor logoları ve seviyeleri
+├── biletler/              → Bilet tipleri ve fiyatlar
+└── sss/                   → Sıkça sorulan sorular
 ```
+
+Şemalar `src/content.config.ts` içinde (zod), panel alanları `public/admin/config.yml` içinde tanımlıdır. **Bir alan eklerken/silerken iki dosyayı birlikte güncelleyin.** Şemaya uymayan bir içerik derlemeyi durdurur; Netlify bu durumda sitenin önceki halini yayında tutar.
+
+**Yer tutucular:** Sayfa metinlerinde `{aktifYil}`, `{sonYil}`, `{tarih}` ve `{email}` yazılabilir; derlemede güncel değerle değiştirilir (`src/lib/metin.ts`). Böylece yıl değiştiğinde metinleri tek tek düzeltmek gerekmez.
 
 ### Ortak alanlar
 
@@ -111,52 +139,33 @@ konusmacilar:
 
 ## 3. Durum anahtarları: tarih ve bilet satışı
 
-Sitenin "planlama aşamasında" mı yoksa "tarih belli / bilet satışta" mı davranacağını **`src/config/site.ts`** içindeki iki blok belirler. Sayfaların hiçbirine dokunmanız gerekmez.
+Sitenin "planlama aşamasında" mı yoksa "tarih belli / bilet satışta" mı davranacağını iki içerik belirler; ikisi de panelden değiştirilir. `src/config/site.ts` bu verileri okuyup sitenin kullandığı sabitlere (`ETKINLIK`, `BILET_SATISI`, `ANA_CTA` …) çevirir. Sayfaların hiçbirine dokunmanız gerekmez.
 
 ### 3.1 Tarih açıklandığında
 
-`ETKINLIK` bloğunu doldurun:
+Panel → **Etkinlik Yılları → AntCon 2027** (dosya: `src/content/etkinlikler/2027.md`): *Başlangıç/Bitiş Tarihi*, *Tarih Yazısı*, *Durum = Yaklaşan* ve *Mekân* alanlarını doldurun. Google Haritalar adresleri mekân bilgisinden otomatik üretilir.
 
-```ts
-export const ETKINLIK = {
-  durum: 'tarih-belli',                        // 'planlama' idi
-  baslangic: '2027-06-27T10:00:00+03:00',      // boştu
-  bitis: '2027-06-27T20:00:00+03:00',          // boştu
-  tarihMetni: '27 Haziran 2027',
-  gunMetni: 'Pazar',
-  saatMetni: '10:00 - 20:00',
-  mekan: {
-    ad: 'Mekân adı',                            // boşken "Mekân yakında açıklanacak" yazıyor
-    adres: 'Cadde, No',
-    ilce: 'Muratpaşa',
-    // ...
-    haritaEmbed: 'https://www.google.com/maps?q=...&output=embed',
-  },
-};
-```
-
-Ayrıca `src/content/etkinlikler/2027.md` içinde `durum: yaklasan` yapın ve yorum satırındaki `baslangic` / `bitis` satırlarını açın.
-
-**Otomatik değişenler:** ana sayfadaki geri sayım sayacı açılır, biletler sayfasına geri sayım şeridi gelir, iletişim sayfasında adres bloğu ve Google Haritalar iframe'i görünür, Schema.org `Event` verisi yayınlanmaya başlar (`startDate` zorunlu olduğu için tarihsiz yayınlanmıyor).
+**Otomatik değişenler:** ana sayfadaki geri sayım sayacı açılır, biletler sayfasına geri sayım şeridi gelir, iletişim sayfasında adres bloğu ve Google Haritalar iframe'i görünür, Schema.org `Event` verisi yayınlanmaya başlar (`startDate` zorunlu olduğu için tarihsiz yayınlanmıyor), sosyal medya paylaşım görseli yeni tarihi yazar.
 
 ### 3.2 Bilet satışı açıldığında
 
-1. `src/config/site.ts` → `BILET_SATISI.acik = true` (dış bilet sağlayıcısı varsa `hariciUrl` doldurun).
-2. `src/content/biletler/` altındaki dosyalarda `taslak: false` ve `durum: satista` yapın, fiyatları güncelleyin.
+Panel → **Genel Ayarlar → Bilet Satışı** (dosya: `src/content/ayarlar/bilet-satisi.json`): **"Bilet Satışı Açık mı?"** anahtarını açın. Biletler dış bir sitede satılıyorsa **Bilet Satış Linki**'ni doldurun. Fiyat kartları da gösterilecekse **Bilet Tipleri ve Fiyatlar** bölümünde kartların *Taslak* kutusunu kapatın.
 
-**Otomatik değişenler:** navbar, footer, hero ve ekranın altında sabit duran buton "Haberdar Ol" yerine **"Bilet Al"** olur (tek kaynak: `ANA_CTA`), biletler sayfası fiyat tablosunu gösterir, `Event` şemasına `offers` alanı eklenir.
+**Otomatik değişenler:** navbar, footer, hero ve ekranın altında sabit duran buton "Haberdar Ol" yerine **"Bilet Al"** olur (tek kaynak: `ANA_CTA`); biletler sayfası fiyat kartlarını — kart yoksa satış linkini taşıyan bir kutuyu — gösterir ve "satış süreci" bölümünü gizler; Hakkında sayfasındaki durum satırı ve ana sayfanın son bölümü "satışta" metnine geçer; `Event` şemasına `offers` alanı eklenir.
 
 ---
 
 ## 4. Yeni bir yıl ekleme (örn. AntCon 2028)
 
-Beş adım, neredeyse tamamı içerik dosyası:
+Tamamı panelden yapılır, **sıra önemlidir**:
 
-1. **`src/content/etkinlikler/2028.md`** oluşturun — `2027.md`'yi kopyalayıp yılı değiştirin. Biten yılda `durum: gecmis`, yeni yılda `durum: planlama` (veya tarih belliyse `yaklasan`) yazın.
-2. **`src/config/site.ts`** içinde `AKTIF_YIL = 2028` ve `SON_ETKINLIK_YILI = 2027` yapın; `ETKINLIK` bloğunu sıfırlayın (Bölüm 3.1'in tersi) ve `BILET_SATISI.acik = false` yapın.
-3. `konusmacilar/`, `program/`, `sponsorlar/`, `biletler/`, `sss/` klasörlerine `yil: 2028` olan yeni dosyalar ekleyin. **Eski yılın dosyalarını silmeyin** — arşiv sayfası onları kullanır.
-4. Biten yılın fotoğraflarını `etkinlikler/<yil>.md` içindeki `kapak:` alanına ekleyin (`images/` klasöründeki bir dosyaya göreli yol verebilirsiniz).
-5. `npm run build`.
+1. **Etkinlik Yılları → ＋ Etkinlik Yılı**: `2028` kaydını oluşturun (*Durum = Planlama*). Biten yılın (`2027`) kaydında *Durum = Gerçekleşti* yapın.
+2. **Fotoğraf Galerisi → ＋ Yıl Galerisi**: biten yılın fotoğraflarını ekleyin.
+3. **Genel Ayarlar → Site Ayarları**: *Sıradaki Etkinlik Yılı = 2028*, *Son Gerçekleşen Etkinlik Yılı = 2027*. Menüdeki "AntCon 2026" bağlantısını güncelleyin. (1. adım yapılmadan bu kaydedilirse derleme durur ve site eski halinde kalır.)
+4. **Genel Ayarlar → Bilet Satışı**: anahtarı kapatın.
+5. Konuşmacı, program, sponsor, bilet ve SSS kayıtlarını *Etkinlik Yılı = 2028* ile ekleyin. **Eski yılın kayıtlarını silmeyin** — arşiv sayfası onları kullanır.
+
+`{aktifYil}` / `{sonYil}` yer tutucularını kullanan sayfa metinleri kendiliğinden güncellenir; içinde elle yıl yazılmış metinleri gözden geçirin.
 
 Sonuç: ana sayfa, program, biletler ve konuşmacılar yeni yılı gösterir; biten yıl `/gecmis-etkinlikler` listesine düşer ve `/gecmis-etkinlikler/<yil>` detay sayfası kendiliğinden oluşur.
 
@@ -175,23 +184,24 @@ Yeni yıl için henüz içerik yokken sayfalar boş kalmaz, anlamlı bir "hazır
 
 ## 5. Görseller
 
-### Carousel ve galeri — yıl klasörleri
+### Görsel yolları
 
-Proje kökündeki **`images/`** klasörü otomatik taranır (`src/lib/gorseller.ts`). Fotoğraflar **yıla göre** ayrılır:
+İçerik dosyalarında görseller **depo köküne göre yol** olarak saklanır (panel de böyle kaydeder) ve `src/lib/gorseller.ts` → `gorselBul()` ile Astro görseline çevrilir; ziyaretçiye her zaman optimize edilmiş WebP gider:
 
-```
-images/
-├── AntCon-Logo.png        ← ana logo (taranmaz)
-└── galeri/
-    ├── 2026/              ← AntCon 2026 fotoğrafları
-    │   ├── 01-acilis.jpg
-    │   └── 02-sahne.jpg
-    └── 2027/              ← gelecek yıl buraya
-```
+| Klasör | Ne için | Örnek değer |
+| --- | --- | --- |
+| `src/assets/yuklemeler/` | Panelden yüklenen görseller (sponsor logosu, kapak …) | `/src/assets/yuklemeler/logo.png` |
+| `src/assets/yuklemeler/konusmacilar/` | Konuşmacı fotoğrafları | `/src/assets/yuklemeler/konusmacilar/ad.jpg` |
+| `images/galeri/` | Galeri fotoğrafları (yeni yüklenenler kök klasöre, 2026 arşivi `2026/` altında) | `/images/galeri/2026/582A0148.jpg` |
+| `images/` (kök) | Ana logo — derlemede ayrıca işlenir, taranmaz | `/images/AntCon-Logo.png` |
 
-Yıl, **klasör adından otomatik okunur**. Yeni fotoğraf eklemek için dosyayı ilgili yıl klasörüne kopyalamanız yeterli — kodda hiçbir değişiklik gerekmez. Yıl klasörü altında olmayan görseller son etkinlik yılına atanır.
+Yüklemelerin `public/` yerine `src/` altında durması bilinçlidir: Astro yalnızca buradaki görselleri boyutlandırıp WebP'ye çevirir. Bulunamayan bir görsel yolu derlemeyi durdurmaz; derleme kaydına uyarı yazılır ve yerine yer tutucu gösterilir.
 
-Klasör yapısı şunları otomatik besler:
+### Carousel ve galeri
+
+Galeri, **Fotoğraf Galerisi** koleksiyonundan beslenir: her yıl için `src/content/galeri/<yil>.json` dosyası fotoğrafların **sırasını** ve **açıklamalarını** (alt metin) tutar. Panelde fotoğrafları sürükleyerek sıralayabilir, açıklama yazabilir, yeni fotoğraf yükleyebilirsiniz. Açıklaması boş olan fotoğraflarda "AntCon <yıl> etkinliğinden bir kare" kullanılır.
+
+Galeri listesi şunları otomatik besler:
 
 | Nereye gider | Ne alır |
 | --- | --- |
@@ -199,8 +209,6 @@ Klasör yapısı şunları otomatik besler:
 | `/galeri` | Tüm yıllar, yıl başlıklarıyla gruplanmış (tek yıl varsa başlık gizli) |
 | `/gecmis-etkinlikler/<yıl>` | O yılın kendi fotoğrafları + kapak görseli |
 | Hakkında sayfası | Son etkinlik yılından 5 fotoğraf |
-
-Sıralamayı değiştirmek için dosya adlarının başına `01-`, `02-` gibi numaralar ekleyin.
 
 ### Fotoğrafları eklemeden önce: `npm run foto`
 
@@ -240,27 +248,19 @@ Yerleşik `loading="lazy"` + `srcset` + sabit `width`/`height` bu iş için zate
 
 ### Konuşmacı fotoğrafları ve sponsor logoları
 
-Bunlar `images/` klasörüne değil, ilgili `.md` dosyasının **yanına** konur ve `./` ile referans verilir:
-
-```
-src/content/konusmacilar/
-├── 2026-01-mine-yagiz.md      → içinde: foto: ./2026-01-mine-yagiz.jpeg
-└── 2026-01-mine-yagiz.jpeg
-```
-
-Dosya adını `.md` ile aynı tutun; hangi fotoğrafın kime ait olduğu gözle görünür olur. `.jpg`, `.jpeg`, `.png` ve `.webp` hepsi çalışır.
+Panelden ilgili kaydın **Fotoğraf** / **Logo** alanına yüklenir. Konuşmacı fotoğrafları `src/assets/yuklemeler/konusmacilar/`, logolar `src/assets/yuklemeler/` altına kaydedilir. `.jpg`, `.jpeg`, `.png` ve `.webp` hepsi çalışır.
 
 **Ölçü:** kart `4:5` dikey oran + `object-cover` kullanır, en büyük 600 px genişlik üretir. İdeal kaynak **1200×1500 px**. Oran 4:5 değilse kenarlardan kırpılır.
 
-> **Bilinmesi gereken davranış:** İçerik koleksiyonundaki `foto`/`logo`/`kapak` alanları Astro'nun `image()` yardımcısını kullanır ve bu yol, optimize edilmiş WebP'lerin **yanı sıra ham dosyanın bir kopyasını da** `dist/` klasörüne koyar — hiçbir sayfa onu kullanmasa bile. 8 konuşmacı fotoğrafı için bu 2.7 MB'lık ölü ağırlık demek (ziyaretçiye asla inmez, sadece deploy'u büyütür). `images/` klasöründeki carousel görselleri farklı bir yoldan (`import.meta.glob`) geçtiği için bu sorunu yaşamaz. Kadro çok büyürse kaynak dosyaları 1200×1500'e küçültmek en pratik çözümdür.
+> Görseller `import.meta.glob` üzerinden çözüldüğü için `dist/` klasörüne ham dosyanın kopyası konmaz; yalnızca kullanılan WebP boyutları üretilir. (Eskiden `image()` şema yardımcısı kullanılıyordu ve 8 konuşmacı fotoğrafı deploy'a 2.7 MB'lık ölü ağırlık ekliyordu.)
 
 ### Alt metinleri (erişilebilirlik + SEO)
 
-`src/config/gorsel-metinleri.ts` dosyasına dosya adını yazarak o görsele özel açıklama verebilirsiniz. Yazmazsanız genel bir varsayılan metin kullanılır.
+Galeri fotoğraflarında panelde her fotoğrafın **"Fotoğrafta Ne Var?"** alanı, konuşmacılarda **Fotoğraf Açıklaması**, etkinlik kapağında **Kapak Fotoğrafı Açıklaması** kullanılır.
 
 ### Logo ve favicon
 
-`images/AntCon-Logo.png` dosyasının üzerine yeni logoyu yazıp şunu çalıştırın:
+Panel → **Genel Ayarlar → Site Ayarları → Logo** alanından yeni logo yüklenir (dosya `images/` altına kaydedilir ve `site.json` → `logo` onu gösterir). Bir sonraki derlemede aşağıdaki dosyalar bu logodan yeniden üretilir. Elle yapmak isterseniz `images/AntCon-Logo.png` dosyasının üzerine yazıp şunu çalıştırın:
 
 ```bash
 npm run assets
@@ -272,7 +272,7 @@ Bu komut şunları otomatik üretir:
 - `src/assets/antcon-logo-beyaz.png` — koyu mavi header/footer/hero için beyaz varyant
 - `public/favicon.ico`, `favicon-16.png`, `favicon-32.png`
 - `public/apple-touch-icon.png`, `icon-192.png`, `icon-512.png`
-- `public/og-image.png` — sosyal medya paylaşım görseli (1200×630)
+- `public/og-image.png` — sosyal medya paylaşım görseli (1200×630); üzerindeki yıl, tarih ve slogan panel ayarlarından okunur
 
 Bu dosyalar üretilmiş kabul edildiği için `.gitignore` içindedir; `npm run build` öncesinde otomatik yeniden üretilirler.
 
@@ -363,12 +363,21 @@ Site tamamen statiktir; `dist/` klasörünü herhangi bir statik barındırıcı
 | Build output directory | `dist` |
 | Node version | `20` (ortam değişkeni: `NODE_VERSION=20`) |
 
-### Netlify
+### Netlify (yönetim paneli için gerekli)
 
-| Ayar | Değer |
-| --- | --- |
-| Build command | `npm run build` |
-| Publish directory | `dist` |
+Derleme ayarları `netlify.toml` dosyasındadır (`npm run build` → `dist`, Node 20); Netlify arayüzünde ayrıca girmeniz gerekmez. Yönetim paneli girişi **Netlify Identity + Git Gateway** kullandığı için panelin çalışacağı site Netlify'da barındırılmalıdır. Cloudflare'a (`wrangler.jsonc`) deploy edilen bir kopyada site çalışır ama `/admin` girişi çalışmaz.
+
+Panelden yapılan her kayıt `main` dalına bir commit atar; Netlify bunu görüp siteyi 1-3 dakikada yeniden yayınlar. Derleme hata verirse (ör. şemaya uymayan içerik) önceki sürüm yayında kalır; hatayı Netlify → **Deploys** ekranındaki kayıtta görebilirsiniz.
+
+**Netlify arayüzünde bir kez yapılacaklar:**
+
+1. **Site configuration → Identity → Enable Identity**.
+2. **Registration preferences → Invite only** (herkesin kayıt olmasını engeller).
+3. **Services → Git Gateway → Enable Git Gateway**.
+4. **Identity → Invite users** ile paneli kullanacak kişileri e-postayla davet edin.
+5. (İsteğe bağlı) **Emails** bölümünden davet / şifre sıfırlama e-postalarını Türkçeleştirin.
+
+Davet ve şifre sıfırlama e-postalarındaki bağlantılar sitenin ana sayfasına `#invite_token=…` ile gelir. `BaseLayout.astro` bu durumu yakalayıp Netlify Identity penceresini yalnızca o an yükler (normal ziyaretçiler için ek istek yok) ve giriş sonrası `/admin/`'e yönlendirir.
 
 `public/_headers` (önbellek + güvenlik başlıkları) ve `public/_redirects` (kısa URL yönlendirmeleri) her iki platformda da otomatik okunur.
 
@@ -380,14 +389,17 @@ Site tamamen statiktir; `dist/` klasörünü herhangi bir statik barındırıcı
 AntCon/
 ├── images/
 │   ├── AntCon-Logo.png         Ana logo
-│   └── galeri/<yıl>/           Galeri fotoğrafları — buraya dosya atın
+│   └── galeri/                 Galeri fotoğrafları (liste: src/content/galeri/)
 ├── public/                     Doğrudan kopyalanan dosyalar (favicon, manifest, _headers)
+│   └── admin/                  ⭐ Yönetim paneli (index.html + config.yml)
+├── netlify.toml                Netlify derleme ayarları
 ├── scripts/
 │   ├── generate-assets.mjs     Logodan favicon/OG üretici
 │   ├── foto-hazirla.mjs        Fotoğrafları 2000px'e indirger
 │   └── denetim.mjs             Derlenmiş HTML'i a11y/SEO açısından tarar
 ├── src/
 │   ├── assets/                 Üretilmiş logo varyantları
+│   │   └── yuklemeler/         Panelden yüklenen görseller
 │   ├── components/             Yeniden kullanılabilir bileşenler
 │   │   ├── Navbar.astro            Mobilde hamburger menü
 │   │   ├── Footer.astro
@@ -405,14 +417,16 @@ AntCon/
 │   │   ├── BolumBasligi.astro
 │   │   └── Ikon.astro              Tüm SVG ikonlar tek dosyada
 │   ├── config/
-│   │   ├── site.ts             ⭐ Merkezî ayarlar (tarih, iletişim, menü, sosyal)
-│   │   └── gorsel-metinleri.ts Görsel alt metinleri
-│   ├── content/                ⭐ Tüm içerik burada
-│   ├── content.config.ts       İçerik şemaları
+│   │   └── site.ts             Ayar içeriklerini site sabitlerine çevirir (+ alan adı, form anahtarı)
+│   ├── content/                ⭐ Tüm içerik burada (panelden düzenlenir)
+│   ├── content.config.ts       İçerik şemaları (zod)
 │   ├── layouts/BaseLayout.astro  SEO + head + iskelet
 │   ├── lib/
-│   │   ├── gorseller.ts        images/galeri/<yıl>/ klasörlerini otomatik tarar
+│   │   ├── gorseller.ts        Görsel yolu çözümleme + galeri
 │   │   ├── icerik.ts           İçerik sorguları ve biçimlendirme
+│   │   ├── sayfa.ts            Sayfa metinlerini yer tutucularıyla birlikte getirir
+│   │   ├── metin.ts            {aktifYil} yer tutucuları ve **kalın** yazım
+│   │   ├── tekil.ts            Tek dosyalık koleksiyon yardımcısı
 │   │   └── schema.ts           Schema.org üreticileri
 │   ├── pages/                  Her dosya bir URL
 │   └── styles/global.css       ⭐ Marka teması ve bileşen sınıfları
@@ -435,10 +449,12 @@ AntCon/
 ## 12. Bilinmesi gerekenler
 
 - **Program dosyaları taslak:** `src/content/program/` altındaki 10 oturum benim yazdığım **örneklerdir**, gerçek 2026 programı değil. Hepsi `taslak: true` olduğu için sitede görünmüyorlar. Gerçek programı girdiğinizde `taslak: false` yapın — o an ana sayfadaki "Program başlığı" rakamı ve arşiv sayfasındaki zaman çizelgesi kendiliğinden dolar.
-- **Bilet dosyaları taslak:** `src/content/biletler/` altındaki dört dosya `taslak: true` ve fiyatları örnektir. Satış açılırken hem fiyatları hem `taslak`/`durum` alanlarını güncelleyin (Bölüm 3.2).
+- **Bilet dosyaları taslak:** `src/content/biletler/` altındaki dört dosya `taslak: true` ve fiyatları örnektir. Satış açılırken hem fiyatları hem `taslak`/`durum` alanlarını güncelleyin (Bölüm 3.2). Biletler yalnızca dış bir sitede satılacaksa kartlara gerek yok: satış linki yeterli.
+- **Panel yorum satırlarını silebilir:** İçerik dosyalarındaki `#` ile başlayan açıklama satırları panelden kaydedildiğinde kaybolur; panel her alanın açıklamasını kendi ekranında gösterir.
 - **Konuşmacı unvanları ve biyografileri boş.** Gerçek kişilerin unvanını uydurmamak için `unvan` ve `kisaBio` alanlarını boş bıraktım; kart o durumda isim + `@kullanıcı` gösteriyor. Doğru bilgiyi öğrendiğinizde ilgili `.md` dosyasına yazmanız yeterli.
 - **Doğrulanması gereken tek link:** Alican Develioğlu'nun Instagram kullanıcı adını "Heretik Podcast" isminden `heretikpodcast` olarak türettim. Farklıysa `src/content/konusmacilar/2026-02-alican-develioglu.md` içindeki iki satırı düzeltin (dosyada not olarak da duruyor).
 - **Mages Market logosu ve Instagram adresi:** `src/content/sponsorlar/2026-01-mages-market.md` içindeki yorum satırlarını açıp doldurun. Logo gelene kadar grid, sponsorun adını okunaklı bir metin kutusu olarak gösteriyor.
-- **Mekân bilgisi:** `src/config/site.ts` içindeki `ETKINLIK.mekan` şu an boş (planlama aşaması). Mekân belli olunca `ad`, `adres`, `ilce`, `postaKodu` ve `haritaEmbed` (Google Haritalar → Paylaş → Haritayı yerleştir → `src` değeri) alanlarını doldurun; adres bloğu ve harita otomatik görünür.
-- **Gizlilik metni:** `src/pages/gizlilik.astro` bir şablondur; yayına almadan önce hukuki kontrolden geçirin.
-- **Sponsor ve konuşmacı görselleri:** ilgili `.md` dosyasıyla **aynı klasöre** koyup `logo: ./firma.png` / `foto: ./ad-soyad.jpg` şeklinde referans verin. Görsel yoksa sistem otomatik olarak okunaklı bir yer tutucu (baş harfler / firma adı) gösterir.
+- **Mekân bilgisi:** Etkinlik Yılları → AntCon 2027 kaydındaki *Mekân* şu an boş (planlama aşaması). Mekân adı ve adresi girildiğinde adres bloğu ve Google Haritalar otomatik görünür.
+- **Gizlilik metni:** Sayfa Metinleri → Gizlilik (`src/content/sayfalar/gizlilik.md`) bir şablondur; yayına almadan önce hukuki kontrolden geçirin, ardından *Uyarı Kutusu* alanını boşaltın.
+- **Sponsor ve konuşmacı görselleri:** Görsel yoksa sistem otomatik olarak okunaklı bir yer tutucu (baş harfler / firma adı) gösterir.
+- **Büyük fotoğraflar:** Panel görselleri küçültmez. Telefon/fotoğraf makinesi dosyaları (5-12 MB) depoyu ve derleme süresini büyütür; mümkünse yüklemeden önce küçültün. Geliştirici tarafında `npm run foto` galeri klasörünü 2000 px'e indirir.

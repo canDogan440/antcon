@@ -4,7 +4,11 @@ import SayfaBasligi from '@components/SayfaBasligi.astro';
 import IletisimFormu from '@components/IletisimFormu.astro';
 import Ikon from '@components/Ikon.astro';
 import { kirintiSemasi } from '@lib/schema';
-import { ETKINLIK, ILETISIM, SOSYAL, AKTIF_YIL, SON_ETKINLIK_YILI } from '@config/site';
+import { sayfaMetinleri } from '@lib/sayfa';
+import { ETKINLIK, ILETISIM, SOSYAL, SON_ETKINLIK_YILI } from '@config/site';
+
+const metinler = await sayfaMetinleri('iletisimSayfasi');
+const { form, mekan, sosyal } = metinler;
 
 /** Mekan kesinlestiginde adres bloğu ve harita otomatik olarak görünür hale gelir. */
 const mekanBelli = ETKINLIK.mekan.ad !== '';
@@ -35,13 +39,13 @@ const KANALLAR = [
 
 <BaseLayout
   baslik="İletişim"
-  aciklama="AntCon ekibine ulaşın: genel sorular, bilet ve kayıt duyuruları, sponsorluk, basın, stant ve gönüllü başvuruları."
+  aciklama={metinler.seoAciklama}
   yapilandirilmisVeri={[kirintiSemasi([{ ad: 'İletişim', href: '/iletisim' }])]}
 >
   <SayfaBasligi
-    etiket="İletişim"
-    baslik="Bize ulaşın"
-    aciklama="Sorularınız, başvurularınız ve iş birliği teklifleriniz için buradayız."
+    etiket={metinler.etiket}
+    baslik={metinler.baslik}
+    aciklama={metinler.aciklama}
     kirintilar={[{ ad: 'İletişim', href: '/iletisim' }]}
   />
 
@@ -50,14 +54,20 @@ const KANALLAR = [
       <div class="grid gap-10 lg:grid-cols-12 lg:gap-14">
         <!-- Form -->
         <div class="lg:col-span-7">
-          <IletisimFormu baslik="Mesaj gönderin" konu="AntCon web sitesi - iletişim formu" />
+          <IletisimFormu
+            baslik={form.baslik}
+            konu="AntCon web sitesi - iletişim formu"
+            konular={form.konular}
+            gonderButonu={form.gonderButonu}
+            basariMesaji={form.basariMesaji}
+          />
         </div>
 
         <!-- Yan sütun -->
         <aside class="space-y-6 lg:col-span-5">
           <!-- İletişim kanalları -->
           <div class="kart p-6">
-            <h2 class="font-display text-lg font-bold text-blue-deep">İletişim kanalları</h2>
+            <h2 class="font-display text-lg font-bold text-blue-deep">{metinler.kanallarBasligi}</h2>
             <ul class="mt-5 space-y-4">
               {
                 KANALLAR.map((kanal) => (
@@ -86,9 +96,7 @@ const KANALLAR = [
 
           <!-- Etkinlik yeri -->
           <div class="kart p-6">
-            <h2 class="font-display text-lg font-bold text-blue-deep">
-              AntCon {AKTIF_YIL} nerede?
-            </h2>
+            <h2 class="font-display text-lg font-bold text-blue-deep">{mekan.baslik}</h2>
 
             {
               mekanBelli ? (
@@ -97,7 +105,9 @@ const KANALLAR = [
                     <strong class="block text-base text-blue-deep">{ETKINLIK.mekan.ad}</strong>
                     {ETKINLIK.mekan.adres && <span class="block">{ETKINLIK.mekan.adres}</span>}
                     <span class="block">
-                      {ETKINLIK.mekan.postaKodu} {ETKINLIK.mekan.ilce} / {ETKINLIK.mekan.sehir}
+                      {[ETKINLIK.mekan.postaKodu, ETKINLIK.mekan.ilce].filter(Boolean).join(' ')}
+                      {ETKINLIK.mekan.ilce ? ' / ' : ''}
+                      {ETKINLIK.mekan.sehir}
                     </span>
                   </address>
                   <p class="mt-4 flex items-center gap-2 text-sm text-ink-soft">
@@ -112,18 +122,14 @@ const KANALLAR = [
                     class="btn btn-cizgi btn-kucuk mt-5 w-full"
                   >
                     <Ikon ad="konum" sinif="w-4 h-4" />
-                    Yol tarifi al
+                    {mekan.yolTarifiButonu}
                   </a>
                 </>
               ) : (
                 <>
                   <p class="mt-4 text-sm leading-relaxed text-ink-soft">
-                    <strong class="block text-base text-blue-deep">
-                      Mekân henüz kesinleşmedi
-                    </strong>
-                    AntCon {AKTIF_YIL} yine {ETKINLIK.mekan.sehir}'da gerçekleşecek. Tarih ve mekân
-                    duyurulduğunda tam adres, ulaşım ve otopark bilgileri burada haritayla birlikte
-                    yayınlanacak.
+                    <strong class="block text-base text-blue-deep">{mekan.belirsizBaslik}</strong>
+                    {mekan.belirsizMetin}
                   </p>
                   <p class="mt-4 flex items-center gap-2 text-sm text-ink-soft">
                     <Ikon ad="takvim" sinif="w-4 h-4 text-orange-deep" />
@@ -133,7 +139,7 @@ const KANALLAR = [
                     href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`}
                     class="btn btn-cizgi btn-kucuk mt-5 w-full"
                   >
-                    AntCon {SON_ETKINLIK_YILI}'yı gör
+                    {mekan.arsivButonu}
                   </a>
                 </>
               )
@@ -141,29 +147,29 @@ const KANALLAR = [
           </div>
 
           <!-- Sosyal medya -->
-          <div class="kart p-6">
-            <h2 class="font-display text-lg font-bold text-blue-deep">Sosyal medya</h2>
-            <p class="mt-2 text-sm text-ink-soft">
-              Duyurular ve kulis içerikleri için bizi takip edin.
-            </p>
-            <ul class="mt-4 flex flex-wrap gap-2">
-              {
-                SOSYAL.map((sosyal) => (
-                  <li>
-                    <a
-                      href={sosyal.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-mist text-blue-deep transition-colors hover:bg-orange-deep hover:text-white"
-                      aria-label={`AntCon ${sosyal.ad} (yeni sekmede açılır)`}
-                    >
-                      <Ikon ad={sosyal.ikon} sinif="w-5 h-5" />
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
-          </div>
+          {
+            SOSYAL.length > 0 && (
+              <div class="kart p-6">
+                <h2 class="font-display text-lg font-bold text-blue-deep">{sosyal.baslik}</h2>
+                <p class="mt-2 text-sm text-ink-soft">{sosyal.metin}</p>
+                <ul class="mt-4 flex flex-wrap gap-2">
+                  {SOSYAL.map((hesap) => (
+                    <li>
+                      <a
+                        href={hesap.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-mist text-blue-deep transition-colors hover:bg-orange-deep hover:text-white"
+                        aria-label={`AntCon ${hesap.ad} (yeni sekmede açılır)`}
+                      >
+                        <Ikon ad={hesap.ikon} sinif="w-5 h-5" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
         </aside>
       </div>
     </div>
@@ -172,23 +178,24 @@ const KANALLAR = [
   <!-- Harita - yalnızca mekân kesinleştiğinde -->
   {
     mekanBelli && (
-  <section class="bg-white pb-16" aria-labelledby="harita-baslik">
-    <div class="kapsayici">
-      <h2 id="harita-baslik" class="sr-yalniz">Etkinlik alanının haritadaki konumu</h2>
-      <div class="overflow-hidden rounded-2xl border border-line shadow-card">
-        <iframe
-          src={ETKINLIK.mekan.haritaEmbed}
-          title={`${ETKINLIK.mekan.ad} konumu - Google Haritalar`}
-          width="100%"
-          height="450"
-          style="border:0"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          allowfullscreen
-          class="block h-[380px] w-full md:h-[450px]"></iframe>
-      </div>
-    </div>
-  </section>
+      <section class="bg-white pb-16" aria-labelledby="harita-baslik">
+        <div class="kapsayici">
+          <h2 id="harita-baslik" class="sr-yalniz">Etkinlik alanının haritadaki konumu</h2>
+          <div class="overflow-hidden rounded-2xl border border-line shadow-card">
+            <iframe
+              src={ETKINLIK.mekan.haritaEmbed}
+              title={`${ETKINLIK.mekan.ad} konumu - Google Haritalar`}
+              width="100%"
+              height="450"
+              style="border:0"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allowfullscreen
+              class="block h-[380px] w-full md:h-[450px]"
+            />
+          </div>
+        </div>
+      </section>
     )
   }
 </BaseLayout>

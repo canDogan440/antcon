@@ -6,7 +6,11 @@ import Ikon from '@components/Ikon.astro';
 import BolumBasligi from '@components/BolumBasligi.astro';
 import { konusmacilariGetir, konusmacilariRoleGoreGetir } from '@lib/icerik';
 import { kirintiSemasi } from '@lib/schema';
+import { sayfaMetinleri } from '@lib/sayfa';
 import { AKTIF_YIL, SON_ETKINLIK_YILI, SITE_URL } from '@config/site';
+
+const metinler = await sayfaMetinleri('konusmacilarSayfasi');
+const { hazirlaniyor, gecenYil, basvuru } = metinler;
 
 const konusmacilar = await konusmacilariGetir(AKTIF_YIL);
 const kadroVar = konusmacilar.length > 0;
@@ -43,24 +47,16 @@ const listeSemasi =
 
 <BaseLayout
   baslik="Konuşmacılar"
-  aciklama={
-    kadroVar
-      ? `AntCon ${AKTIF_YIL} konuşmacı kadrosu: oyun yönetmenleri, çizgi roman sanatçıları, e-spor analistleri, araştırmacılar ve seslendirme sanatçıları.`
-      : `AntCon ${AKTIF_YIL} konuşmacı kadrosu henüz açıklanmadı. AntCon ${SON_ETKINLIK_YILI} sahnesinde yer alan isimleri inceleyebilir, konuşmacı başvurusu için bize yazabilirsiniz.`
-  }
+  aciklama={kadroVar ? metinler.seoAciklamaVar : metinler.seoAciklamaYok}
   yapilandirilmisVeri={[
     kirintiSemasi([{ ad: 'Konuşmacılar', href: '/konusmacilar' }]),
     ...(listeSemasi ? [listeSemasi] : []),
   ]}
 >
   <SayfaBasligi
-    etiket="Sahne"
-    baslik={kadroVar ? 'Konuşmacılar' : 'Kadro henüz açıklanmadı'}
-    aciklama={
-      kadroVar
-        ? `AntCon ${AKTIF_YIL} sahnesinde ve atölyelerinde yer alacak isimler.`
-        : `AntCon ${AKTIF_YIL} için konuşmacı görüşmeleri sürüyor. Kadro netleştikçe bu sayfada yayınlanacak.`
-    }
+    etiket={metinler.etiket}
+    baslik={kadroVar ? metinler.varBaslik : metinler.yokBaslik}
+    aciklama={kadroVar ? metinler.varAciklama : metinler.yokAciklama}
     kirintilar={[{ ad: 'Konuşmacılar', href: '/konusmacilar' }]}
   />
 
@@ -74,20 +70,18 @@ const listeSemasi =
               <Ikon ad="mikrofon" sinif="w-8 h-8" />
             </span>
             <h2 class="mt-5 font-display text-2xl font-bold text-blue-deep">
-              AntCon {AKTIF_YIL} kadrosu hazırlanıyor
+              {hazirlaniyor.baslik}
             </h2>
             <p class="mx-auto mt-4 max-w-xl leading-relaxed text-ink-soft">
-              Konuşmacı ve atölye eğitmeni başvuruları etkinlik tarihi duyurulduktan sonra resmî
-              olarak açılacak. Anlatmak istediğiniz bir konu varsa şimdiden bize yazabilirsiniz —
-              program hazırlığında değerlendiriyoruz.
+              {hazirlaniyor.metin}
             </p>
             <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <a href="/iletisim" class="btn btn-turuncu">
                 <Ikon ad="posta" sinif="w-5 h-5" />
-                Konuşmacı Başvurusu
+                {hazirlaniyor.birinciButon}
               </a>
               <a href={`/gecmis-etkinlikler/${SON_ETKINLIK_YILI}`} class="btn btn-cizgi">
-                AntCon {SON_ETKINLIK_YILI} arşivi
+                {hazirlaniyor.ikinciButon}
               </a>
             </div>
           </div>
@@ -105,9 +99,9 @@ const listeSemasi =
             <h2 class="sr-yalniz">AntCon {AKTIF_YIL} konuşmacı kadrosu</h2>
           ) : (
             <BolumBasligi
-              etiket={`AntCon ${SON_ETKINLIK_YILI}`}
-              baslik="Geçen yıl sahnedeydiler"
-              aciklama="İlk AntCon'un kadrosu, bu yıl neler bekleyebileceğiniz konusunda fikir veriyor."
+              etiket={gecenYil.etiket}
+              baslik={gecenYil.baslik}
+              aciklama={gecenYil.aciklama}
               hizalama="orta"
               sinif="mb-10"
             />
@@ -118,7 +112,7 @@ const listeSemasi =
             <>
               {juri.length > 0 && (
                 <h3 class="aksan-cizgi font-display text-xl font-bold text-blue-deep md:text-2xl">
-                  Konuşmacılar
+                  {metinler.konusmacilarBasligi}
                 </h3>
               )}
               <ul
@@ -140,7 +134,7 @@ const listeSemasi =
           {juri.length > 0 && (
             <div class="mt-14">
               <h3 class="aksan-cizgi font-display text-xl font-bold text-blue-deep md:text-2xl">
-                Cosplay Jürisi
+                {metinler.juriBasligi}
               </h3>
               <ul class="mt-7 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {juri.map((uye) => (
@@ -159,14 +153,11 @@ const listeSemasi =
                 <Ikon ad="mikrofon" sinif="w-7 h-7" />
               </span>
               <div class="flex-1">
-                <h2 class="font-display text-xl font-bold text-white">Sahnede sen de ol</h2>
-                <p class="mt-2 text-sm leading-relaxed text-white/75">
-                  Anlatacak bir hikâyen, göstereceğin bir işin ya da paylaşacağın bir deneyimin
-                  varsa konuşmacı başvurusu yapabilirsin.
-                </p>
+                <h2 class="font-display text-xl font-bold text-white">{basvuru.baslik}</h2>
+                <p class="mt-2 text-sm leading-relaxed text-white/75">{basvuru.metin}</p>
               </div>
               <a href="/iletisim" class="btn btn-turuncu shrink-0">
-                Başvuru Yap
+                {basvuru.buton}
                 <Ikon ad="ok_sag" sinif="w-4 h-4" />
               </a>
             </div>

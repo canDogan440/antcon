@@ -6,7 +6,7 @@
 ad: shuirocosplay
 unvan: ""
 kullaniciAdi: shuirocosplay
-foto: ./2026-08-shuirocosplay.jpeg
+foto: /src/assets/yuklemeler/konusmacilar/2026-08-shuirocosplay.jpeg
 rol: juri
 kisaBio: ""
 sosyal:

@@ -6,6 +6,10 @@ import BolumBasligi from '@components/BolumBasligi.astro';
 import Ikon from '@components/Ikon.astro';
 import { tumEtkinlikler, gecmisEtkinlikler, yaklasanEtkinlikler } from '@lib/icerik';
 import { kirintiSemasi } from '@lib/schema';
+import { sayfaMetinleri } from '@lib/sayfa';
+
+const metinler = await sayfaMetinleri('arsivSayfasi');
+const { yaklasan: yaklasanMetni, gecmis: gecmisMetni, yillar } = metinler;
 
 const hepsi = await tumEtkinlikler();
 const gecmis = await gecmisEtkinlikler();
@@ -14,15 +18,15 @@ const yaklasan = await yaklasanEtkinlikler();
 
 <BaseLayout
   baslik="Geçmiş Etkinlikler"
-  aciklama="AntCon'un yıllara göre arşivi. Her yılın programı, konuşmacıları ve rakamları tek sayfada."
+  aciklama={metinler.seoAciklama}
   yapilandirilmisVeri={[
     kirintiSemasi([{ ad: 'Geçmiş Etkinlikler', href: '/gecmis-etkinlikler' }]),
   ]}
 >
   <SayfaBasligi
-    etiket="Arşiv"
-    baslik="AntCon yıl yıl"
-    aciklama="AntCon her yıl tekrar eden bir organizasyon. Bu sayfa, her yeni etkinlik eklendiğinde otomatik olarak büyür."
+    etiket={metinler.etiket}
+    baslik={metinler.baslik}
+    aciklama={metinler.aciklama}
     kirintilar={[{ ad: 'Geçmiş Etkinlikler', href: '/gecmis-etkinlikler' }]}
   />
 
@@ -32,9 +36,9 @@ const yaklasan = await yaklasanEtkinlikler();
       <section class="bolum bg-white">
         <div class="kapsayici">
           <BolumBasligi
-            etiket="Sırada"
-            baslik="Yaklaşan etkinlik"
-            aciklama="Bir sonraki AntCon için hazırlıklar sürüyor. Tarih ve program kesinleştikçe bu kart güncellenecek."
+            etiket={yaklasanMetni.etiket}
+            baslik={yaklasanMetni.baslik}
+            aciklama={yaklasanMetni.aciklama}
           />
           <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {yaklasan.map((etkinlik) => (
@@ -52,9 +56,9 @@ const yaklasan = await yaklasanEtkinlikler();
   <section class="bolum bg-mist">
     <div class="kapsayici">
       <BolumBasligi
-        etiket="Arşiv"
-        baslik="Geçmiş yıllar"
-        aciklama="Tamamlanan AntCon etkinlikleri, programları ve rakamlarıyla birlikte."
+        etiket={gecmisMetni.etiket}
+        baslik={gecmisMetni.baslik}
+        aciklama={gecmisMetni.aciklama}
       />
 
       {
@@ -64,15 +68,14 @@ const yaklasan = await yaklasanEtkinlikler();
               <Ikon ad="takvim" sinif="w-8 h-8" />
             </span>
             <h3 class="mt-5 font-display text-xl font-bold text-blue-deep">
-              Arşivde henüz tamamlanmış etkinlik yok
+              {gecmisMetni.bosBaslik}
             </h3>
             <p class="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
-              Bir etkinlik tamamlandığında bu sayfa kendiliğinden dolmaya başlar: her yıl için
-              fotoğraflar, program, konuşmacı kadrosu ve rakamlar burada arşivlenir.
+              {gecmisMetni.bosMetin}
             </p>
             <a href="/iletisim" class="btn btn-turuncu mt-7">
               <Ikon ad="posta" sinif="w-5 h-5" />
-              Bize ulaş
+              {gecmisMetni.bosButon}
             </a>
           </div>
         ) : (
@@ -94,8 +97,8 @@ const yaklasan = await yaklasanEtkinlikler();
       <section class="bolum bg-blue-deep">
         <div class="kapsayici">
           <BolumBasligi
-            etiket="Zaman çizelgesi"
-            baslik="Tüm yıllar"
+            etiket={yillar.etiket}
+            baslik={yillar.baslik}
             koyuZemin={true}
             hizalama="orta"
           />

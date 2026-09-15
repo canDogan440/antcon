@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import Ikon from '@components/Ikon.astro';
 import { fiyatBicimle } from '@lib/icerik';
+import { BILET_SATISI } from '@config/site';
 
 interface Props {
   bilet: CollectionEntry<'biletler'>;
@@ -23,6 +24,9 @@ const {
 } = bilet.data;
 
 const satisAcik = durum === 'satista';
+
+// Kartta ozel link yoksa Bilet Satisi ayarlarindaki genel satis linki kullanilir.
+const satinAl = satinAlUrl ?? (BILET_SATISI.hariciUrl || '/iletisim');
 
 const DURUM_METNI: Record<string, string> = {
   tukendi: 'Tükendi',
@@ -78,9 +82,9 @@ const DURUM_METNI: Record<string, string> = {
   {
     satisAcik ? (
       <a
-        href={satinAlUrl}
+        href={satinAl}
         class:list={['btn mt-7 w-full', oneCikan ? 'btn-turuncu' : 'btn-cizgi']}
-        {...satinAlUrl.startsWith('http')
+        {...satinAl.startsWith('http')
           ? { target: '_blank', rel: 'noopener noreferrer' }
           : {}}
       >

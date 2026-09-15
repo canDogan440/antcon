@@ -6,7 +6,7 @@
 ad: İrem Taşçı
 unvan: ""
 kullaniciAdi: altkatchannel
-foto: ./2026-03-irem-tasci.jpeg
+foto: /src/assets/yuklemeler/konusmacilar/2026-03-irem-tasci.jpeg
 rol: konusmaci
 kisaBio: ""
 sosyal:
