@@ -300,7 +300,7 @@ Anahtar tanımlanmadığı sürece form sayfasında bir kurulum uyarısı görü
 | Değişken | Renk | Kullanım |
 | --- | --- | --- |
 | `--color-main-blue` | `#004aad` | **Ana marka mavisi.** Header, hero, footer, koyu bölüm zeminleri, ikonlar |
-| `--color-main-orange` | `#fd630e` | Vurgu çizgileri, ikonlar, aksan öğeleri |
+| `--color-main-orange` | `#ff6200` | Vurgu çizgileri, ikonlar, aksan öğeleri |
 | `--color-secondary-blue` | `#3d7fd6` | Açık mavi geçişler, kart hover kenarlığı, rozet zeminleri |
 | `--color-secondary-orange` | `#fe8a4a` | Koyu zeminde büyük turuncu başlıklar |
 | `--color-white` | `#ffffff` | İçerik alanları |
@@ -311,7 +311,7 @@ Anahtar tanımlanmadığı sürece form sayfasında bir kurulum uyarısı görü
 | --- | --- | --- |
 | `--color-blue-deep` | `#004aad` | **Marka mavisinin ta kendisi.** `#004aad` beyazla 8.13:1 kontrast verdiği için ayrı bir "koyu" varyanta gerek yok; header/hero/footer doğrudan marka rengini kullanıyor. Token, ileride yüzey rengini markadan ayırmak isterseniz diye duruyor. |
 | `--color-blue-darker` | `#00337a` | Bant üstüne bant bindiğinde derinlik (mobil menü, son CTA şeridi, yer tutucu gradyanlar) → beyazla **11.9:1** |
-| `--color-orange-deep` | `#c2410c` | `#fd630e` üzerinde beyaz metin sadece 3.02:1 verir (WCAG AA için 4.5:1 gerekir). Metin taşıyan turuncu butonlarda bu ton kullanılır → **5.18:1** |
+| `--color-orange-deep` | `#c2410c` | `#ff6200` üzerinde beyaz metin sadece 3.0:1 verir (WCAG AA için 4.5:1 gerekir). Metin taşıyan turuncu butonlarda bu ton kullanılır → **5.18:1** |
 | `--color-orange-glow` | `#ffb185` | Marka mavisi üzerinde küçük turuncu metin → **4.60:1** |
 
 Ölçülen kontrastlar (canlı sayfadan, `#004aad` zemin üzerinde):

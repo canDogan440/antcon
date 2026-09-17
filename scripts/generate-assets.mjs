@@ -38,7 +38,7 @@ const ASSETS = join(KOK, 'src', 'assets');
 const MARKA = {
   maviKoyu: '#003c8f',
   mavi: '#004aad',
-  turuncu: '#fd630e',
+  turuncu: '#ff6200',
   beyaz: '#ffffff',
 };
 

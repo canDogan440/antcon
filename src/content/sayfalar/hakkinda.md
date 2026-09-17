@@ -58,7 +58,7 @@ galeri:
 
 Antalya, Türkiye'nin en çok ziyaret edilen şehirlerinden biri. Ama yıllarca oyun, çizgi roman, anime ve teknoloji toplulukları için büyük ölçekli bir buluşma noktası yoktu. Meraklılar İstanbul'a, İzmir'e, Ankara'ya gitmek zorunda kalıyordu.
 
-**AntCon bu boşluğu kapatmak için doğdu.** Küçük topluluk buluşmalarında defalarca dile getirilen "neden burada olmasın?" sorusunun cevabı olarak, gönüllü bir çekirdek ekiple yola çıktık ve **28 Haziran 2026**'da Antalya'nın ilk convention'ını gerçekleştirdik.
+**AntCon bu boşluğu kapatmak için doğdu.** Küçük topluluk buluşmalarında defalarca dile getirilen "neden burada olmasın?" sorusunun cevabı olarak, küçük bir çekirdek ekiple yola çıktık ve **28 Haziran 2026**'da Antalya'nın ilk convention'ını gerçekleştirdik.
 
 ## Misyonumuz
 

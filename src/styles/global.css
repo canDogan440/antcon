@@ -9,7 +9,7 @@
    ============================================================ */
 @theme {
   /* --- Marka renkleri (çekirdek palet) --- */
-  --color-main-orange: #fd630e;
+  --color-main-orange: #ff6200;
   --color-main-blue: #004aad;
   --color-secondary-orange: #fe8a4a;
   --color-secondary-blue: #3d7fd6;
@@ -22,7 +22,7 @@
      --color-blue-darker (#00337a, beyazla 11.9:1) yalnızca bant üstüne bant
      bindiğinde derinlik yaratmak için kullanılır.
 
-     Turuncuda durum farklı: #fd630e üzerinde beyaz metin yalnızca 3.02:1
+     Turuncuda durum farklı: #ff6200 üzerinde beyaz metin yalnızca 3.0:1
      verdiğinden metin taşıyan turuncu yüzeylerde --color-orange-deep
      (beyazla 5.16:1) kullanılır. */
   --color-orange-deep: #c2410c;

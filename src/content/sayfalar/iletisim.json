@@ -1,5 +1,5 @@
 {
-  "seoAciklama": "AntCon ekibine ulaşın: genel sorular, bilet ve kayıt duyuruları, sponsorluk, basın, stant ve gönüllü başvuruları.",
+  "seoAciklama": "AntCon ekibine ulaşın: genel sorular, bilet ve kayıt duyuruları, sponsorluk, basın ve medya, stant ve satıcı başvuruları.",
   "etiket": "İletişim",
   "baslik": "Bize ulaşın",
   "aciklama": "Sorularınız, başvurularınız ve iş birliği teklifleriniz için buradayız.",
@@ -10,8 +10,7 @@
       "Bilet ve kayıt",
       "Sponsorluk",
       "Basın ve medya",
-      "Stant / satıcı başvurusu",
-      "Gönüllü başvurusu"
+      "Stant / satıcı başvurusu"
     ],
     "gonderButonu": "Mesajı Gönder",
     "basariMesaji": "Teşekkürler! Mesajınız bize ulaştı. En geç 2 iş günü içinde dönüş yapacağız."
