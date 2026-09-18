@@ -1,10 +1,10 @@
 {
-  "seoAciklama": "Antalya'nın ilk convention'ı 28 Haziran 2026'da gerçekleşti. AntCon {aktifYil} hazırlıkları sürüyor: tarih, program ve bilet duyurularını buradan takip edin. Can test metini",
+  "seoAciklama": "Antalya'nın ilk convention'ı 28 Haziran 2026'da gerçekleşti. AntCon {aktifYil} hazırlıkları sürüyor: tarih, program ve bilet duyurularını buradan takip edin.",
   "hero": {
     "tarihYokBasligi": "Tarih yakında açıklanacak",
     "tarihYokMetni": "Hazırlıklar sürüyor. Duyurular başladığında haberdar olmak için bize yazın.",
     "tarihYokButonu": "Duyuru Listesine Katıl",
-    "baslikVurgu": "geri dönüyor",
+    "baslikVurgu": "geri dönüyor, Test DENEME 1234",
     "aciklama": "Antalya'nın ilk convention'ı **28 Haziran 2026**'da gerçekleşti. Şimdi ikinci buluşma için hazırlanıyoruz: tarih, mekân ve program üzerinde çalışıyoruz.",
     "durumEtiketi": "Planlama aşamasında",
     "ikinciButon": "AntCon {sonYil}'yı İncele",
