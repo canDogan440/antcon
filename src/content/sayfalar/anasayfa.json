@@ -1,95 +1,100 @@
 {
-  "seoAciklama": "Antalya'nın ilk convention'ı 28 Haziran 2026'da gerçekleşti. AntCon {aktifYil} hazırlıkları sürüyor: tarih, program ve bilet duyurularını buradan takip edin.",
+  "seoAciklama": "Antalya'nın ilk pop kültür convention'ı 28 Haziran 2026'da gerçekleşti. AntCon {aktifYil} hazırlıkları sürüyor: tarih, program ve bilet duyuruları için takipte kalın.",
   "hero": {
-    "tarihYokBasligi": "Tarih yakında açıklanacak",
-    "tarihYokMetni": "Hazırlıklar sürüyor. Duyurular başladığında haberdar olmak için bize yazın.",
+    "tarihYokBasligi": "Tarih Yakında Açıklanacak",
+    "tarihYokMetni": "Hazırlıklar sürüyor. Duyurular başladığında haberdar olmak duyuru listemize katılabilirsiniz.",
     "tarihYokButonu": "Duyuru Listesine Katıl",
-    "baslikVurgu": "geri dönüyor, Test DENEME 1234",
-    "aciklama": "Antalya'nın ilk convention'ı **28 Haziran 2026**'da gerçekleşti. Şimdi ikinci buluşma için hazırlanıyoruz: tarih, mekân ve program üzerinde çalışıyoruz.",
-    "durumEtiketi": "Planlama aşamasında",
+    "baslikVurgu": "Popüler Kültürün Farklı Evrenleri Burada Buluşuyor!",
+    "aciklama": "Antalya'nın ilk convention'ı **28 Haziran 2026**'da gerçekleşti. İkinci buluşma çok yakında!",
+    "durumEtiketi": "",
     "ikinciButon": "AntCon {sonYil}'yı İncele",
     "ustEtiket": "AntCon {aktifYil} · Antalya",
     "geriSayimBasligi": "Etkinliğe Kalan Süre",
-    "baslik": "Antalya'nın Convention'ı"
+    "baslik": "Antalya'nın Convention Etkinliği"
   },
   "gecenYil": {
     "etiket": "AntCon {sonYil}",
-    "baslik": "İlk buluşma geride kaldı",
-    "detayButonu": "Tüm detaylar",
+    "baslik": "AntCon'26 Geride Kaldı",
+    "detayButonu": "Tüm Detaylar",
     "fotoNotu": "Bu kareler 28 Haziran 2026'da etkinlik alanında çekildi",
-    "galeriButonu": "Galeriyi aç"
+    "galeriButonu": "Galeriyi Aç"
   },
   "nedir": {
-    "etiket": "AntCon Nedir?",
-    "baslik": "Bir şehrin ilk büyük buluşması",
-    "aciklama": "AntCon, Antalya'da düzenlenen ilk convention organizasyonu. Yıllardır ayrı ayrı büyüyen oyun, çizgi roman, anime ve teknoloji topluluklarını ilk kez aynı çatı altında topladı.",
-    "ekMetin": "Hedefimiz tek seferlik bir etkinlik değildi: her yıl tekrar eden, şehrin kültür takvimine yerleşen bir gelenek kurmak. 2026 bu geleneğin ilk adımıydı, {aktifYil} ikincisi olacak.",
-    "buton": "Hikâyemizi oku",
+    "etiket": "",
+    "baslik": "AntCon'da Neler Var?",
+    "aciklama": "AntCon’da cosplay, FRP ve masaüstü oyunları, söyleşiler, atölyeler, yarışmalar, turnuvalar ve birbirinden farklı stantlar seni bekliyor.",
+    "ekMetin": "Sevdiğin dünyaları keşfetmek, yeni insanlarla tanışmak ve gün boyunca farklı deneyimlerin bir parçası olmak için AntCon’da buluşuyoruz. İster uzun zamandır bu kültürün içinde ol, ister bu kültürü yeni keşfetmeye başla; AntCon’da seni mutlaka aramızda görmek isteriz.",
+    "buton": "",
     "kartlar": [
       {
         "ikon": "kivilcim",
         "baslik": "Stant Alanı",
-        "metin": "Çizgi roman, figürler, bağımsız üreticiler kendi standlarında işlerini sergiliyor ve satıyor."
+        "metin": "Figürlerden çizgi romanlara, TCG kartlarından kutu oyunlarına kadar koleksiyonunu ve oyun deneyimini zenginleştirecek pek çok ürün standı"
       },
       {
         "ikon": "mikrofon",
         "baslik": "Konuşma ve Paneller",
-        "metin": "."
+        "metin": "Sevdiğin dünyalar üzerine keyifli sohbetler, farklı bakış açıları ve ilham veren konuklarla dolu konuşmalar ve paneller"
       },
       {
         "ikon": "kupa",
         "baslik": "Cosplay Yarışması",
-        "metin": "Profesyonel jüri tarafından değerlendirilen cosplay yarışması, etkinliğin en çok ilgi gören bölümlerinden biri."
+        "metin": "Profesyonel jüri üyeleri tarafından değerlendirilen cosplay yarışması"
+      },
+      {
+        "baslik": "Kutu Oyunları",
+        "ikon": "kisiler",
+        "metin": "Farklı türlerden kutu oyunlarını deneyebileceğin, yeni oyunlar keşfedip arkadaşlarınla keyifli vakit geçirebileceğin oyun masaları"
       }
     ]
   },
   "hazirlik": {
     "etiket": "AntCon {aktifYil}",
-    "baslik": "Hazırlıklar nerede?",
-    "aciklama": "İkinci AntCon için çalışmalar sürüyor. Her başlıkta nerede olduğumuzu şeffafça paylaşıyoruz.",
+    "baslik": "Bir Sonraki AntCon Ne Zaman Olacak?",
+    "aciklama": "İkinci AntCon için çalışmalar hızla sürüyor. 2027 yılının ilk yarısında düzenlemeyi planladığımız etkinliğimizden haberdar olmak için Instagram hesabımızı takip edebilir veya duyuru listemize katılabilirsiniz.",
     "maddeler": [
       {
         "ikon": "takvim",
-        "baslik": "Tarih ve mekân",
-        "durum": "Görüşmeler sürüyor",
-        "metin": "Takvim ve mekân seçenekleri üzerinde çalışıyoruz. Kesinleştiğinde ilk olarak burada duyuracağız.",
+        "baslik": "Tarih ve Mekân",
+        "durum": "Görüşmeler Sürüyor",
+        "metin": "Tarih ve mekân seçenekleri üzerinde çalışıyoruz.",
         "tamam": false
       },
       {
         "ikon": "mikrofon",
-        "baslik": "Program ve konuşmacılar",
+        "baslik": "Program ve Konuşmacılar",
         "durum": "Hazırlanıyor",
-        "metin": "Sahne programı ve konuşmacı kadrosu için ön görüşmeler başladı. Başvurular tarih duyurusundan sonra açılacak.",
+        "metin": "Sahne programı ve konuşmacı kadrosu için ön görüşmeler başladı.",
         "tamam": false
       },
       {
         "ikon": "bilet",
         "baslik": "Biletler",
-        "durum": "Satış açılmadı",
-        "metin": "Tarih kesinleşmeden bilet satışını açmıyoruz. Duyuru listesine katılarak ilk siz haberdar olabilirsiniz.",
+        "durum": "Satış Açılmadı",
+        "metin": "Bilet satışları henüz açılmadı.",
         "tamam": false
       },
       {
         "ikon": "kivilcim",
         "baslik": "Sponsorluk",
-        "durum": "Başvurular açık",
-        "metin": "Sponsorluk görüşmeleri şimdiden başladı. Erken katılan markalar için daha geniş görünürlük imkânı var.",
+        "durum": "Başvurular Açık",
+        "metin": "Sponsorluk görüşmeleri şimdiden başladı. Aşağıdaki butona tıklayarak formumuzu doldurabilir veya info@antconvention.com adresine tekliflerinizi iletebilirsiniz.",
         "tamam": true
       }
     ],
-    "birinciButon": "Duyuru Listesine Katıl",
-    "ikinciButon": "Sponsorluk Paketleri"
+    "birinciButon": "Duyuru Listesi",
+    "ikinciButon": "Instagram Hesabı"
   },
   "destekciler": {
     "etiket": "Teşekkürler",
-    "baslik": "AntCon {sonYil} destekçileri",
+    "baslik": "AntCon {sonYil} Destekçileri",
     "aciklama": "İlk AntCon'u mümkün kılan kurumlar ve markalar. AntCon {aktifYil} sponsorluk görüşmeleri şimdiden başladı.",
-    "buton": "{aktifYil} sponsoru ol"
+    "buton": "{aktifYil} Sponsoru Ol"
   },
   "sonCta": {
-    "etiket": "Bağlantıda kal",
-    "baslik": "AntCon {aktifYil} duyurularını kaçırma",
-    "birinciButon": "Bize Ulaş",
+    "etiket": "Sosyal Medya",
+    "baslik": "AntCon'27 ile ilgili tüm gelişmeleri sosyal medya hesabımızdan takip edebilirsiniz.",
+    "birinciButon": "Instagram",
     "ikinciButon": "AntCon {sonYil} Arşivi"
   }
 }
