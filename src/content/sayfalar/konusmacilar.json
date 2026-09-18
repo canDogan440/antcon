@@ -1,27 +1,27 @@
 {
-  "seoAciklamaVar": "AntCon {aktifYil} konuşmacı kadrosu: oyun yönetmenleri, çizgi roman sanatçıları, e-spor analistleri, araştırmacılar ve seslendirme sanatçıları.",
-  "seoAciklamaYok": "AntCon {aktifYil} konuşmacı kadrosu henüz açıklanmadı. AntCon {sonYil} sahnesinde yer alan isimleri inceleyebilir, konuşmacı başvurusu için bize yazabilirsiniz.",
   "etiket": "Sahne",
   "varBaslik": "Konuşmacılar",
-  "varAciklama": "AntCon {aktifYil} sahnesinde ve atölyelerinde yer alacak isimler.",
-  "yokBaslik": "Kadro henüz açıklanmadı",
-  "yokAciklama": "AntCon {aktifYil} için konuşmacı görüşmeleri sürüyor. Kadro netleştikçe bu sayfada yayınlanacak.",
   "hazirlaniyor": {
-    "baslik": "AntCon {aktifYil} kadrosu hazırlanıyor",
-    "metin": "Konuşmacı ve atölye eğitmeni başvuruları etkinlik tarihi duyurulduktan sonra resmî olarak açılacak. Anlatmak istediğiniz bir konu varsa şimdiden bize yazabilirsiniz — program hazırlığında değerlendiriyoruz.",
-    "birinciButon": "Konuşmacı Başvurusu",
-    "ikinciButon": "AntCon {sonYil} arşivi"
+    "baslik": "AntCon'27 Konuşmacıları",
+    "metin": "AntCon'27 sahnesi için görüşmeler devam ediyor. Program kesinleştiğinde tam liste bu sayfada yayınlanacak.",
+    "birinciButon": "AntCon'26",
+    "ikinciButon": "AntCon'27"
   },
+  "yokAciklama": "AntCon {aktifYil} için konuşmacı görüşmeleri sürüyor. Program netleştikçe bu sayfada yayınlanacak.",
+  "seoAciklamaYok": "AntCon {aktifYil} konuşmacı kadrosu henüz açıklanmadı. AntCon {sonYil} sahnesinde yer alan isimleri inceleyebilir, konuşmacı başvurusu için bize yazabilirsiniz.",
   "gecenYil": {
     "etiket": "AntCon {sonYil}",
     "baslik": "Geçen yıl sahnedeydiler",
     "aciklama": "İlk AntCon'un kadrosu, bu yıl neler bekleyebileceğiniz konusunda fikir veriyor."
   },
-  "konusmacilarBasligi": "Konuşmacılar",
+  "yokBaslik": "AntCon'27",
   "juriBasligi": "Cosplay Jürisi",
+  "varAciklama": "AntCon {aktifYil} Sahnesinde Yer Alacak İsimler",
   "basvuru": {
-    "baslik": "Sahnede sen de ol",
-    "metin": "Anlatacak bir hikâyen, göstereceğin bir işin ya da paylaşacağın bir deneyimin varsa konuşmacı başvurusu yapabilirsin.",
-    "buton": "Başvuru Yap"
-  }
+    "baslik": "X",
+    "metin": "X",
+    "buton": "X"
+  },
+  "konusmacilarBasligi": "Konuşmacılar",
+  "seoAciklamaVar": "AntCon {aktifYil} konuşmacı kadrosu: oyun yönetmenleri, çizgi roman sanatçıları, e-spor analistleri, araştırmacılar ve seslendirme sanatçıları."
 }
