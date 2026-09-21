@@ -5,8 +5,4 @@ yil: 2027
 sira: 13
 taslak: false
 ---
-
-Sponsorluk görüşmeleri devam ediyor ve erken katılan markalar için daha geniş
-görünürlük imkânı sunuyoruz. Seviyeleri ve içeriklerini
-[Sponsorlar sayfasında](/sponsorlar) bulabilir, detaylı sunum dosyası için
-info@antconvention.com adresine yazabilirsiniz.
+Etkinliğimize katkı sağlamak istemeniz bizi çok mutlu eder. Sponsorluk paketlerimizi incelemek için Sponsorluk sayfamızı ziyaret edebilirsiniz. Aynı sayfada yer alan sponsorluk formunu doldurarak bizimle iletişime geçebilir veya teklifinizi **[info@antconvention.com](mailto:info@antconvention.com)** adresine e-posta yoluyla iletebilirsiniz.
