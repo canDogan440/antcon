@@ -1,18 +1,12 @@
 ---
-# ----------------------------------------------------------------
-# TASLAK - sitede gorunmez.
-# Bu oturum ornek olarak yazildi, gercek program degil.
-# Gercek 2026 programini girdiginizde taslak: false yapin.
-# ----------------------------------------------------------------
-baslik: Canlı Seslendirme Gösterisi
-aciklama: >-
-  Sahnede canlı dublaj denemeleri ve mikrofon teknikleri. Gönüllü katılımcılar
-  seyirciler arasından seçilir.
-baslangic: '15:15'
-bitis: '16:00'
-gun: '2026-06-28'
+baslik: Cosplay Yarışması
+aciklama: Cosplay tutkunlarının kostümlerini ve karakterlerini sahneye taşıdığı,
+  yaratıcılık ve emeğin öne çıktığı heyecan dolu bir yarışma.
+gun: 2026-06-28
+baslangic: 14:00
+bitis: 16:00
 salon: Ana Sahne
-tur: gosteri
+tur: turnuva
 yil: 2026
 sira: 8
 taslak: true
