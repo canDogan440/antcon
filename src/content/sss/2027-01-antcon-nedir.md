@@ -5,11 +5,6 @@ yil: 2027
 sira: 1
 taslak: false
 ---
+AntCon; oyun, anime, sinema, fantastik edebiyat, çizgi roman, cosplay ve popüler kültürün farklı alanlarını bir araya getiren Antalya’nın convention etkinliğidir.
 
-AntCon, Antalya'da düzenlenen ilk convention organizasyonudur. Oyun, teknoloji,
-çizgi roman, anime ve pop kültürünü aynı çatı altında buluşturur; programında
-konuşmalar, paneller, atölyeler, HEMA turnuvası, cosplay yarışması ve sanatçı
-sokağı yer alır.
-
-İlk etkinlik **28 Haziran 2026** tarihinde gerçekleşti. AntCon her yıl tekrar
-eden bir organizasyon olarak planlanıyor.
+Söyleşiler, paneller, atölyeler, FRP ve kutu oyunları, turnuvalar, yarışmalar ve stant alanıyla katılımcılara gün boyunca farklı deneyimler sunar.
