@@ -1,30 +1,30 @@
 {
-  "seoAciklama": "AntCon'un yıllara göre arşivi. Her yılın programı, konuşmacıları ve rakamları tek sayfada.",
+  "seoAciklama": "AntCon'un yıllara göre arşivi. Her yılın programı tek sayfada.",
   "etiket": "Arşiv",
-  "baslik": "AntCon yıl yıl",
-  "aciklama": "AntCon her yıl tekrar eden bir organizasyon. Bu sayfa, her yeni etkinlik eklendiğinde otomatik olarak büyür.",
+  "baslik": "Yıllara Göre AntCon Arşivi",
+  "aciklama": "AntCon her yıl tekrar eden bir organizasyon. Bu sayfada geçmiş yılların etkinliklerine ait bilgileri bulabilirsiniz.",
   "yaklasan": {
     "etiket": "Sırada",
-    "baslik": "Yaklaşan etkinlik",
+    "baslik": "Yaklaşan Etkinlik",
     "aciklama": "Bir sonraki AntCon için hazırlıklar sürüyor. Tarih ve program kesinleştikçe bu kart güncellenecek."
   },
   "gecmis": {
     "etiket": "Arşiv",
-    "baslik": "Geçmiş yıllar",
-    "aciklama": "Tamamlanan AntCon etkinlikleri, programları ve rakamlarıyla birlikte.",
+    "baslik": "Geçmiş Yıllar",
+    "aciklama": "Tamamlanan AntCon Etkinlikleri",
     "bosBaslik": "Arşivde henüz tamamlanmış etkinlik yok",
     "bosMetin": "Bir etkinlik tamamlandığında bu sayfa kendiliğinden dolmaya başlar: her yıl için fotoğraflar, program, konuşmacı kadrosu ve rakamlar burada arşivlenir.",
-    "bosButon": "Bize ulaş"
+    "bosButon": "Bize Ulaş"
   },
   "yillar": {
-    "etiket": "Zaman çizelgesi",
-    "baslik": "Tüm yıllar"
+    "etiket": "Zaman Çizelgesi",
+    "baslik": "Tüm Yıllar"
   },
   "detay": {
-    "oneCikanlarBasligi": "Öne çıkanlar",
+    "oneCikanlarBasligi": "Öne Çıkanlar",
     "kunyeBasligi": "Künye",
     "fotograflarEtiketi": "Kareler",
-    "galeriButonu": "Tüm galeriyi aç",
-    "geriButonu": "Tüm yıllara dön"
+    "galeriButonu": "Tüm Galeriyi Aç",
+    "geriButonu": "Tüm Yıllara Dön"
   }
 }
