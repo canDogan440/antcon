@@ -1,16 +1,13 @@
 ---
-# ----------------------------------------------------------------
-# TASLAK - sitede gorunmez.
-# Bu oturum ornek olarak yazildi, gercek program degil.
-# Gercek 2026 programini girdiginizde taslak: false yapin.
-# ----------------------------------------------------------------
-baslik: Öğle Molası
-aciklama: Yemek alanı ve sanatçı sokağı açık kalır.
-baslangic: '12:30'
-bitis: '13:30'
-gun: '2026-06-28'
-salon: Yemek Alanı
-tur: mola
+baslik: "Söyleşi: Aybars Arslan"
+aciklama: Koleksiyon yapma motivasyonumuzu, koleksiyonculuğun hayatımızdaki
+  yerini ve biriktirdiğimiz parçaların taşıdığı anlamı Aybars Arslan ile
+  konuşuyoruz.
+gun: 2026-06-28
+baslangic: 12:00
+bitis: 12:30
+salon: Ana Sahne
+tur: konusma
 yil: 2026
 sira: 5
 taslak: true
