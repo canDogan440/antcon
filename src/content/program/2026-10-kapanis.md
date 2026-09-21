@@ -1,18 +1,13 @@
 ---
-# ----------------------------------------------------------------
-# TASLAK - sitede gorunmez.
-# Bu oturum ornek olarak yazildi, gercek program degil.
-# Gercek 2026 programini girdiginizde taslak: false yapin.
-# ----------------------------------------------------------------
-baslik: Ödül Töreni ve Kapanış
-aciklama: >-
-  Turnuva ve yarışma ödüllerinin takdimi, teşekkür konuşması ve AntCon 2027
-  tarihinin duyurulması.
-baslangic: '18:45'
-bitis: '20:00'
-gun: '2026-06-28'
+baslik: "Söyleşi: Mine Yağız"
+aciklama: Harry Potter serisindeki iyi ve kötü arasındaki sınırları sorgulayan
+  gri karakterleri, seçimlerini ve hikâyedeki rollerini Mine Yağız ile
+  konuşuyoruz.
+gun: 2026-06-28
+baslangic: 16:00
+bitis: 17:00
 salon: Ana Sahne
-tur: kapanis
+tur: konusma
 yil: 2026
 sira: 10
 taslak: true
