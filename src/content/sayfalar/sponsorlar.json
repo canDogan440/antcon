@@ -61,7 +61,7 @@
       {
         "ad": "Gümüş Sponsor",
         "fiyat": "20.000 TL",
-        "aciklama": "",
+        "aciklama": "x",
         "oneCikan": false,
         "ozellikler": [
           "Ana sahnede açılış ve kapanışta anons",
@@ -75,25 +75,13 @@
       {
         "ad": "Bronz Sponsor",
         "fiyat": "10.000 TL",
-        "aciklama": "",
+        "aciklama": "x",
         "oneCikan": false,
         "ozellikler": [
           "Fuaye alanında stant",
           "Sahnede ve etkinlik alanında logo",
           "Basılı ve dijital materyalde logo",
           "Sosyal medya paylaşımı"
-        ]
-      },
-      {
-        "ad": "Destekçi / Medya",
-        "fiyat": "Ayni destek",
-        "aciklama": "Ürün, hizmet veya medya desteğiyle katkı.",
-        "oneCikan": false,
-        "ozellikler": [
-          "Web sitesi destekçiler bölümünde logo",
-          "Program kitapçığında teşekkür",
-          "Sosyal medyada anılma",
-          "2 adet davetiye"
         ]
       }
     ]
