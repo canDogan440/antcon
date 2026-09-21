@@ -1,17 +1,11 @@
 ---
-# ----------------------------------------------------------------
-# TASLAK - sitede gorunmez.
-# Bu oturum ornek olarak yazildi, gercek program degil.
-# Gercek 2026 programini girdiginizde taslak: false yapin.
-# ----------------------------------------------------------------
-baslik: Dijital Çizgi Roman Atölyesi
-aciklama: >-
-  Karakter eskizinden final panele kadar dijital çizim iş akışı. Tablet
-  getirmeniz önerilir; sınırlı sayıda cihaz alanda sağlanacaktır.
-baslangic: '11:00'
-bitis: '12:30'
-gun: '2026-06-28'
-salon: Atölye Salonu A
+baslik: Poketopu Tasarlama Atölyesi
+aciklama: Kendi Poketopu tasarımını oluşturabileceğin, yaratıcılığını kullanarak
+  kişiselleştirebileceğin keyifli bir atölye.
+gun: 2026-06-28
+baslangic: 10:00
+bitis: 13:00
+salon: Fuaye
 tur: atolye
 yil: 2026
 sira: 3
