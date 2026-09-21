@@ -1,7 +1,7 @@
 ---
 soru: Kostüm giymek zorunlu mu?
 kategori: katilim
-yil: 2026
+yil: 2027
 taslak: false
 ---
 Elbette hayır. Katılımcılarımızın çoğu kostüm giymeyi tercih ediyor ama isterseniz günlük kıyafetlerinizle de katılım sağlayabilirsiniz.
