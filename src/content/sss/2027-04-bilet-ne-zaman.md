@@ -1,13 +1,10 @@
 ---
-soru: Bilet satışı ne zaman başlayacak?
+soru: AntCon'27 bilet satışı ne zaman başlayacak?
 kategori: bilet
 yil: 2027
 sira: 4
 taslak: false
 ---
+Bilet satışı henüz başlamadı. Tarih duyurulduktan sonra erken kayıt biletleri satışa çıkacak.
 
-Bilet satışı henüz başlamadı. Etkinlik tarihi kesinleşmeden bilet satışını
-açmıyoruz; tarih duyurulduktan sonra erken kayıt biletleri satışa çıkacak.
-
-Satış başladığında haberdar olmak için [iletişim formundan](/iletisim) bize
-yazın, duyuru listesine ekleyelim.
+Satış başladığında haberdar olmak için sosyal medya hesabımızı takip edebilirsiniz.
